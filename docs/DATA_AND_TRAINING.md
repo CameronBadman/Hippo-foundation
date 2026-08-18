@@ -87,8 +87,10 @@ Primary sources:
   adapter lineage remain unresolved.
 - ContractNLI: entailment, contradiction, and not-mentioned decisions over long
   contracts.
-- First-party open-world logic and process-state generators are declared but
-  not implemented or independently verified.
+- The first-party open-world Phase 2A training/development fixture is locally
+  implemented and independently cross-checked, but is not admitted or
+  authorized for training. The process-state generator and private
+  confirmatory generator remain unimplemented.
 - SocialIQA train is a possible later shaping source after ATOMIC lineage
   closure and rights review. Its public validation partition is development
   data and cannot be confirmatory.
@@ -158,7 +160,7 @@ validates and replays these examples but does not train on them. Any later
 training phase requires a separate authorization and may scale only objectives
 that pass shortcut and leakage tests.
 
-### Phase 2: exact policy learning
+### Phase 2: exact policy preparation, then separately authorized learning
 
 Use procedural graphs with known ground truth to train:
 
@@ -172,6 +174,11 @@ Use procedural graphs with known ground truth to train:
 
 Procedural generation must split by world, generator grammar, relation
 composition, and seed family. A random example split is insufficient.
+
+The current Phase 2A implementation prepares and verifies only the first two
+read-path decisions. It contains no trainer and does not authorize use of its
+candidate artifacts. Phase 2B next covers reversible staged-write decisions;
+any actual learning remains behind a separate authorization boundary.
 
 ### Phase 3: specialist multitask shaping
 

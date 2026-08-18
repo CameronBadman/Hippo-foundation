@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v1/policy-example.schema.json",
+  "title": "Phase 2 v1 open-world policy example",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "example_id",
+    "source_id",
+    "role",
+    "prediction_time",
+    "query",
+    "candidates",
+    "target",
+    "evidence",
+    "risk",
+    "dependencies",
+    "quarantine",
+    "provenance",
+    "input_sha256",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "policy_example" },
+    "example_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+    "source_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "role": { "enum": ["training", "development"] },
+    "prediction_time": { "$ref": "#/$defs/world" },
+    "query": { "$ref": "#/$defs/atom" },
+    "candidates": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "payload"],
+      "properties": {
+        "action": { "$ref": "#/$defs/action" },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["truth"],
+              "properties": { "truth": { "type": "boolean" } }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positive_proofs", "negative_proofs", "useful_frontier_candidate_ids"],
+      "properties": {
+        "positive_proofs": { "type": "array", "items": { "$ref": "#/$defs/proof" } },
+        "negative_proofs": { "type": "array", "items": { "$ref": "#/$defs/proof" } },
+        "useful_frontier_candidate_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "risk_class", "action_costs"],
+      "properties": {
+        "policy_id": { "const": "read-low-risk-v1" },
+        "risk_class": { "const": "low" },
+        "action_costs": { "$ref": "#/$defs/actionCosts" }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grammar_id",
+        "world_id",
+        "relation_composition_id",
+        "seed_family_id",
+        "template_id",
+        "path_length_bucket"
+      ],
+      "properties": {
+        "grammar_id": { "type": "string", "minLength": 1 },
+        "world_id": { "type": "string", "minLength": 1 },
+        "relation_composition_id": { "type": "string", "minLength": 1 },
+        "seed_family_id": { "type": "string", "minLength": 1 },
+        "template_id": { "type": "string", "minLength": 1 },
+        "path_length_bucket": { "enum": ["zero", "one", "two", "cyclic"] }
+      }
+    },
+    "quarantine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index_id", "index_sha256", "decision", "reasons"],
+      "properties": {
+        "index_id": { "type": "string", "minLength": 1 },
+        "index_sha256": { "$ref": "#/$defs/digest" },
+        "decision": { "const": "clear" },
+        "reasons": {
+          "type": "array",
+          "maxItems": 0,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generator_id", "algorithm_id", "spec_sha256", "seed", "ordinal"],
+      "properties": {
+        "generator_id": { "const": "hf-logic-owa-v1" },
+        "algorithm_id": { "const": "signed-ground-horn-generator-v1" },
+        "spec_sha256": { "$ref": "#/$defs/digest" },
+        "seed": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "ordinal": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    },
+    "input_sha256": { "$ref": "#/$defs/digest" },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "action": {
+      "enum": ["return", "abstain_unknown", "abstain_conflict", "continue", "stop_irrelevant"]
+    },
+    "atom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate", "arguments", "polarity"],
+      "properties": {
+        "predicate": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "arguments": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]*$" }
+        },
+        "polarity": { "enum": ["positive", "negative"] }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_id", "type_id"],
+      "properties": {
+        "entity_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]*$" },
+        "type_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]*$" }
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate_id", "argument_types"],
+      "properties": {
+        "predicate_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "argument_types": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]*$" }
+        }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact_id", "atom"],
+      "properties": {
+        "fact_id": { "type": "string", "minLength": 1 },
+        "atom": { "$ref": "#/$defs/atom" }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "antecedents", "consequent"],
+      "properties": {
+        "rule_id": { "type": "string", "minLength": 1 },
+        "antecedents": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/atom" }
+        },
+        "consequent": { "$ref": "#/$defs/atom" }
+      }
+    },
+    "frontierCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "observation", "cost"],
+      "properties": {
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "observation": { "$ref": "#/$defs/atom" },
+        "cost": { "type": "number", "minimum": 0, "maximum": 1000000 }
+      }
+    },
+    "world": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entities", "predicates", "facts", "rules", "frontier"],
+      "properties": {
+        "entities": { "type": "array", "minItems": 1, "maxItems": 64, "items": { "$ref": "#/$defs/entity" } },
+        "predicates": { "type": "array", "minItems": 1, "maxItems": 64, "items": { "$ref": "#/$defs/predicate" } },
+        "facts": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/fact" } },
+        "rules": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/rule" } },
+        "frontier": { "type": "array", "maxItems": 64, "items": { "$ref": "#/$defs/frontierCandidate" } }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proof_id", "steps"],
+      "properties": {
+        "proof_id": { "type": "string", "minLength": 1 },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "cost": { "type": "number", "minimum": 0, "maximum": 1000000 },
+    "actionCosts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["return", "abstain_unknown", "abstain_conflict", "continue", "stop_irrelevant"],
+      "properties": {
+        "return": { "$ref": "#/$defs/cost" },
+        "abstain_unknown": { "$ref": "#/$defs/cost" },
+        "abstain_conflict": { "$ref": "#/$defs/cost" },
+        "continue": { "$ref": "#/$defs/cost" },
+        "stop_irrelevant": { "$ref": "#/$defs/cost" }
+      }
+    }
+  }
+}

@@ -12,6 +12,7 @@ dependencies = [
 [project.scripts]
 hf-phase0 = "hippocampus_foundation.phase0.cli:main"
 hf-phase1 = "hippocampus_foundation.phase1.cli:main"
+hf-phase2 = "hippocampus_foundation.phase2.cli:main"
 
 [dependency-groups]
 dev = [

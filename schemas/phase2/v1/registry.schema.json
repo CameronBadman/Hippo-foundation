@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v1/registry.schema.json",
+  "title": "Phase 2 v1 training-source registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_kind",
+    "registry_id",
+    "created_at",
+    "required_compatibility",
+    "sources"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "registry_kind": { "const": "training_sources" },
+    "registry_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "required_compatibility": { "const": "commercial" },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/source" }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nullableDigest": {
+      "oneOf": [
+        { "$ref": "#/$defs/digest" },
+        { "type": "null" }
+      ]
+    },
+    "dependencyFamilies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grammar", "world", "relation_composition", "seed_family"],
+      "properties": {
+        "grammar": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "world": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "relation_composition": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "seed_family": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "licence_review_id",
+        "provenance_basis",
+        "review_status",
+        "commercial_compatibility"
+      ],
+      "properties": {
+        "licence_review_id": { "type": "string", "minLength": 1 },
+        "provenance_basis": { "const": "first_party_procedural" },
+        "review_status": { "enum": ["pending", "approved", "rejected"] },
+        "commercial_compatibility": {
+          "enum": ["intended_pending_review", "verified", "incompatible"]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "dataset_family",
+        "role",
+        "resolved_version",
+        "generator_id",
+        "generator_spec_sha256",
+        "artifact_sha256",
+        "rights",
+        "admission_state",
+        "blockers",
+        "dependency_families",
+        "training_authorized"
+      ],
+      "properties": {
+        "source_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "dataset_family": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "role": {
+          "enum": ["training", "development", "diagnostic", "confirmatory"]
+        },
+        "resolved_version": { "type": "string", "minLength": 1 },
+        "generator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "generator_spec_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_sha256": { "$ref": "#/$defs/nullableDigest" },
+        "rights": { "$ref": "#/$defs/rights" },
+        "admission_state": { "enum": ["declared", "admitted", "retired"] },
+        "blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "dependency_families": { "$ref": "#/$defs/dependencyFamilies" },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}

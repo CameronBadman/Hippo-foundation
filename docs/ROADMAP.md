@@ -15,28 +15,31 @@ families.
 ## Current checkpoint
 
 Phase 0 v3 and Phase 1 v2 implement fail-closed governance and deterministic
-data-preparation controls, but both gates remain blocked. There is no trainer,
-ML runtime dependency, authorized training corpus, model checkpoint, or
-performance result. The immediate local work can establish task semantics and
-data integrity while storage, licensing, and custody dependencies are resolved
-in parallel.
+data-preparation controls, but both gates remain blocked. Phase 2A now provides
+a reproducible 32-example procedural open-world candidate slice, two agreeing
+oracles, and a clean training/development dependency audit. It is bound only to
+a local reservation quarantine fixture and pending first-party rights records.
+There is no trainer, ML runtime dependency, authorized training corpus, model
+checkpoint, or performance result.
 
 ## Programme
 
-### 1. Prove open-world semantics locally
+### 1. Prove open-world semantics locally — implemented
 
-Implement the Phase 2A procedural open-world slice specified in
-`NEXT_MILESTONE.md`. It must produce deterministic training/development
-candidates, compare two independent oracles, enforce dependency-family split
-isolation, and remain incapable of training a model.
+The Phase 2A slice in `PHASE_2A_RUNBOOK.md` produces deterministic
+training/development candidates, compares two independent oracles, enforces
+dependency-family split isolation, and remains incapable of training a model.
 
-Exit when public fixtures reproduce byte-for-byte, oracle disagreement is
-zero, cross-role overlap is zero, and all artifacts still declare
-`training_authorized: false`.
+The checked-in fixtures reproduce byte-for-byte, oracle disagreement is zero,
+cross-role overlap is zero, and all artifacts declare
+`training_authorized: false`. This completes the local semantic milestone; it
+does not establish full evaluation-quarantine coverage, rights approval, data
+admission, or training readiness.
 
 ### 2. Prove staged-write semantics locally
 
-Add a separate process-state and write-policy generator covering `attach`,
+Implement the Phase 2B plan in `NEXT_MILESTONE.md`: add a separate process-state
+and write-policy generator covering `attach`,
 `update`, `deprecate`, `new_node`, `duplicate`, `conflict`, `stage`, and
 `ignore`. Split by operation family, grammar, world, composition, and seed
 family before generation. Verify state transitions with an independently
@@ -94,7 +97,8 @@ reporting `training_authorized: false`.
 Add a separate gate binding admitted training hashes, frozen role-exclusive
 splits, mixture ratios, model configuration, seed plan, dependency versions,
 checkpoint lineage, evaluator versions, and accountable approval. Heavy ML
-dependencies and training commands remain outside Phase 0 and Phase 1.
+dependencies and training commands remain outside Phase 0, Phase 1, and the
+preparation-only Phase 2 CLI.
 
 Before authorization, require majority, random, degree/path, lexical,
 source/template-only, dense-retrieval, and label-shuffle baselines. Define

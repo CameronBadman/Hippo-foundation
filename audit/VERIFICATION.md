@@ -1,4 +1,4 @@
-# Phase 0 v3 and Phase 1 v2 verification record
+# Phase 0 v3, Phase 1 v2, and Phase 2A verification record
 
 Verification date: 2026-08-18
 
@@ -7,13 +7,16 @@ Verification date: 2026-08-18
 - Missing `src/`, `tests/`, and `scripts/` content was restored without
   overwriting existing paths from the local source distribution with SHA-256
   `6aa097cfb7d03fc9a87901eb69afb63fc0a876984dc0d78944eac119766a24b6`.
-- `.venv/bin/pytest -q` passed all 104 tests. New regressions cover arbitrary
+- `.venv/bin/pytest -q` passed all 115 tests. The Phase 0/1 regressions cover arbitrary
   undeclared encoder entries, legacy encoder-attestation rejection, access-log
   schema and symlink safety, externally anchored suffix-truncation detection,
   consuming evaluation actions, and rejection of development partitions as
-  confirmatory data.
-- `uv lock --check`, Python bytecode compilation, both CLI help surfaces, and
-  Phase 0 v2 source/evaluation registry validation passed.
+  confirmatory data. New Phase 2 regressions cover deterministic regeneration,
+  all open-world actions, explicit negation, cycles, oracle faults, quarantine
+  rejection, cross-role overlap, target tampering, output collisions, symlinked
+  output parents, schema locks, and the absence of a training surface.
+- `uv lock --check`, Python bytecode compilation, all three CLI help surfaces,
+  and Phase 0 v2 source/evaluation registry validation passed.
 - Both current fail-closed gate reports were regenerated with the restored
   evidence. Phase 0 now exposes missing per-seal access logs/anchors and rejects
   SocialIQA validation as confirmatory. Phase 1 rejects the legacy encoder
@@ -23,12 +26,38 @@ Verification date: 2026-08-18
   encoder-verification schema. The latter is
   `sha256:e7fbdb108a9cd2750422668c4f35a0fee4a310afaf9d289065028ee3fd3e402d`.
 - A fresh source distribution and wheel were built into a temporary directory.
-  Wheel inspection found both console scripts and all schemas, including the
-  new Phase 1 v2 encoder schema. A temporary target install loaded the package
-  from that wheel and reproduced the Phase 0 v3 and Phase 1 v2 schema locks.
-- Ruff was not rerun in this restoration review, so no current lint claim is
-  made. The declared runtime dependencies remain only `jsonschema` and
-  `rfc8785`; neither is an ML framework.
+  Wheel inspection found all three console scripts and all schemas, including
+  Phase 1 v2 and Phase 2 v1. A clean temporary environment installed the wheel
+  plus its declared dependencies, loaded the package from that wheel,
+  reproduced the Phase 0 v3, Phase 1 v2, and Phase 2 v1 schema locks, verified
+  both checked-in Phase 2 roles, and reproduced the clean corpus audit.
+- Ruff check and format checks passed for the Phase 2 package and its changed
+  contract/surface tests. No whole-repository Ruff claim is made. The declared
+  runtime dependencies remain only `jsonschema` and `rfc8785`; neither is an ML
+  framework.
+
+## Phase 2A procedural slice
+
+- Four Phase 2 v1 schemas validate and reproduce their independent RFC
+  8785/SHA-256 lock anchors.
+- The checked-in training-role JSONL is 38,254 bytes with SHA-256
+  `fba8244ede343e9dd52ac1f769f6f107607a4aae67c51a9867d9615767241d0c`.
+  The development-role JSONL is 38,638 bytes with SHA-256
+  `91729b18f7717fc15f6bd700f4b0585fb83049e0f5a924c588976affa7e506a4`.
+- Each role contains 16 examples and all eight declared case families twice.
+  Agenda closure and bounded proof-tree enumeration agree on reachability,
+  frontier utility, payload, and action for every example.
+- Corpus audit `corpus-audit:1ff9047ac43a43190624675371f19647b40b2a286a4972fddc77378bdb152eba`
+  reports no cross-role artifact, exact-input, normalized-input, grammar,
+  world, relation-composition, or seed-family overlap.
+- The fixture is clear only against the exactly bound local index
+  `phase2-public-reservations-v1`; it is not evidence of cleanliness against the
+  missing complete Phase 0 quarantine union. Both source rights reviews remain
+  pending, the repository has no selected project licence, and every record
+  keeps `training_authorized: false`.
+- Detached leave-one-world-out diagnostics are majority 0.375, grammar 0.0,
+  template 0.375, and path length 0.5. They are shortcut checks on 16 examples
+  per role, not model-performance results.
 
 ## Restored Drive authorization and fallback record
 

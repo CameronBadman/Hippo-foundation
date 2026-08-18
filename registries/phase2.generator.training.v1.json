@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "record_kind": "generator_spec",
+  "spec_id": "hf-logic-owa-training-spec-v1",
+  "created_at": "2026-08-18T12:00:00Z",
+  "source_id": "hf-logic-owa-training-v1",
+  "role": "training",
+  "generator_id": "hf-logic-owa-v1",
+  "algorithm_id": "signed-ground-horn-generator-v1",
+  "template_set_id": "open-world-read-traversal-v1",
+  "seed": 2026081801,
+  "example_count": 16,
+  "dependency_families": {
+    "grammar": "hf-logic-owa-training:grammar",
+    "world": "hf-logic-owa-training:world",
+    "relation_composition": "hf-logic-owa-training:composition",
+    "seed_family": "hf-logic-owa-training:seed"
+  },
+  "rights_binding_id": "hf-logic-owa-training-rights-v1",
+  "quarantine_policy_id": "phase0-v2-exact-and-near-match",
+  "bounds": {
+    "max_proof_depth": 16,
+    "max_rule_firings": 256,
+    "max_frontier_candidates": 8
+  },
+  "risk_policy": {
+    "policy_id": "read-low-risk-v1",
+    "risk_class": "low",
+    "action_costs": {
+      "return": 5,
+      "abstain_unknown": 1,
+      "abstain_conflict": 1,
+      "continue": 2,
+      "stop_irrelevant": 1
+    }
+  },
+  "training_authorized": false
+}

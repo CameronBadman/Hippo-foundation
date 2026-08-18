@@ -1,0 +1,39 @@
+{
+  "adapter_id": "phase2-reservation-fixture-adapter-v1",
+  "adapter_sha256": "sha256:b4c7bdd72aac3509beef8d92219d270e829ac5b4a0cea1c229f5eace4fffcc99",
+  "archive_sha256": "sha256:db17225de08523f69dfaecfff916cad42b7cd2135be28ac177783e3a03759500",
+  "bundle_sha256": "sha256:7b5dca48a2055f5624c3c6b30bf13c44d1b77bbffb86392f54d6e144fcd2b0f5",
+  "coverage": {
+    "covered_record_count": 1,
+    "expected_dependency_count": 1,
+    "record_count": 1,
+    "resolved_dependency_count": 1,
+    "selector_count": 1,
+    "uncovered_record_count": 0,
+    "unresolved_dependency_count": 0
+  },
+  "dataset_id": "phase2-reservation-fixture",
+  "record_kind": "quarantine_contribution",
+  "records": [
+    {
+      "expected_dependency_count": 1,
+      "record_commitment": "sha256:3338094ca1a3a97b412cf3755103175a89cffad6428ca813a520156822ab2368",
+      "resolved_dependency_count": 1,
+      "selectors": {
+        "fingerprints": [],
+        "identifiers": [
+          {
+            "namespace": "generator.world",
+            "source_version": null,
+            "value": "hf-logic-owa-reserved:world:w000000"
+          }
+        ],
+        "normalized_hashes": [],
+        "raw_hashes": []
+      }
+    }
+  ],
+  "resolved_version": "v1",
+  "schema_version": "2.0.0",
+  "seal_id": "phase2-public-reservations-fixture-v1"
+}

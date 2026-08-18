@@ -1,0 +1,22 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "quarantine_index",
+  "index_id": "phase2-public-reservations-v1",
+  "closure_policy_id": "quarantine-closure-v2",
+  "source_seal_ids": [
+    "phase2-public-reservations-fixture-v1"
+  ],
+  "contribution_sha256s": [
+    "sha256:d1042c5062b8c6c9b6177c444b8e1b9edc5dc29488b05f7de3b86dc45082e677"
+  ],
+  "identifiers": [
+    {
+      "namespace": "generator.world",
+      "value": "hf-logic-owa-reserved:world:w000000",
+      "source_version": null
+    }
+  ],
+  "raw_hashes": [],
+  "normalized_hashes": [],
+  "fingerprints": []
+}

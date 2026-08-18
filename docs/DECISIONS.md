@@ -85,6 +85,16 @@ no train, fit, optimize, or model command, and its gate always emits
 `training_authorized: false`. A separately reviewed authorization boundary is
 required before any future training work.
 
+### 2026-08-18: Phase 2 procedural data remains preparation only
+
+Phase 2A freezes signed open-world policy examples and generates role-disjoint
+training/development candidates with agenda and proof-tree verification. Its
+local reservation quarantine index is a fixture, not the complete Phase 0
+union. Source rights remain pending, every artifact declares
+`training_authorized: false`, and the CLI exposes no training or model surface.
+Human-readable case names are prohibited from prediction metadata because they
+create a direct label shortcut.
+
 ### 2026-08-17: frozen Phase 1 text encoder
 
 The prior encoder bake-off selects `Alibaba-NLP/gte-modernbert-base` at revision

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v1/artifact.schema.json",
+  "title": "Phase 2 v1 generation and audit artifacts",
+  "oneOf": [
+    { "$ref": "#/$defs/manifest" },
+    { "$ref": "#/$defs/integrityReport" },
+    { "$ref": "#/$defs/corpusAudit" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "role": { "enum": ["training", "development"] },
+    "actionCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["return", "abstain_unknown", "abstain_conflict", "continue", "stop_irrelevant"],
+      "properties": {
+        "return": { "$ref": "#/$defs/count" },
+        "abstain_unknown": { "$ref": "#/$defs/count" },
+        "abstain_conflict": { "$ref": "#/$defs/count" },
+        "continue": { "$ref": "#/$defs/count" },
+        "stop_irrelevant": { "$ref": "#/$defs/count" }
+      }
+    },
+    "caseCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positive", "negative", "unknown", "conflict", "continue", "stop_irrelevant", "cycle_reachable", "cycle_unreachable"],
+      "properties": {
+        "positive": { "$ref": "#/$defs/count" },
+        "negative": { "$ref": "#/$defs/count" },
+        "unknown": { "$ref": "#/$defs/count" },
+        "conflict": { "$ref": "#/$defs/count" },
+        "continue": { "$ref": "#/$defs/count" },
+        "stop_irrelevant": { "$ref": "#/$defs/count" },
+        "cycle_reachable": { "$ref": "#/$defs/count" },
+        "cycle_unreachable": { "$ref": "#/$defs/count" }
+      }
+    },
+    "dependencyIds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grammar", "world", "relation_composition", "seed_family"],
+      "properties": {
+        "grammar": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "world": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "relation_composition": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "seed_family": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "sha256"],
+      "properties": {
+        "bytes": { "$ref": "#/$defs/count" },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "base": {
+      "type": "object",
+      "required": ["schema_version", "record_kind", "created_at", "source_id", "role", "complete", "blockers", "training_authorized"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "type": "string" },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "source_id": { "type": "string", "minLength": 1 },
+        "role": { "$ref": "#/$defs/role" },
+        "complete": { "type": "boolean" },
+        "blockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "training_authorized": { "const": false }
+      }
+    },
+    "manifest": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version", "record_kind", "manifest_id", "created_at", "source_id", "role",
+            "generator_id", "algorithm_id", "registry_sha256", "spec_sha256",
+            "quarantine_index_id", "quarantine_index_sha256", "examples", "integrity_report_sha256", "example_count",
+            "action_counts", "case_counts", "dependency_ids", "input_sha256s",
+            "normalized_input_sha256s", "complete", "blockers", "training_authorized"
+          ],
+          "properties": {
+            "schema_version": true,
+            "record_kind": { "const": "generation_manifest" },
+            "manifest_id": { "type": "string", "minLength": 1 },
+            "created_at": true,
+            "source_id": true,
+            "role": true,
+            "generator_id": { "const": "hf-logic-owa-v1" },
+            "algorithm_id": { "const": "signed-ground-horn-generator-v1" },
+            "registry_sha256": { "$ref": "#/$defs/digest" },
+            "spec_sha256": { "$ref": "#/$defs/digest" },
+            "quarantine_index_id": { "type": "string", "minLength": 1 },
+            "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+            "examples": { "$ref": "#/$defs/identity" },
+            "integrity_report_sha256": { "$ref": "#/$defs/digest" },
+            "example_count": { "$ref": "#/$defs/count" },
+            "action_counts": { "$ref": "#/$defs/actionCounts" },
+            "case_counts": { "$ref": "#/$defs/caseCounts" },
+            "dependency_ids": { "$ref": "#/$defs/dependencyIds" },
+            "input_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+            "normalized_input_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+            "complete": true,
+            "blockers": true,
+            "training_authorized": true
+          }
+        }
+      ]
+    },
+    "oracle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forward_oracle_id", "proof_tree_oracle_id", "agreement", "disagreements"],
+      "properties": {
+        "forward_oracle_id": { "const": "agenda-signed-closure-v1" },
+        "proof_tree_oracle_id": { "const": "bounded-proof-tree-v1" },
+        "agreement": { "type": "boolean" },
+        "disagreements": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "shortcutDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "majority_accuracy", "grammar_accuracy", "template_accuracy", "path_length_accuracy"],
+      "properties": {
+        "method": { "const": "leave-one-world-out-v1" },
+        "majority_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "grammar_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "template_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "path_length_accuracy": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "integrityReport": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version", "record_kind", "report_id", "created_at", "source_id", "role",
+            "spec_sha256", "quarantine_index_id", "quarantine_index_sha256", "examples_sha256", "example_count",
+            "action_counts", "case_counts", "oracle", "provenance_complete", "quarantine_clear",
+            "exact_duplicate_count", "normalized_duplicate_count", "registry_role_overlap_count",
+            "dependency_ids", "input_sha256s", "normalized_input_sha256s", "shortcut_diagnostics",
+            "complete", "blockers", "training_authorized"
+          ],
+          "properties": {
+            "schema_version": true,
+            "record_kind": { "const": "generation_integrity_report" },
+            "report_id": { "type": "string", "minLength": 1 },
+            "created_at": true,
+            "source_id": true,
+            "role": true,
+            "spec_sha256": { "$ref": "#/$defs/digest" },
+            "quarantine_index_id": { "type": "string", "minLength": 1 },
+            "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+            "examples_sha256": { "$ref": "#/$defs/digest" },
+            "example_count": { "$ref": "#/$defs/count" },
+            "action_counts": { "$ref": "#/$defs/actionCounts" },
+            "case_counts": { "$ref": "#/$defs/caseCounts" },
+            "oracle": { "$ref": "#/$defs/oracle" },
+            "provenance_complete": { "type": "boolean" },
+            "quarantine_clear": { "type": "boolean" },
+            "exact_duplicate_count": { "$ref": "#/$defs/count" },
+            "normalized_duplicate_count": { "$ref": "#/$defs/count" },
+            "registry_role_overlap_count": { "$ref": "#/$defs/count" },
+            "dependency_ids": { "$ref": "#/$defs/dependencyIds" },
+            "input_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+            "normalized_input_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+            "shortcut_diagnostics": { "$ref": "#/$defs/shortcutDiagnostics" },
+            "complete": true,
+            "blockers": true,
+            "training_authorized": true
+          }
+        }
+      ]
+    },
+    "overlap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left_source_id", "left_role", "right_source_id", "right_role", "kind", "values"],
+      "properties": {
+        "left_source_id": { "type": "string", "minLength": 1 },
+        "left_role": { "$ref": "#/$defs/role" },
+        "right_source_id": { "type": "string", "minLength": 1 },
+        "right_role": { "$ref": "#/$defs/role" },
+        "kind": { "enum": ["artifact_sha256", "input_sha256", "normalized_input_sha256", "grammar", "world", "relation_composition", "seed_family"] },
+        "values": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "corpusAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "created_at", "audit_id", "manifest_sha256s", "source_ids", "roles", "overlaps", "clean", "training_authorized"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "const": "corpus_audit" },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "audit_id": { "type": "string", "minLength": 1 },
+        "manifest_sha256s": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "source_ids": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "roles": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/role" } },
+        "overlaps": { "type": "array", "items": { "$ref": "#/$defs/overlap" } },
+        "clean": { "type": "boolean" },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}

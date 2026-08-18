@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v1/generator-spec.schema.json",
+  "title": "Phase 2 v1 procedural generator specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "spec_id",
+    "created_at",
+    "source_id",
+    "role",
+    "generator_id",
+    "algorithm_id",
+    "template_set_id",
+    "seed",
+    "example_count",
+    "dependency_families",
+    "rights_binding_id",
+    "quarantine_policy_id",
+    "bounds",
+    "risk_policy",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "generator_spec" },
+    "spec_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "source_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "role": { "enum": ["training", "development"] },
+    "generator_id": { "const": "hf-logic-owa-v1" },
+    "algorithm_id": { "const": "signed-ground-horn-generator-v1" },
+    "template_set_id": { "const": "open-world-read-traversal-v1" },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "example_count": {
+      "type": "integer",
+      "minimum": 8,
+      "maximum": 8000,
+      "multipleOf": 8
+    },
+    "dependency_families": { "$ref": "#/$defs/dependencyFamilies" },
+    "rights_binding_id": { "type": "string", "minLength": 1 },
+    "quarantine_policy_id": { "const": "phase0-v2-exact-and-near-match" },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_proof_depth", "max_rule_firings", "max_frontier_candidates"],
+      "properties": {
+        "max_proof_depth": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "max_rule_firings": { "type": "integer", "minimum": 1, "maximum": 4096 },
+        "max_frontier_candidates": { "type": "integer", "minimum": 1, "maximum": 64 }
+      }
+    },
+    "risk_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "risk_class", "action_costs"],
+      "properties": {
+        "policy_id": { "const": "read-low-risk-v1" },
+        "risk_class": { "const": "low" },
+        "action_costs": { "$ref": "#/$defs/actionCosts" }
+      }
+    },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "dependencyFamilies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grammar", "world", "relation_composition", "seed_family"],
+      "properties": {
+        "grammar": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "world": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "relation_composition": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" },
+        "seed_family": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$" }
+      }
+    },
+    "cost": { "type": "number", "minimum": 0, "maximum": 1000000 },
+    "actionCosts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["return", "abstain_unknown", "abstain_conflict", "continue", "stop_irrelevant"],
+      "properties": {
+        "return": { "$ref": "#/$defs/cost" },
+        "abstain_unknown": { "$ref": "#/$defs/cost" },
+        "abstain_conflict": { "$ref": "#/$defs/cost" },
+        "continue": { "$ref": "#/$defs/cost" },
+        "stop_irrelevant": { "$ref": "#/$defs/cost" }
+      }
+    }
+  }
+}

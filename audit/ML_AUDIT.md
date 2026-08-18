@@ -1,4 +1,4 @@
-# Machine-learning integrity audit — Phases 0 and 1
+# Machine-learning integrity audit — Phases 0, 1, and 2A
 
 Updated: 2026-08-18
 
@@ -9,9 +9,11 @@ The current operational decisions are only:
 1. whether registered source acquisition or transformation may begin under the
    Phase 0 v3 evidence controls; and
 2. whether deterministic Phase 1 v2 development-data artifacts satisfy their
-   frozen contracts.
+   frozen contracts; and
+3. whether the local Phase 2A procedural candidates reproduce exactly, agree
+   across two oracles, and remain isolated across training/development roles.
 
-Neither decision permits model training. There is no measured predictive
+None of these decisions permits model training. There is no measured predictive
 performance and no basis for a claim about model quality, safety, calibration,
 or usefulness.
 
@@ -91,9 +93,19 @@ because no training or model-selection phase is authorized.
 - Data-producing Phase 1 commands require a ready Phase 0 v3 transformation
   report and the exact quarantine index named in that report. They refuse output
   collisions, re-hash inputs before and after processing, and write atomically.
-- Runtime dependencies contain no ML framework. Neither CLI exposes `train`,
-  `fit`, `optimize`, or `model`; both gates and all Phase 1 artifact manifests
-  hard-code `training_authorized: false`.
+- Phase 2A has four separately locked contracts, a role-aware source registry,
+  signed typed ground-Horn worlds, bounded frontiers, agenda and proof-tree
+  oracles, exact/normalized duplicate checks, quarantine matching, atomic
+  no-overwrite output, deterministic regeneration, and cross-role artifact and
+  dependency audits.
+- The 16 training-role and 16 development-role checked-in candidates reproduce
+  at their registered hashes. All eight declared case families appear twice in
+  each role, the two oracles agree, and the corpus audit finds no artifact,
+  exact-input, normalized-input, grammar, world, relation-composition, or
+  seed-family overlap. These are fixture observations, not model results.
+- Runtime dependencies contain no ML framework. None of the three CLIs exposes
+  `train`, `fit`, `optimize`, or `model`; both gates and every Phase 1/Phase 2
+  artifact hard-code `training_authorized: false`.
 
 These are implementation observations supported by code inspection and the
 tests recorded in `audit/VERIFICATION.md`. They do not prove the truth of input
@@ -226,13 +238,13 @@ the separate exact-scope identity observation, and no resource ID was bound.
 - Forty-three allowlisted legal/provenance responses are captured and rehashed
   into 10 subject-bound bundles with no missing catalogued document. All 10
   assessments remain pending; these captures are evidence for review, not legal
-  approvals. The two unimplemented first-party evaluations have empty bundles
-  and cannot be approved.
+  approvals. The two private first-party confirmatory evaluations have empty
+  bundles and cannot be approved.
 - Every confirmatory evaluation remains declared rather than sealed. Archive
-  hashes and adapters are missing; the two first-party generators and their
-  independent oracles are not implemented; dependency closure is incomplete;
-  no access logs or independent head anchors exist; and no public quarantine
-  union exists.
+  hashes and adapters are missing; private confirmatory generators and custody
+  are not implemented; dependency closure is incomplete; no access logs or
+  independent head anchors exist; and no complete Phase 0 quarantine union
+  exists. The public Phase 2A fixture does not satisfy those requirements.
 - The registered source bytes have not passed the v2 audit. Wikidata has not
   been acquired under the v2 gate. No structural inventory or admission receipt
   exists.
@@ -242,9 +254,11 @@ the separate exact-scope identity observation, and no resource ID was bound.
   `quarantine_decision: clear` records cannot yet be mechanically established.
   Phase 1 manifests bind hashes and semantics, but are detached unsigned JSON;
   the gate does not independently reopen the output files named by those hashes.
-- No label-only, metadata-only, degree-only, path-length, lexical-marker,
+- No model-based label-only, metadata-only, degree-only, lexical-marker,
   permutation, counterfactual, source-held-out, or generator-held-out baseline
-  has been run because no model or complete development corpus exists.
+  has been run because no model or complete development corpus exists. Phase 2A
+  records only small detached majority, grammar, template, and path-length
+  diagnostics; they are not predictive-performance measurements.
 
 ## Current gate interpretation
 
@@ -270,6 +284,18 @@ adaptation after seeing confirmatory results. The v2 envelope and contribution
 design can represent those dependency families, but no cleanliness claim is
 warranted until all seven envelopes are derived from pinned bytes, sealed, and
 recomputed into the public union.
+
+Within the local Phase 2A fixture, exact and normalized input hashes and all
+four allocated dependency families are disjoint across roles. The bound
+quarantine index is explicitly named `phase2-public-reservations-v1`; it is a
+local reservation fixture derived from a checked-in envelope, public
+contribution, and byte-bound selector/adapter fixtures. It is not evidence that
+the examples are clear of every future confirmatory dependency. An early draft
+placed case names in template and provenance metadata, and its template-only
+diagnostic reached 1.0. Those
+label-bearing fields were removed, case placement was seed-permuted, and the
+checked-in template-only diagnostic is 0.375. This correction happened before
+commit or model use.
 
 There is no optimization result to audit and no metric improvement to report.
 The Phase 1 algorithms do not consult confirmatory scores. An unusually strong
@@ -301,4 +327,12 @@ fixture-only blind spot. The lesson is generalized in the global ML lessons
 file. The held-out exposure established a second reusable lesson: item-level
 rights inspection must remain behind the holdout boundary, with legal review
 based on repository, publisher, and aggregate provenance evidence. That lesson
-is also recorded in the global file. No training or evaluation was performed.
+is also recorded in the global file. Phase 2A established another reusable
+near miss: human-readable generator case metadata can become a direct label
+channel even when the intended world semantics are sound. The global lesson now
+requires metadata/template-only diagnostics and removal or explicit exclusion
+of target-bearing generator fields. A final fixture-provenance near miss also
+established that every accepted evidence digest, including synthetic fixtures,
+must resolve to mechanically rehashable content rather than a schema-valid
+placeholder. That rule is recorded globally and enforced by a new derivation
+test. No training or evaluation was performed.

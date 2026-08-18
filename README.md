@@ -20,9 +20,17 @@ objective replay, and separate encoder identity/licensing readiness. The
 frozen Phase 0 v2 and Phase 1 v1 contracts remain available for historical
 reproducibility.
 
+Phase 2A is also implemented locally. Its preparation-only CLI deterministically
+generates and verifies 16 training-role and 16 development-role open-world
+policy candidates, compares agenda and proof-tree oracles, and audits artifact,
+input, grammar, world, relation-composition, and seed-family isolation. The
+slice is a contract and leakage-control fixture, not an admitted corpus: it is
+bound only to a local reservation quarantine index, its rights records remain
+pending, and no predictive performance was measured.
+
 Both current gates are blocked. Forty-three allowlisted legal/provenance
 documents have been captured into 10 digest-bound review packets; none is a
-human approval. Every assessment remains pending, and two unimplemented
+human approval. Every assessment remains pending, and two private confirmatory
 first-party evaluations have no external evidence documents. The native
 read-only Drive command, identity probe, binding command, and a fail-closed
 rclone fallback are implemented. The repaired native authorization sequence
@@ -34,12 +42,13 @@ desktop OAuth client file, and none was supplied to this work. The separately
 connected Drive integration has no accessible shared drive named `Data`, so it
 was not used as a substitute. Phase 0 also lacks
 verified source bytes, sealed evaluation envelopes with independently anchored
-access logs, the public quarantine index, structural inventories, and admission
-receipts. Phase 1 consequently
+access logs, the complete Phase 0 quarantine union, structural inventories,
+and admission receipts. Phase 1 consequently
 lacks a ready Phase 0 gate and its sample, graph, and objective manifests.
 
-There is no training command or ML runtime dependency. Every Phase 0 and Phase
-1 report mechanically sets `training_authorized` to `false`. The preserved v1
+There is no training command or ML runtime dependency. Every Phase 0, Phase 1,
+and Phase 2 artifact mechanically sets `training_authorized` to `false`. The
+preserved v1
 encoder record is historical and cannot satisfy the current Phase 1 v2 gate:
 its verifier checked the declared assets and Python files, but did not prove
 that no other snapshot entry existed. The snapshot and bake-off report are not
@@ -99,12 +108,13 @@ forced into a binary accept/reject outcome.
 - [Architecture](docs/ARCHITECTURE.md)
 - [Data and training strategy](docs/DATA_AND_TRAINING.md)
 - [Programme roadmap](docs/ROADMAP.md)
-- [Next milestone](docs/NEXT_MILESTONE.md)
 - [Dataset role and lineage review](audit/DATASET_REVIEW.md)
 - [Safety, leakage, and evaluation](docs/SAFETY_AND_EVALUATION.md)
 - [Decision log and open questions](docs/DECISIONS.md)
 - [Phase 0 runbook](docs/PHASE_0_RUNBOOK.md)
 - [Phase 1 data-preparation runbook](docs/PHASE_1_RUNBOOK.md)
+- [Phase 2A procedural runbook](docs/PHASE_2A_RUNBOOK.md)
+- [Next milestone: staged-write process state](docs/NEXT_MILESTONE.md)
 - [Machine-learning integrity audit](audit/ML_AUDIT.md)
 - [Verification record](audit/VERIFICATION.md)
 
@@ -119,22 +129,25 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Attempt the repaired native `colab drivemount --read-only` flow first. With
+1. Implement the local Phase 2B staged-write process-state slice without adding
+   a trainer or canonical-write surface.
+2. Attempt the repaired native `colab drivemount --read-only` flow first. With
    an approved protected desktop OAuth client, create exact-scope ADC in the
    same CPU runtime, run the read-only Drive identity probe, and bind its stable
    shared-Drive/root-folder IDs into a new registry plus fresh storage
    attestation. Use the gated rclone fallback only if native mounting fails.
    Do not grant a Drive scope broader than `drive.readonly`.
-2. Have an accountable human review the prepared evidence packets. Resolve or
+3. Have an accountable human review the prepared evidence packets. Resolve or
    reject every blocking finding; do not convert a pending scaffold into an
    approval mechanically.
-3. Capture and bind the remaining publisher checksum evidence.
-4. Pin adapters or generators, derive dependency-closed evaluation envelopes,
+4. Capture and bind the remaining publisher checksum evidence.
+5. Pin adapters or confirmatory generators, derive dependency-closed evaluation
+   envelopes,
    seal them to the custodian's offline public key, externally anchor each
    per-seal access-log head, and compile their public quarantine union.
-5. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
+6. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
    only if the Phase 0 acquisition gate becomes ready, then re-audit and build
    structural inventories and admission receipts.
-6. Run the Phase 1 data-preparation pipeline on admitted, quarantine-cleared
+7. Run the Phase 1 data-preparation pipeline on admitted, quarantine-cleared
    records and evaluate its gate. This still does not authorize training.
 # Hippo-foundation

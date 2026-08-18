@@ -30,7 +30,8 @@ def _assert_integer_domains_are_canonical_safe(value: object, path: str = "$") -
             isinstance(declared_type, list) and "integer" in declared_type
         )
         if is_integer:
-            assert value.get("maximum") == MAX_SAFE_JSON_INTEGER, path
+            assert "maximum" in value, path
+            assert value["maximum"] <= MAX_SAFE_JSON_INTEGER, path
         for key, child in value.items():
             _assert_integer_domains_are_canonical_safe(child, f"{path}/{key}")
     elif isinstance(value, list):
@@ -74,7 +75,7 @@ def test_rfc8785_canonicalization_is_order_independent() -> None:
 
 
 def test_active_schema_integer_domains_fit_rfc8785_safe_range() -> None:
-    for relative in ("schemas/phase0/v2", "schemas/phase1/v1"):
+    for relative in ("schemas/phase0/v2", "schemas/phase1/v1", "schemas/phase2/v1"):
         for schema_path in sorted((ROOT / relative).glob("*.schema.json")):
             _assert_integer_domains_are_canonical_safe(
                 json.loads(schema_path.read_text(encoding="utf-8")),

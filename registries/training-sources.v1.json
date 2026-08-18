@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "registry_kind": "training_sources",
+  "registry_id": "hippocampus-training-sources-v1",
+  "created_at": "2026-08-18T12:00:00Z",
+  "required_compatibility": "commercial",
+  "sources": [
+    {
+      "source_id": "hf-logic-owa-development-v1",
+      "dataset_family": "hf-logic-owa-v1",
+      "role": "development",
+      "resolved_version": "phase2-v1",
+      "generator_id": "hf-logic-owa-v1",
+      "generator_spec_sha256": "sha256:227a39432efcf9e37adb9b6f19214abed6365c7aa028848b7e4dd6938ecdbc96",
+      "artifact_sha256": "sha256:91729b18f7717fc15f6bd700f4b0585fb83049e0f5a924c588976affa7e506a4",
+      "rights": {
+        "licence_review_id": "hf-logic-owa-development-rights-v1",
+        "provenance_basis": "first_party_procedural",
+        "review_status": "pending",
+        "commercial_compatibility": "intended_pending_review"
+      },
+      "admission_state": "declared",
+      "blockers": [
+        "project_licence_not_selected",
+        "rights_review_not_final"
+      ],
+      "dependency_families": {
+        "grammar": "hf-logic-owa-development:grammar",
+        "world": "hf-logic-owa-development:world",
+        "relation_composition": "hf-logic-owa-development:composition",
+        "seed_family": "hf-logic-owa-development:seed"
+      },
+      "training_authorized": false
+    },
+    {
+      "source_id": "hf-logic-owa-training-v1",
+      "dataset_family": "hf-logic-owa-v1",
+      "role": "training",
+      "resolved_version": "phase2-v1",
+      "generator_id": "hf-logic-owa-v1",
+      "generator_spec_sha256": "sha256:05aa57250d3d364d1b21e9ff4c44664ae28734a4e8ce1417ad97fb167bc9c568",
+      "artifact_sha256": "sha256:fba8244ede343e9dd52ac1f769f6f107607a4aae67c51a9867d9615767241d0c",
+      "rights": {
+        "licence_review_id": "hf-logic-owa-training-rights-v1",
+        "provenance_basis": "first_party_procedural",
+        "review_status": "pending",
+        "commercial_compatibility": "intended_pending_review"
+      },
+      "admission_state": "declared",
+      "blockers": [
+        "project_licence_not_selected",
+        "rights_review_not_final"
+      ],
+      "dependency_families": {
+        "grammar": "hf-logic-owa-training:grammar",
+        "world": "hf-logic-owa-training:world",
+        "relation_composition": "hf-logic-owa-training:composition",
+        "seed_family": "hf-logic-owa-training:seed"
+      },
+      "training_authorized": false
+    }
+  ]
+}

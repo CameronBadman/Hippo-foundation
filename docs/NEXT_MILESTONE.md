@@ -1,101 +1,147 @@
-# Next milestone: Phase 2A procedural open-world data slice
+# Next milestone: Phase 2B staged-write process-state slice
 
 ## Outcome
 
-Build one complete, deterministic first-party data family that proves
-open-world read and traversal semantics before any trainer or external dataset
-adapter is added. The milestone produces public training/development candidate
-artifacts and integrity reports, but cannot authorize or run training.
+Build a second deterministic first-party family that proves reversible staged
+write decisions over immutable process-state snapshots. It must exercise the
+write path without mutating canonical memory, training a model, or consuming
+private confirmation data.
 
-## Contract surface
+The milestone produces separate training-role and development-role candidate
+artifacts for `attach`, `update`, `deprecate`, `new_node`, `duplicate`,
+`conflict`, `stage`, and `ignore`. Every proposed change remains a detached
+patch against a frozen input snapshot.
 
-Add frozen Phase 2 v1 schemas and independent SHA-256 locks for:
+## Decision definition
 
-- a training-source registry with immutable roles (`training`, `development`,
-  `diagnostic`, `confirmatory`), admission state, rights binding, artifact
-  hashes, and dependency units;
-- generator specifications binding algorithm version, role, seed, grammar,
-  world, relation-composition, and seed-family allocations;
-- policy examples containing the complete prediction-time world, query,
-  candidate actions, target action and payload, proof evidence, risk/cost
-  class, split identities, quarantine binding, and provenance; and
-- generation manifests and integrity reports binding all inputs and outputs,
-  role counts, oracle agreement, overlap findings, duplicates, and shortcut
-  diagnostics.
+Before generation, freeze:
 
-The role describes intended evaluation use and does not authorize training.
-Every Phase 2A manifest must contain `training_authorized: false`. Reuse of an
-artifact hash or grammar, world, relation-composition, or seed family across
-roles is invalid.
+- the unit of analysis: one proposed observation against one immutable graph
+  snapshot and candidate attachment neighbourhood;
+- prediction time: only the snapshot, proposed observation, visible evidence,
+  risk class, scope, and bounded candidate frontier;
+- outcome: one write-policy action plus a reversible staged patch or null;
+- split unit: operation family, grammar, world, relation composition, entity
+  family, and seed family; and
+- error costs: unsupported overwrite, cross-scope attachment, and false
+  deprecation cost more than staging or ignoring an ambiguous proposal.
 
-## Public CLI
+No later state, accepted patch, evaluator output, or target from another example
+may influence prediction-time features.
 
-Add an `hf-phase2` console script with these commands:
+## Contract changes
 
-- `contracts validate` validates schema locks, registries, specs, examples,
-  manifests, and reports;
-- `procedural generate` accepts a registry entry, generator spec, and public
-  quarantine index, then atomically writes canonical JSONL examples, a manifest,
-  and an integrity report;
-- `procedural verify` reopens those artifacts, recomputes both oracles and all
-  hashes, and rejects any mismatch; and
-- `corpus audit` accepts multiple manifests/reports and rejects cross-role
-  dependency or artifact overlap.
+Add independently locked Phase 2B contracts for:
 
-Generation permits only `training` and `development`. It refuses confirmation,
-existing outputs, unsafe paths or values, mutable inputs, and any excluded or
-undetermined quarantine decision. No command may be named `train`, `fit`,
-`optimize`, or `model`.
+- typed immutable state snapshots with node/edge lifecycle, scope, valid time,
+  observation time, provenance, conflict, and risk state;
+- proposed observations and bounded candidate attachment points;
+- write-policy examples with the exact prediction-time snapshot, action,
+  reversible patch, preconditions, postconditions, evidence, costs, role,
+  quarantine binding, and generator lineage;
+- generator specs allocating operation, grammar, world, composition, entity,
+  and seed families before generation; and
+- transition-integrity reports binding both oracle results, unchanged input
+  hashes, staged-output hashes, action counts, overlap findings, duplicates,
+  and shortcut diagnostics.
 
-## World and label semantics
+Extend the training-source registry rather than using the confirmatory
+evaluation registry as training configuration. Rights remain pending and every
+record must keep `training_authorized: false`.
 
-Generate finite typed worlds containing signed ground facts and typed Horn
-rules. Explicit negation is data; absence is unknown. Contradictions do not
-explode into unrelated conclusions.
+## State and action semantics
 
-For a queried signed proposition:
+Use conservative rules:
 
-- positive support only targets `return` with a true payload and proof;
-- negative support only targets `return` with a false payload and proof;
-- neither targets `abstain_unknown`;
-- both target `abstain_conflict` with both proof sets;
-- a useful bounded frontier targets `continue`; and
-- an irrelevant frontier targets `stop_irrelevant`.
+- `attach`: the observation is supported, in scope, and has one unambiguous
+  existing attachment point;
+- `update`: it revises a mutable candidate-state value with explicit temporal
+  and provenance support;
+- `deprecate`: evidence explicitly invalidates an existing candidate claim
+  without erasing its history;
+- `new_node`: the observation is supported but no compatible existing entity
+  exists;
+- `duplicate`: an equivalent supported claim already exists;
+- `conflict`: supported evidence contradicts live state and cannot be safely
+  resolved at prediction time;
+- `stage`: a potentially useful change lacks evidence, identity, scope, or risk
+  certainty required for a more specific action; and
+- `ignore`: the proposal is irrelevant, unsupported, prohibited, or outside
+  the visible scope.
 
-Assign grammar, world, relation-composition, and seed families to roles before
-generating any examples. Random row splitting is prohibited.
+Absence is never evidence for deprecation. Conflict never authorizes overwrite.
+High-risk or irreversible canonical changes are outside this milestone.
 
 ## Independent verification
 
-Implement two oracles that share only parsed immutable input types:
+Implement two transition oracles that share only parsed immutable input types:
 
-1. agenda-based signed forward closure with proof provenance; and
-2. exhaustive bounded proof-tree enumeration with independent cycle handling.
+1. a declarative precondition/effect evaluator that derives admissible actions
+   and a normalized patch; and
+2. a copy-on-write state interpreter that tries each bounded action, validates
+   invariants on the resulting candidate state, and compares the observable
+   delta.
 
-They must agree on positive/negative reachability and terminal action. Any
-disagreement blocks the artifact. The integrity report also records action
-balance, provenance completeness, exact and normalized duplicates, dependency
-overlap, and majority, grammar/template, and path-length baselines. Oracle,
-provenance, duplicate, and overlap failures are blockers; shortcut scores are
-diagnostic until representative data exists.
+They must agree on the action, patch, preconditions, and postconditions. The
+interpreter works on a fresh deep copy per example and must prove that the input
+snapshot hash is unchanged before and after evaluation. Generated or predicted
+patches may not become truth for later examples.
+
+## Leakage and shortcut controls
+
+- Allocate every dependency family to a role before generating rows; prohibit
+  random row splitting.
+- Keep action names and case types out of template IDs, example IDs,
+  provenance, formatting, and prediction-time metadata.
+- Quarantine exact and normalized state/proposal inputs plus every procedural
+  dependency identifier against the explicitly bound public index.
+- Reject cross-role artifact, snapshot, entity, operation, grammar, world,
+  composition, or seed overlap.
+- Record majority, operation-family, grammar, template, entity-count,
+  candidate-count, patch-size, and risk-only baselines. Treat suspiciously high
+  diagnostics as blockers until the shortcut is removed or justified.
+- Add label-shuffle and proposal-only negative controls before any trainer is
+  considered.
+
+## Public CLI
+
+Extend `hf-phase2` with preparation-only commands:
+
+- `process generate` writes canonical examples, manifest, and transition
+  report without overwriting outputs;
+- `process verify` deterministically regenerates both oracle results and every
+  bound hash;
+- `process replay` applies staged patches only to disposable copies and emits a
+  complete delta ledger; and
+- `corpus audit` expands its overlap checks to operation/entity families and
+  immutable snapshot hashes.
+
+No command may train, fit, optimize, commit canonical state, or expose a model
+surface.
 
 ## Acceptance criteria
 
-- Identical specs and seeds produce byte-identical examples, manifests, and
-  reports regardless of input ordering.
-- Training and development share no dependency identifiers or artifact hashes.
-- Positive, explicitly negative, unknown, conflict, continuation,
-  irrelevant-stop, cyclic, and unreachable cases agree across both oracles.
-- Missing prediction-time fields, provenance, split identity, risk/cost class,
-  rights binding, or quarantine binding fails validation.
-- Quarantined dependencies, deliberate oracle faults, output collisions,
-  confirmatory generation, and cross-role duplicates are rejected.
-- Existing tests remain green; the new schemas, CLI, sdist, wheel, and isolated
-  install all verify.
+- Each of the eight write actions has at least two distinct positive cases and
+  explicit near-miss cases that should choose a safer action.
+- Unknown, explicit negative, contradiction, temporal ordering, scope mismatch,
+  duplicate identity, ambiguous attachment, cyclic reference, and high-risk
+  cases agree across both oracles.
+- Input snapshot bytes and hashes remain unchanged through generation, replay,
+  and verification.
+- Every non-null patch is reversible, provenance-complete, scoped, and produces
+  the declared postcondition on a disposable copy.
+- Training and development share no artifact, snapshot, entity, operation,
+  grammar, world, composition, or seed family.
+- Missing provenance, time, scope, risk, rights, split, quarantine, precondition,
+  or rollback evidence fails validation.
+- Output collisions, confirmatory generation, target-bearing metadata,
+  oracle disagreement, cross-role overlap, and state mutation are rejected.
+- Existing Phase 0, Phase 1, and Phase 2A tests and package smoke checks remain
+  green.
 
 ## Explicit exclusions
 
-This milestone does not add a neural trainer, ML framework, model weights,
-private seeds, confirmatory examples, real external acquisition, graph-schema
-migration, Wikipedia/Wikidata adapters, or encoder recovery. Those remain later
-roadmap gates.
+This milestone does not add canonical writes, online learning, a trainer, ML
+dependencies, model weights, private confirmation worlds, external source
+acquisition, real Wikipedia/Wikidata transformation, or a production graph
+store. Those remain behind later roadmap and authorization gates.

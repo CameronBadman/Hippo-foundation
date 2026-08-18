@@ -5,6 +5,7 @@ from pathlib import Path
 
 from hippocampus_foundation.phase0.cli import build_parser as build_phase0_parser
 from hippocampus_foundation.phase1.cli import build_parser as build_phase1_parser
+from hippocampus_foundation.phase2.cli import build_parser as build_phase2_parser
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,6 +16,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     assert project["scripts"] == {
         "hf-phase0": "hippocampus_foundation.phase0.cli:main",
         "hf-phase1": "hippocampus_foundation.phase1.cli:main",
+        "hf-phase2": "hippocampus_foundation.phase2.cli:main",
     }
 
     parser = build_phase0_parser()
@@ -107,3 +109,12 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "gate-v2",
     }
     assert not ({"train", "fit", "optimize", "model"} & set(phase1_choices))
+
+    phase2_parser = build_phase2_parser()
+    phase2_choices = next(
+        action.choices
+        for action in phase2_parser._actions
+        if getattr(action, "choices", None)
+    )
+    assert set(phase2_choices) == {"contracts", "procedural", "corpus"}
+    assert not ({"train", "fit", "optimize", "model"} & set(phase2_choices))
