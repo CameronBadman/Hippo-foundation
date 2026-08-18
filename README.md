@@ -98,6 +98,8 @@ forced into a binary accept/reject outcome.
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Data and training strategy](docs/DATA_AND_TRAINING.md)
+- [Programme roadmap](docs/ROADMAP.md)
+- [Next milestone](docs/NEXT_MILESTONE.md)
 - [Dataset role and lineage review](audit/DATASET_REVIEW.md)
 - [Safety, leakage, and evaluation](docs/SAFETY_AND_EVALUATION.md)
 - [Decision log and open questions](docs/DECISIONS.md)
