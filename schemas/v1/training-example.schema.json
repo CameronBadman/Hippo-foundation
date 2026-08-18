@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/training-example.schema.json",
+  "title": "Frozen training-example envelope (Phase 0 creates no examples)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["example_id", "transformation_id", "source_records", "graph_snapshot_id", "graph_schema_version", "mode", "input", "permitted_start_state", "candidates", "target", "evidence", "qualifiers", "valid_time", "observation_time", "scope_id", "risk_policy_id", "risk_class", "negative_basis", "generator", "split_id", "quarantine_ids"],
+  "properties": {
+    "example_id": { "type": "string", "pattern": "^urn:hf:example:[A-Za-z0-9._:%-]+$" },
+    "transformation_id": { "type": "string", "minLength": 1 },
+    "source_records": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRecord" }, "uniqueItems": true },
+    "graph_snapshot_id": { "type": "string", "minLength": 1 },
+    "graph_schema_version": { "const": "1.0.0" },
+    "mode": { "enum": ["read", "write"] },
+    "input": { "type": "object" },
+    "permitted_start_state": { "type": "object" },
+    "candidates": { "type": "array", "items": { "type": "object" } },
+    "target": { "$ref": "#/$defs/target" },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supporting", "contradicting", "unresolved"],
+      "properties": {
+        "supporting": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "contradicting": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "unresolved": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    },
+    "qualifiers": { "type": "array", "items": { "type": "object" } },
+    "valid_time": { "type": ["object", "null"] },
+    "observation_time": { "type": "string", "format": "date-time" },
+    "scope_id": { "type": "string", "minLength": 1 },
+    "risk_policy_id": { "type": "string", "minLength": 1 },
+    "risk_class": { "type": "string", "minLength": 1 },
+    "negative_basis": { "$ref": "#/$defs/negativeBasis" },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool_id", "tool_version", "seed"],
+      "properties": {
+        "tool_id": { "type": "string", "minLength": 1 },
+        "tool_version": { "type": "string", "minLength": 1 },
+        "seed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "split_id": { "type": "string", "minLength": 1 },
+    "quarantine_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+  },
+  "$defs": {
+    "sourceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_version", "record_id", "content_sha256"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 },
+        "record_id": { "type": "string", "minLength": 1 },
+        "content_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action"],
+      "properties": {
+        "action": { "enum": ["continue", "return", "abstain_unknown", "abstain_ambiguous", "abstain_conflict", "stop_irrelevant", "attach", "update", "deprecate", "new_node", "duplicate", "conflict", "stage", "ignore"] },
+        "payload": { "type": ["object", "null"] }
+      }
+    },
+    "negativeBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "evidence_refs"],
+      "properties": {
+        "kind": { "enum": ["not_negative", "direct_contradiction", "incompatible_qualified_value", "corrected_or_retracted", "type_compatible_near_miss", "wrong_entity", "temporal_incompatibility", "plausible_unsupported_path", "explicit_unknown", "insufficient_evidence"] },
+        "evidence_refs": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    }
+  }
+}

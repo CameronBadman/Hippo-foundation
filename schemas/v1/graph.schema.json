@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/graph.schema.json",
+  "title": "Hippocampus Foundation graph record",
+  "oneOf": [
+    { "$ref": "#/$defs/node" },
+    { "$ref": "#/$defs/statement" },
+    { "$ref": "#/$defs/evidence" }
+  ],
+  "$defs": {
+    "recordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "timeInterval": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start": { "type": ["string", "null"], "format": "date-time" },
+        "end": { "type": ["string", "null"], "format": "date-time" },
+        "precision": { "type": "string", "enum": ["year", "month", "day", "second", "source_native"] },
+        "calendar_model": { "type": ["string", "null"] }
+      },
+      "required": ["start", "end", "precision"]
+    },
+    "typedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "enum": ["entity", "string", "monolingual_text", "url", "time", "quantity", "coordinate", "somevalue", "novalue", "source_native"]
+        },
+        "value": {},
+        "unit": { "type": ["string", "null"] },
+        "language": { "type": ["string", "null"] },
+        "precision": { "type": ["string", "null"] },
+        "extensions": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9_.-]*:" }
+        }
+      }
+    },
+    "qualifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property", "value", "provenance_refs"],
+      "properties": {
+        "property": { "$ref": "#/$defs/recordRef" },
+        "value": { "$ref": "#/$defs/typedValue" },
+        "valid_time": { "$ref": "#/$defs/timeInterval" },
+        "provenance_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/recordRef" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "model_id", "task_id", "calibration_set_id"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "model_id": { "type": "string", "minLength": 1 },
+        "task_id": { "type": "string", "minLength": 1 },
+        "calibration_set_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "versionEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "at", "actor", "reason"],
+      "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "at": { "type": "string", "format": "date-time" },
+        "actor": { "$ref": "#/$defs/recordRef" },
+        "reason": { "type": "string", "minLength": 1 },
+        "supersedes": { "type": ["string", "null"] }
+      }
+    },
+    "common": {
+      "type": "object",
+      "required": ["id", "schema_version", "scope_id", "risk_policy_id", "risk_class", "sensitivity_class", "created_at", "version_history"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^urn:hf:(node|statement|evidence):[A-Za-z0-9._:%-]+$" },
+        "schema_version": { "const": "1.0.0" },
+        "scope_id": { "type": "string", "minLength": 1 },
+        "risk_policy_id": { "type": "string", "minLength": 1 },
+        "risk_class": { "type": "string", "minLength": 1 },
+        "sensitivity_class": { "type": "string", "minLength": 1 },
+        "created_at": { "type": "string", "format": "date-time" },
+        "version_history": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/versionEvent" } }
+      }
+    },
+    "node": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_kind", "id", "schema_version", "node_type", "canonical_label", "alternate_labels", "scope_id", "valid_time", "observation_time", "lifecycle_state", "provenance_refs", "risk_policy_id", "risk_class", "sensitivity_class", "created_at", "version_history"],
+          "properties": {
+            "record_kind": { "const": "node" },
+            "id": {}, "schema_version": {}, "scope_id": {}, "risk_policy_id": {}, "risk_class": {}, "sensitivity_class": {}, "created_at": {}, "version_history": {},
+            "node_type": { "type": "string", "minLength": 1 },
+            "canonical_label": { "type": "string", "minLength": 1 },
+            "alternate_labels": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            "source_identity": { "$ref": "#/$defs/recordRef" },
+            "valid_time": { "$ref": "#/$defs/timeInterval" },
+            "observation_time": { "type": "string", "format": "date-time" },
+            "lifecycle_state": { "enum": ["working", "candidate", "canonical", "disputed", "deprecated", "tombstoned"] },
+            "provenance_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/recordRef" }, "uniqueItems": true },
+            "confidence": { "$ref": "#/$defs/confidence" },
+            "extensions": { "type": "object" }
+          }
+        }
+      ]
+    },
+    "statement": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_kind", "id", "schema_version", "source_node", "destination_node", "relation", "direction", "qualifiers", "supporting_evidence", "contradicting_evidence", "provenance_refs", "source_independence_group", "valid_time", "observation_time", "assertion_status", "rank", "extraction_method", "uncertainty_state", "conflict_state", "lifecycle_state", "scope_id", "risk_policy_id", "risk_class", "sensitivity_class", "created_at", "version_history"],
+          "properties": {
+            "record_kind": { "const": "statement" },
+            "id": {}, "schema_version": {}, "scope_id": {}, "risk_policy_id": {}, "risk_class": {}, "sensitivity_class": {}, "created_at": {}, "version_history": {},
+            "source_node": { "$ref": "#/$defs/recordRef" },
+            "destination_node": { "$ref": "#/$defs/recordRef" },
+            "relation": { "$ref": "#/$defs/recordRef" },
+            "direction": { "enum": ["forward", "reverse", "symmetric"] },
+            "qualifiers": { "type": "array", "items": { "$ref": "#/$defs/qualifier" } },
+            "supporting_evidence": { "type": "array", "items": { "$ref": "#/$defs/recordRef" }, "uniqueItems": true },
+            "contradicting_evidence": { "type": "array", "items": { "$ref": "#/$defs/recordRef" }, "uniqueItems": true },
+            "provenance_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/recordRef" }, "uniqueItems": true },
+            "source_independence_group": { "type": "string", "minLength": 1 },
+            "valid_time": { "$ref": "#/$defs/timeInterval" },
+            "observation_time": { "type": "string", "format": "date-time" },
+            "assertion_status": { "enum": ["asserted", "inferred", "disputed", "retracted", "unknown"] },
+            "rank": { "enum": ["preferred", "normal", "deprecated", "source_native"] },
+            "extraction_method": { "$ref": "#/$defs/recordRef" },
+            "confidence": { "$ref": "#/$defs/confidence" },
+            "uncertainty_state": { "enum": ["known", "uncertain", "unknown", "insufficient_evidence"] },
+            "conflict_state": { "enum": ["none", "compatible", "conflicting", "unresolved"] },
+            "conflict_set_id": { "type": ["string", "null"] },
+            "lifecycle_state": { "enum": ["working", "candidate", "canonical", "disputed", "deprecated", "tombstoned"] },
+            "proposal_ref": { "$ref": "#/$defs/recordRef" },
+            "policy_decision_ref": { "$ref": "#/$defs/recordRef" },
+            "extensions": { "type": "object" }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_kind", "id", "schema_version", "document_id", "document_version_id", "locator", "content_sha256", "source_locator", "retrieved_at", "licence_id", "stance", "alignment_method", "source_independence_group", "scope_id", "risk_policy_id", "risk_class", "sensitivity_class", "created_at", "version_history"],
+          "properties": {
+            "record_kind": { "const": "evidence" },
+            "id": {}, "schema_version": {}, "scope_id": {}, "risk_policy_id": {}, "risk_class": {}, "sensitivity_class": {}, "created_at": {}, "version_history": {},
+            "document_id": { "$ref": "#/$defs/recordRef" },
+            "document_version_id": { "$ref": "#/$defs/recordRef" },
+            "locator": {
+              "oneOf": [
+                { "type": "object", "additionalProperties": false, "required": ["kind", "start", "end"], "properties": { "kind": { "const": "text_span" }, "start": { "type": "integer", "minimum": 0 }, "end": { "type": "integer", "minimum": 1 } } },
+                { "type": "object", "additionalProperties": false, "required": ["kind", "sheet", "cell"], "properties": { "kind": { "const": "structured_cell" }, "sheet": { "type": "string" }, "cell": { "type": "string" } } }
+              ]
+            },
+            "content_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "source_locator": { "type": "string", "minLength": 1 },
+            "retrieved_at": { "type": "string", "format": "date-time" },
+            "licence_id": { "type": "string", "minLength": 1 },
+            "stance": { "enum": ["supports", "contradicts", "contextualises", "unresolved"] },
+            "alignment_method": { "$ref": "#/$defs/recordRef" },
+            "source_independence_group": { "type": "string", "minLength": 1 },
+            "extensions": { "type": "object" }
+          }
+        }
+      ]
+    }
+  }
+}

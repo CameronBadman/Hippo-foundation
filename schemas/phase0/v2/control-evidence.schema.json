@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v2/control-evidence.schema.json",
+  "title": "Phase 0 v2 control evidence",
+  "oneOf": [
+    { "$ref": "#/$defs/storageAttestation" },
+    { "$ref": "#/$defs/licenceReview" },
+    { "$ref": "#/$defs/sourceAudit" },
+    { "$ref": "#/$defs/structuralInventory" },
+    { "$ref": "#/$defs/admissionReceipt" }
+  ],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "md5", "sha1", "sha256", "device", "inode", "mtime_ns"],
+      "properties": {
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "md5": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+        "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "device": { "type": "string", "pattern": "^[0-9]+$" },
+        "inode": { "type": "string", "pattern": "^[0-9]+$" },
+        "mtime_ns": { "type": "string", "pattern": "^[0-9]+$" }
+      }
+    },
+    "storageAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "locator_id", "provider", "provider_resource_id", "root_resource_id", "observed_root", "observed_at", "method", "verifier"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "record_kind": { "const": "storage_attestation" },
+        "locator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "provider": { "const": "google_drive_shared_drive" },
+        "provider_resource_id": { "type": "string", "minLength": 3 },
+        "root_resource_id": { "type": "string", "minLength": 3 },
+        "observed_root": { "type": "string", "pattern": "^/" },
+        "observed_at": { "$ref": "#/$defs/timestamp" },
+        "method": { "const": "google_drive_api_v3_authenticated" },
+        "verifier": { "type": "string", "minLength": 1 }
+      }
+    },
+    "licenceReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "review_id", "subject_kind", "subject_id", "licence_id", "original_terms_url", "resolved_terms_url", "terms_snapshot_sha256", "retrieved_at", "decision", "commercial_use", "intended_uses", "reviewer", "reviewed_at"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "record_kind": { "const": "licence_review" },
+        "review_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "subject_kind": { "enum": ["source", "evaluation", "encoder"] },
+        "subject_id": { "type": "string", "minLength": 1 },
+        "licence_id": { "type": "string", "minLength": 1 },
+        "original_terms_url": { "type": "string", "format": "uri" },
+        "resolved_terms_url": { "type": "string", "format": "uri" },
+        "terms_snapshot_sha256": { "$ref": "#/$defs/digest" },
+        "retrieved_at": { "$ref": "#/$defs/timestamp" },
+        "decision": { "enum": ["approved", "rejected", "pending"] },
+        "commercial_use": { "enum": ["allowed", "prohibited", "unclear"] },
+        "intended_uses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["acquire", "inventory", "quarantine", "transform", "embed", "evaluate", "commercial_service", "redistribute"] }
+        },
+        "reviewer": { "type": ["string", "null"], "minLength": 1 },
+        "reviewed_at": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] },
+        "notes": { "type": "string" }
+      }
+    },
+    "auditedArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "artifact_id", "locator_id", "filename", "measured", "status", "mismatches"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "locator_id": { "type": "string", "minLength": 1 },
+        "filename": { "type": "string", "minLength": 1 },
+        "measured": { "oneOf": [{ "$ref": "#/$defs/measurement" }, { "type": "null" }] },
+        "status": { "enum": ["verified", "mismatch", "error"] },
+        "mismatches": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "sourceAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "registry_id", "registry_sha256", "storage_attestation_sha256", "started_at", "completed_at", "artifact_count", "total_bytes", "all_verified", "artifacts"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "record_kind": { "const": "source_audit" },
+        "registry_id": { "type": "string", "minLength": 1 },
+        "registry_sha256": { "$ref": "#/$defs/digest" },
+        "storage_attestation_sha256": { "$ref": "#/$defs/digest" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "completed_at": { "$ref": "#/$defs/timestamp" },
+        "artifact_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "total_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "all_verified": { "type": "boolean" },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/auditedArtifact" } }
+      }
+    },
+    "structuralInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "source_id", "artifact_id", "registry_sha256", "source_audit_sha256", "artifact_sha256", "artifact_bytes", "counter_kind", "counter_version", "started_at", "completed_at", "complete", "parse_errors", "rejected_records", "counters"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "record_kind": { "const": "structural_inventory" },
+        "source_id": { "type": "string", "minLength": 1 },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "registry_sha256": { "$ref": "#/$defs/digest" },
+        "source_audit_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "counter_kind": { "enum": ["wikipedia_xml", "mediawiki_sql", "wikidata_json", "conceptnet_assertions"] },
+        "counter_version": { "const": "hf-stream-counter-v2" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "completed_at": { "$ref": "#/$defs/timestamp" },
+        "complete": { "type": "boolean" },
+        "parse_errors": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "rejected_records": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "counters": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+        }
+      }
+    },
+    "admissionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "source_id", "registry_sha256", "audited_artifacts_sha256", "storage_attestation_sha256", "licence_review_sha256", "inventory_sha256s", "quarantine_index_sha256", "decision", "condition", "assessed_at", "assessor"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "record_kind": { "const": "admission_receipt" },
+        "source_id": { "type": "string", "minLength": 1 },
+        "registry_sha256": { "$ref": "#/$defs/digest" },
+        "audited_artifacts_sha256": { "$ref": "#/$defs/digest" },
+        "storage_attestation_sha256": { "$ref": "#/$defs/digest" },
+        "licence_review_sha256": { "$ref": "#/$defs/digest" },
+        "inventory_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+        "decision": { "enum": ["admitted", "blocked"] },
+        "condition": { "const": "admitted_with_mandatory_quarantine" },
+        "assessed_at": { "$ref": "#/$defs/timestamp" },
+        "assessor": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

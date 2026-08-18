@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/evaluation.schema.json",
+  "title": "Evaluation declaration and quarantine selectors",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "registry_id", "generated_at", "evaluation_protocol", "datasets", "closure_policy"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "registry_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "evaluation_protocol": { "$ref": "#/$defs/protocol" },
+    "datasets": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/dataset" } },
+    "closure_policy": { "$ref": "#/$defs/closurePolicy" }
+  },
+  "$defs": {
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "prediction_time", "unit_of_analysis", "available_information", "population", "split_units", "metrics", "error_cost_policy"],
+      "properties": {
+        "decision": { "type": "string", "minLength": 1 },
+        "prediction_time": { "type": "string", "minLength": 1 },
+        "unit_of_analysis": { "type": "array", "minItems": 1, "items": { "type": "string" }, "uniqueItems": true },
+        "available_information": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "population": { "type": "string", "minLength": 1 },
+        "split_units": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "metrics": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "error_cost_policy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_id", "official_source", "pin_policy", "resolved_version", "archive_sha256", "seal_id", "evaluation_class", "licence_status", "dependency_units", "foundation_exclusion", "status", "blockers"],
+      "properties": {
+        "dataset_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "official_source": { "type": "string", "format": "uri" },
+        "pin_policy": { "enum": ["highest_stable_release_then_commit", "explicit_version"] },
+        "resolved_version": { "type": ["string", "null"] },
+        "archive_sha256": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "seal_id": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "evaluation_class": { "enum": ["development_and_confirmatory", "confirmatory_only", "private_transfer"] },
+        "licence_status": { "enum": ["pending", "approved", "blocked"] },
+        "dependency_units": { "type": "array", "minItems": 1, "items": { "type": "string" }, "uniqueItems": true },
+        "foundation_exclusion": { "const": "all_dataset_source_families" },
+        "status": { "enum": ["declared", "pinned", "sealed", "consumed", "blocked"] },
+        "blockers": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    },
+    "closurePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "relationship_types", "normalization", "near_duplicate"],
+      "properties": {
+        "policy_id": { "const": "quarantine-closure-v1" },
+        "relationship_types": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "normalization": { "const": "unicode-nfkc-casefold-whitespace-v1" },
+        "near_duplicate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["algorithm", "permutations", "word_shingle_size", "jaccard_threshold", "short_document_words", "short_character_shingle_size", "short_jaccard_threshold", "seed"],
+          "properties": {
+            "algorithm": { "const": "sha256-minhash-v1" },
+            "permutations": { "const": 128 },
+            "word_shingle_size": { "const": 5 },
+            "jaccard_threshold": { "const": 0.85 },
+            "short_document_words": { "const": 50 },
+            "short_character_shingle_size": { "const": 5 },
+            "short_jaccard_threshold": { "const": 0.9 },
+            "seed": { "const": "hippocampus-foundation-quarantine-v1" }
+          }
+        }
+      }
+    }
+  }
+}

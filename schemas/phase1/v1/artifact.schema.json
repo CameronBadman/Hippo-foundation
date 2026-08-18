@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase1/v1/artifact.schema.json",
+  "title": "Phase 1 detached transformation manifests",
+  "oneOf": [
+    { "$ref": "#/$defs/sampleManifest" },
+    { "$ref": "#/$defs/capManifest" },
+    { "$ref": "#/$defs/objectiveManifest" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "base": {
+      "type": "object",
+      "required": ["schema_version", "record_kind", "phase0_gate_sha256", "created_at", "algorithm_id", "complete", "errors", "training_authorized"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "type": "string" },
+        "phase0_gate_sha256": { "$ref": "#/$defs/digest" },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "algorithm_id": { "type": "string", "minLength": 1 },
+        "complete": { "type": "boolean" },
+        "errors": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "training_authorized": { "const": false }
+      }
+    },
+    "sampleManifest": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "record_kind", "phase0_gate_sha256", "created_at", "algorithm_id", "complete", "errors", "training_authorized", "candidate_sha256", "selected_sha256", "quarantine_index_sha256", "seed", "requested_size", "candidate_count", "selected_size", "community_count", "covered_communities", "stratum_count", "covered_strata"],
+          "properties": {
+            "schema_version": true,
+            "record_kind": { "const": "sample_manifest" },
+            "phase0_gate_sha256": true,
+            "created_at": true,
+            "algorithm_id": { "const": "community-joint-strata-waterfill-v1" },
+            "complete": true,
+            "errors": true,
+            "training_authorized": true,
+            "candidate_sha256": { "$ref": "#/$defs/digest" },
+            "selected_sha256": { "$ref": "#/$defs/digest" },
+            "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+            "seed": { "const": 20260817 },
+            "requested_size": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+            "candidate_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+            "selected_size": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "community_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+            "covered_communities": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "stratum_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+            "covered_strata": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          }
+        }
+      ]
+    },
+    "capManifest": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "record_kind", "phase0_gate_sha256", "created_at", "algorithm_id", "complete", "errors", "training_authorized", "input_sha256", "selected_sha256", "overflow_sha256", "quarantine_index_sha256", "input_count", "selected_count", "overflow_count", "no_silent_drop", "limits"],
+          "properties": {
+            "schema_version": true,
+            "record_kind": { "const": "neighbour_cap_manifest" },
+            "phase0_gate_sha256": true,
+            "created_at": true,
+            "algorithm_id": { "const": "one-hop-diverse-cap-v1" },
+            "complete": true,
+            "errors": true,
+            "training_authorized": true,
+            "input_sha256": { "$ref": "#/$defs/digest" },
+            "selected_sha256": { "$ref": "#/$defs/digest" },
+            "overflow_sha256": { "$ref": "#/$defs/digest" },
+            "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+            "input_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "selected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "overflow_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "no_silent_drop": { "type": "boolean" },
+            "limits": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["wikipedia_outgoing_entity", "wikipedia_incoming_entity", "wikidata_outgoing_entity", "wikidata_incoming_entity", "wikidata_outgoing_literal", "wikidata_property"],
+              "properties": {
+                "wikipedia_outgoing_entity": { "const": 16 },
+                "wikipedia_incoming_entity": { "const": 8 },
+                "wikidata_outgoing_entity": { "const": 24 },
+                "wikidata_incoming_entity": { "const": 8 },
+                "wikidata_outgoing_literal": { "const": 32 },
+                "wikidata_property": { "const": 4 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objectiveManifest": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "record_kind", "phase0_gate_sha256", "created_at", "algorithm_id", "complete", "errors", "training_authorized", "input_sha256", "output_sha256", "graph_snapshot_sha256", "quarantine_index_sha256", "example_count", "family_counts", "development_only", "maximum_candidates", "absent_edge_negatives"],
+          "properties": {
+            "schema_version": true,
+            "record_kind": { "const": "objective_manifest" },
+            "phase0_gate_sha256": true,
+            "created_at": true,
+            "algorithm_id": { "const": "objective-validation-replay-v1" },
+            "complete": true,
+            "errors": true,
+            "training_authorized": true,
+            "input_sha256": { "$ref": "#/$defs/digest" },
+            "output_sha256": { "$ref": "#/$defs/digest" },
+            "graph_snapshot_sha256": { "$ref": "#/$defs/digest" },
+            "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+            "example_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "family_counts": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 } },
+            "development_only": { "const": true },
+            "maximum_candidates": { "const": 8 },
+            "absent_edge_negatives": { "const": 0 }
+          }
+        }
+      ]
+    }
+  }
+}

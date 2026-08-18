@@ -1,0 +1,31 @@
+{
+  "blockers": [
+    "encoder_licence_not_ready:ValidationError:licence assessment is not approved",
+    "encoder_not_ready",
+    "encoder_verification_invalid:Phase1ValidationError:$: 'verification_method' is a required property; schema_version: '2.0.0' was expected",
+    "graph_manifest_missing",
+    "objectives_manifest_missing",
+    "phase0_gate_invalid:GateBlocked:Phase 0 v3 has not authorized foundation transformation",
+    "sample_manifest_missing"
+  ],
+  "contracts_frozen": true,
+  "encoder_identity_ready": false,
+  "encoder_licensing_ready": false,
+  "encoder_ready": false,
+  "evaluated_at": "2026-08-18T12:00:00+10:00",
+  "evidence": [
+    "encoder_spec:sha256:c89d05f5eaa510cbda58d8fb07517ae3084868cc3c8c85b4de2eab119511bbbb",
+    "licensing_v1_schemas:sha256:3d02dfcbc0cfcf240728003d85c0294f099c12cb7da04bcd64a1c9a51c589bd1",
+    "phase0_v3_dependency_schemas:sha256:f28d8449e6c289b1784ebb8de81716c4156db2ae201dd249cca64bbb724fd7a7",
+    "phase1_v1_dependency_schemas:sha256:6b7ef6d7959589b45ea35795a7eafbbd219f5ff6ee8c22d71214d758286e1ba4",
+    "phase1_v2_schemas:sha256:ab32cb91f8351cfda6345b4c7e726f524782e456d07ce9bd9729e23972dc3c09"
+  ],
+  "gate_id": "phase1-data-preparation-v2",
+  "graph_ready": false,
+  "objectives_ready": false,
+  "phase0_transform_ready": false,
+  "phase1_data_ready": false,
+  "sample_ready": false,
+  "schema_version": "2.0.0",
+  "training_authorized": false
+}

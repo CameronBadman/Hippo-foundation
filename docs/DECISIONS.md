@@ -1,0 +1,172 @@
+# Decision Log and Open Questions
+
+This file records architectural commitments separately from hypotheses. Dates
+use Australia/Brisbane local time.
+
+## Accepted decisions
+
+### 2026-08-16: clean-room foundation
+
+Older Hippocampus implementations, datasets, checkpoints, metrics, evaluators,
+and reward designs are untrusted until audited. This folder is the new
+documentation source of truth.
+
+### 2026-08-16: shared traversal, separate terminal decisions
+
+Read and write paths share a traversal core but have separate candidate and
+acceptance decisions. A traversal score is not permission to return or commit.
+
+### 2026-08-16: layered memory
+
+Working, candidate, and canonical memory have different acceptance policies.
+Uncertain facts may be staged rather than forced into accept/reject.
+
+### 2026-08-16: progressive data curriculum
+
+Wikipedia and Wikidata provide broad foundation training. Deterministic and
+procedural objectives teach exact mechanics and policy. Smaller relationship,
+evidence, contradiction, and reasoning datasets subsequently shape specific
+capabilities. Domain data is introduced only after general calibration.
+
+### 2026-08-16: asymmetric risk policy
+
+The system may explore greedily while returning or committing conservatively.
+Risk is conditioned on explicit node, source, scope, time, evidence, and action
+metadata.
+
+### 2026-08-16: provenance and unknown semantics
+
+Every durable claim retains provenance and evidence. Missing edges and absent
+evidence are unknown rather than false unless an explicit negative basis exists.
+
+### 2026-08-16: frozen write training
+
+Initial write-head training reconstructs or compares against frozen graph
+snapshots. Model proposals do not mutate canonical training truth.
+
+### 2026-08-16: multi-metric evaluation
+
+Read correctness, write safety, abstention, calibration, traversal cost, and
+contamination are evaluated separately. There is no single reward whose average
+can conceal a high-cost regression.
+
+### 2026-08-16: Phase 0 execution boundary
+
+Phase 0 freezes contracts, inventories immutable bytes, quarantines evaluation
+families, seals confirmatory material, and evaluates readiness. It has no model
+or optimization dependency, exposes no training command, and can never
+authorize training. Foundation acquisition and foundation transformation are
+separate mechanical gates.
+
+### 2026-08-17: Phase 0 v2 is the active evidence contract
+
+The default CLI now requires stable provider/root resource IDs, fresh storage
+attestation, exact terms-byte licence bindings, per-evaluation envelopes and
+derived quarantine contributions, structural inventories, and source admission
+receipts. Historical v1 commands remain explicitly suffixed and cannot satisfy
+the v2 gate. Registry assertions are not represented as independent external
+evidence when no captured source artifact exists.
+
+### 2026-08-18: native-first, identity-bound Drive access
+
+Phase 0 attempts Colab's native read-only Drive mount before any fallback. A
+fallback may use only the pinned read-only rclone path, the same explicit ADC
+file for API resolution, mount authentication, and observation, plus human
+same-account attestation. It remains disabled without an approved protected
+desktop OAuth client file. Neither path relaxes stable resource identity,
+frozen observation fields, the 15-minute binding window, or the prohibition on
+Drive writes and training.
+
+### 2026-08-17: Phase 1 is data preparation only
+
+Phase 1 freezes graph, objective, encoder, artifact-manifest, and gate schemas;
+it validates and deterministically assembles development artifacts. It exposes
+no train, fit, optimize, or model command, and its gate always emits
+`training_authorized: false`. A separately reviewed authorization boundary is
+required before any future training work.
+
+### 2026-08-17: frozen Phase 1 text encoder
+
+The prior encoder bake-off selects `Alibaba-NLP/gte-modernbert-base` at revision
+`e7f32e3c00f91d699e8c43b53106206bcc72bb22`, with 768-dimensional CLS output,
+no normalization, and a 2,048-token default context. The input recipe is title,
+two newlines, then body. Runtime assets and the bake-off report are byte-pinned.
+This freezes a non-trainable data-preparation encoder identity, not the later
+trainable traversal/model backbone. Static verification is not a numerical
+inference test or a licence decision.
+
+### 2026-08-17: deterministic auditable Phase 1 subset
+
+The required subset has 40,000 nodes with seed `20260817`, complete community
+coverage, and water-filled joint source/length/degree/PageRank strata. One-hop
+neighbour caps retain every exclusion in a typed overflow ledger. Development
+objective replay covers eight frozen families, permits at most seven negatives
+beside one target, and requires an explicit evidence-backed negative basis;
+absence of an edge is not a negative.
+
+### 2026-08-16, revised 2026-08-17: public evaluation quarantine
+
+The v2 confirmatory declarations are VitaminC, ContractNLI, EventStoryLine v1.5,
+EvidenceBench original test, SocialIQA v1.4 validation, and two private
+first-party families: open-world logic and process-state reasoning. Their
+document/work/entity/story/contract/time/generator dependencies, exact hashes,
+and near duplicates must be excluded before foundation transformation. Each
+dataset has separate coverage bound to its encrypted receipt; a union index
+cannot conceal a missing dataset. All seven remain unsealed and blocked.
+
+### 2026-08-16: offline-key confirmatory vault
+
+Label-bearing manifests, answers, and split membership remain encrypted to a
+custodian-held offline GPG private key. Development and Colab environments may
+hold only the public key. The public union contains identifiers and
+fingerprints, never label-bearing fields.
+
+### 2026-08-16: pinned full Wikidata source
+
+The official Wikidata `20260720` full JSON bzip2 dump is the registered
+foundation candidate because it preserves ranks, qualifiers, references, and
+sitelinks. Acquisition is allowed only from its registered publisher URL into
+the registered Google shared-Drive identity after the existing lake audit and
+public quarantine gates pass. The later choice to pair or transform English
+Wikipedia remains undecided because the current copy is pre-clean-room.
+
+## Candidate decisions requiring admission or later registration
+
+- Admit the registered English Wikipedia `20260801` and Wikidata `20260720`
+  pair only after both pass the Phase 0 v2 evidence and admission controls.
+- Add Wikidata before other large external graphs.
+- Evaluate ASER Core and CauseNet before their larger/noisier alternatives.
+- Pair a filtered OpenAlex graph with commercial-use-compatible PMC full text
+  for later scholarly and medical evidence shaping.
+
+These candidates require manifests, licence review, storage plans, and leakage
+quarantines before they become accepted dataset decisions.
+
+## Open questions
+
+1. Which evidence-backed revisions, if any, does the frozen Phase 1 graph schema
+   need after real admitted records are transformed?
+2. Should read and write heads share all traversal parameters or only the input
+   and neighbour encoders?
+3. Which decisions remain deterministic policy constraints rather than learned
+   behaviour?
+4. How should independent evidence sources be identified when many publishers
+   repeat one origin?
+5. What procedural worlds best predict real graph transfer?
+6. How should calibration transfer across node and domain risk tiers?
+7. What evidence is sufficient to promote a staged claim?
+8. How are conflicting but temporally compatible claims represented?
+9. Which private evaluation domains can remain genuinely unseen?
+10. What model scale is justified by unique semantic contexts rather than raw
+    edge count?
+
+## Deliberately not decided
+
+- production product shape;
+- medical or medicolegal workflow;
+- customer-specific implementation;
+- trainable traversal/model backbone or parameter count;
+- graph database;
+- online autonomous writing;
+- final training mixture or thresholds;
+- claims of determinism, accuracy, or safety.

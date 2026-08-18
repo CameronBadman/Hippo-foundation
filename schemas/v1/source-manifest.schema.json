@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/source-manifest.schema.json",
+  "title": "Phase 0 source registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "registry_id", "generated_at", "storage_requirements", "sources"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "registry_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "storage_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/storageRequirement" }
+    },
+    "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+  },
+  "$defs": {
+    "storageRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locator_id", "provider", "identity", "required_root", "environment", "verification"],
+      "properties": {
+        "locator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "provider": { "enum": ["google_drive_shared_drive", "local_filesystem", "object_store_mount"] },
+        "identity": { "type": "string", "minLength": 1 },
+        "required_root": { "type": "string", "pattern": "^/" },
+        "environment": { "type": "string", "minLength": 1 },
+        "verification": { "type": "string", "minLength": 1 }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "reason"],
+      "properties": {
+        "status": { "enum": ["measured", "not_measured", "not_applicable"] },
+        "value": { "type": ["integer", "number", "null"], "minimum": 0 },
+        "reason": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "measured" } } }, "then": { "properties": { "value": { "type": ["integer", "number"] }, "reason": { "type": "null" } } } },
+        { "if": { "properties": { "status": { "enum": ["not_measured", "not_applicable"] } } }, "then": { "properties": { "value": { "type": "null" }, "reason": { "type": "string", "minLength": 1 } } } }
+      ]
+    },
+    "checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value", "origin", "verified"],
+      "properties": {
+        "algorithm": { "enum": ["md5", "sha1", "sha256"] },
+        "value": { "type": "string", "pattern": "^[0-9a-f]+$" },
+        "origin": { "enum": ["publisher", "local"] },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "locator_id", "filename", "source_url", "media_type", "compression", "expected_bytes", "checksums", "raw_policy", "integrity_status"],
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "locator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "filename": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "media_type": { "type": "string", "minLength": 1 },
+        "compression": { "enum": ["none", "gzip", "bzip2", "zip", "source_native"] },
+        "expected_bytes": { "type": ["integer", "null"], "minimum": 0 },
+        "checksums": { "type": "array", "items": { "$ref": "#/$defs/checksum" } },
+        "raw_policy": { "const": "immutable" },
+        "integrity_status": { "enum": ["unverified", "verified", "mismatch", "missing"] }
+      }
+    },
+    "licence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identifier", "terms_url", "review_status", "commercial_use", "allowed_uses", "reviewer", "reviewed_at"],
+      "properties": {
+        "identifier": { "type": "string", "minLength": 1 },
+        "terms_url": { "type": "string", "format": "uri" },
+        "review_status": { "enum": ["pending", "approved", "blocked", "not_required"] },
+        "commercial_use": { "enum": ["allowed", "prohibited", "unclear"] },
+        "allowed_uses": { "type": "array", "items": { "enum": ["acquire", "inventory", "quarantine", "evaluate", "train", "redistribute"] }, "uniqueItems": true },
+        "reviewer": { "type": ["string", "null"] },
+        "reviewed_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "publisher", "version", "snapshot_at", "role", "trust_level", "admission_status", "admission_reason", "licence", "artifacts", "inventory", "quarantine_required", "leakage_status"],
+      "properties": {
+        "source_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*@[A-Za-z0-9._-]+$" },
+        "publisher": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "snapshot_at": { "type": "string", "format": "date-time" },
+        "role": { "enum": ["foundation_candidate", "evaluation_candidate", "specialist_candidate", "auxiliary_deferred", "forensic_only", "blocked"] },
+        "trust_level": { "enum": ["publisher_primary", "human_gold", "procedural_verified", "automatically_extracted", "legacy_unreviewed", "unknown"] },
+        "admission_status": { "enum": ["pending", "accepted", "deferred", "blocked"] },
+        "admission_reason": { "type": "string", "minLength": 1 },
+        "licence": { "$ref": "#/$defs/licence" },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/measurement" },
+          "required": ["compressed_bytes", "materialised_bytes", "documents", "document_versions", "tokens", "nodes", "edges", "qualifiers", "evidence_spans", "rejected_records"]
+        },
+        "quarantine_required": { "type": "boolean" },
+        "leakage_status": { "enum": ["not_audited", "clear", "blocked", "not_applicable"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/source-audit.schema.json",
+  "title": "Byte-level source audit result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "registry_id", "registry_sha256", "storage_map_sha256", "started_at", "completed_at", "artifact_count", "total_bytes", "all_verified", "artifacts"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "registry_id": { "type": "string", "minLength": 1 },
+    "registry_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "storage_map_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "artifact_count": { "type": "integer", "minimum": 0 },
+    "total_bytes": { "type": "integer", "minimum": 0 },
+    "all_verified": { "type": "boolean" },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactResult" }
+    }
+  },
+  "$defs": {
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "md5", "sha1", "sha256", "device", "inode", "mtime_ns"],
+      "properties": {
+        "bytes": { "type": "integer", "minimum": 0 },
+        "md5": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+        "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "device": { "type": "integer", "minimum": 0 },
+        "inode": { "type": "integer", "minimum": 0 },
+        "mtime_ns": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "artifactResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "artifact_id", "locator_id", "filename", "measured", "status", "mismatches"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "locator_id": { "type": "string", "minLength": 1 },
+        "filename": { "type": "string", "minLength": 1 },
+        "measured": { "oneOf": [{ "$ref": "#/$defs/measurement" }, { "type": "null" }] },
+        "status": { "enum": ["verified", "mismatch", "error"] },
+        "mismatches": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

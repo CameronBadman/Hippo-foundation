@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v2/registry.schema.json",
+  "title": "Phase 0 v2 registry",
+  "oneOf": [
+    { "$ref": "#/$defs/sourceRegistry" },
+    { "$ref": "#/$defs/evaluationRegistry" }
+  ],
+  "$defs": {
+    "digest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+    "checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value", "origin", "verified"],
+      "properties": {
+        "algorithm": { "enum": ["md5", "sha1", "sha256"] },
+        "value": { "type": "string", "pattern": "^[0-9a-f]+$" },
+        "origin": { "enum": ["publisher", "local"] },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "locator_id", "filename", "source_url", "media_type", "compression", "expected_bytes", "checksums", "raw_policy", "integrity_status", "availability", "inventory_kind", "required_nonzero_counters", "required_zero_counters"],
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "locator_id": { "type": "string", "minLength": 1 },
+        "filename": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "media_type": { "type": "string", "minLength": 1 },
+        "compression": { "enum": ["none", "gzip", "bzip2"] },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "checksums": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/checksum" } },
+        "raw_policy": { "const": "immutable" },
+        "integrity_status": { "enum": ["unverified", "verified"] },
+        "availability": { "enum": ["preexisting", "acquisition_target"] },
+        "inventory_kind": { "enum": ["wikipedia_xml", "mediawiki_sql", "wikidata_json", "conceptnet_assertions"] },
+        "required_nonzero_counters": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "required_zero_counters": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "storageRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locator_id", "provider", "provider_resource_id", "root_resource_id", "required_root"],
+      "properties": {
+        "locator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "provider": { "const": "google_drive_shared_drive" },
+        "provider_resource_id": { "type": ["string", "null"], "minLength": 3 },
+        "root_resource_id": { "type": ["string", "null"], "minLength": 3 },
+        "required_root": { "type": "string", "pattern": "^/" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "publisher", "version", "snapshot_at", "role", "admission_status", "licence_review_id", "artifacts", "quarantine_required"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "publisher": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "snapshot_at": { "type": "string", "format": "date-time" },
+        "role": { "enum": ["foundation_candidate", "forensic_only"] },
+        "admission_status": { "enum": ["pending", "accepted", "blocked"] },
+        "licence_review_id": { "type": "string", "minLength": 1 },
+        "artifacts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/artifact" } },
+        "quarantine_required": { "type": "boolean" }
+      }
+    },
+    "sourceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registry_kind", "registry_id", "generated_at", "storage_requirements", "sources"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "registry_kind": { "const": "sources" },
+        "registry_id": { "type": "string", "minLength": 1 },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "storage_requirements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/storageRequirement" } },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_id", "role", "official_source", "resolved_version", "partition", "archive_sha256", "seal_id", "licence_review_id", "adapter_id", "adapter_sha256", "status", "blockers", "dependency_units"],
+      "properties": {
+        "dataset_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "role": { "type": "string", "minLength": 1 },
+        "official_source": { "type": "string", "minLength": 1 },
+        "resolved_version": { "type": ["string", "null"] },
+        "partition": { "type": ["string", "null"] },
+        "archive_sha256": { "$ref": "#/$defs/digest" },
+        "seal_id": { "type": "string", "minLength": 1 },
+        "licence_review_id": { "type": "string", "minLength": 1 },
+        "adapter_id": { "type": ["string", "null"] },
+        "adapter_sha256": { "$ref": "#/$defs/digest" },
+        "status": { "enum": ["declared", "pinned", "sealed", "consumed"] },
+        "blockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "dependency_units": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "evaluationRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registry_kind", "registry_id", "generated_at", "evaluation_protocol", "datasets", "closure_policy_id"],
+      "properties": {
+        "schema_version": { "const": "2.0.0" },
+        "registry_kind": { "const": "evaluations" },
+        "registry_id": { "type": "string", "minLength": 1 },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "evaluation_protocol": { "type": "object" },
+        "datasets": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evaluation" } },
+        "closure_policy_id": { "const": "quarantine-closure-v2" }
+      }
+    }
+  }
+}

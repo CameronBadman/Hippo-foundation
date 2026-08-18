@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase1/v2/encoder-verification.schema.json",
+  "title": "Phase 1 v2 exact-layout encoder verification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "verification_method",
+    "encoder_id",
+    "spec_sha256",
+    "snapshot_id",
+    "revision",
+    "bakeoff_report_sha256",
+    "assets",
+    "asset_set_exact",
+    "executable_model_code_files",
+    "verified_at",
+    "verified"
+  ],
+  "properties": {
+    "schema_version": { "const": "2.0.0" },
+    "record_kind": { "const": "encoder_verification" },
+    "verification_method": { "const": "exact-snapshot-layout-v2" },
+    "encoder_id": { "const": "gte-modernbert-base-frozen-v1" },
+    "spec_sha256": { "$ref": "#/$defs/digest" },
+    "snapshot_id": { "type": "string", "minLength": 1 },
+    "revision": { "const": "e7f32e3c00f91d699e8c43b53106206bcc72bb22" },
+    "bakeoff_report_sha256": { "$ref": "#/$defs/digest" },
+    "assets": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/asset" }
+    },
+    "asset_set_exact": { "const": true },
+    "executable_model_code_files": {
+      "type": "array",
+      "maxItems": 0,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "verified_at": { "type": "string", "format": "date-time" },
+    "verified": { "const": true }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "pattern": "^[^/].*$" },
+        "bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

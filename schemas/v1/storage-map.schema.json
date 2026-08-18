@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/storage-map.schema.json",
+  "title": "Machine-local mapping from registered locator IDs to absolute roots",
+  "type": "object",
+  "minProperties": 1,
+  "propertyNames": { "pattern": "^[a-z][a-z0-9_.-]*$" },
+  "additionalProperties": { "type": "string", "pattern": "^/" }
+}

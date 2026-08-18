@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/quarantine-specification.schema.json",
+  "title": "Private-to-public quarantine compilation specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["index_id", "bundles"],
+  "properties": {
+    "index_id": { "type": "string", "minLength": 1 },
+    "bundles": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/bundle" } }
+  },
+  "$defs": {
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seal_id", "sealed_record_count", "seeds", "relationships", "raw_hashes", "normalized_hashes", "fingerprints"],
+      "properties": {
+        "seal_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "sealed_record_count": { "type": ["integer", "null"], "minimum": 1 },
+        "seeds": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true },
+        "relationships": { "type": "array", "items": { "$ref": "#/$defs/relationship" } },
+        "raw_hashes": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "normalized_hashes": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "fingerprints": { "type": "array", "items": { "$ref": "#/$defs/fingerprint" } }
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": ["string", "null"] }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "relation", "destination"],
+      "properties": {
+        "source": { "$ref": "#/$defs/identifier" },
+        "relation": { "enum": ["revision_of", "page_family", "redirect_to", "title_alias", "sitelink", "incident_statement", "same_work", "story_family", "contract_family", "paper_family", "case_family", "claimant_family", "organisation_family", "publisher_family", "time_window", "generator_world", "generator_grammar", "generator_seed_family", "near_duplicate_cluster"] },
+        "destination": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fingerprint_id", "kind", "minhash", "shingle_hashes"],
+      "properties": {
+        "fingerprint_id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["word5", "character5"] },
+        "minhash": { "type": "array", "minItems": 128, "maxItems": 128, "items": { "type": "integer", "minimum": 0 } },
+        "shingle_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{32}$" }, "uniqueItems": true }
+      }
+    }
+  }
+}

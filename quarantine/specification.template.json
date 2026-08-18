@@ -1,0 +1,68 @@
+{
+  "index_id": "public-evaluation-union-v1",
+  "bundles": [
+    {
+      "seal_id": "contractnli-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "evidence-inference-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "glucose-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "maven-ere-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "proofwriter-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "vitaminc-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    },
+    {
+      "seal_id": "wiqa-confirmatory-v1",
+      "sealed_record_count": null,
+      "seeds": [],
+      "relationships": [],
+      "raw_hashes": [],
+      "normalized_hashes": [],
+      "fingerprints": []
+    }
+  ]
+}

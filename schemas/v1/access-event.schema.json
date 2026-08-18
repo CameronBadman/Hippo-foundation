@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/access-event.schema.json",
+  "title": "Hash-chained confirmatory-vault access event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "seal_id", "action", "actor", "at", "previous_hash", "details", "event_hash"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "seal_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "action": { "enum": ["seal_created", "verify", "decrypt", "inspect_labels", "report_confirmatory_result", "tune_from_result", "consume", "retire"] },
+    "actor": { "type": "string", "minLength": 1 },
+    "at": { "type": "string", "format": "date-time" },
+    "previous_hash": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+    "details": { "type": "object" },
+    "event_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}

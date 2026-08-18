@@ -1,0 +1,24 @@
+{
+  "blockers": [
+    "graph_manifest_missing",
+    "objectives_manifest_missing",
+    "phase0_gate_invalid:Phase1GateBlocked:Phase 0 has not authorized foundation transformation",
+    "sample_manifest_missing"
+  ],
+  "contracts_frozen": true,
+  "encoder_ready": true,
+  "evaluated_at": "2026-08-17T09:40:43Z",
+  "evidence": [
+    "encoder_spec:sha256:c89d05f5eaa510cbda58d8fb07517ae3084868cc3c8c85b4de2eab119511bbbb",
+    "encoder_verification:sha256:6c1e715c4f7edf8fee64b7cf63136139ec3c1a94a92037532a47b7258ce4a8b6",
+    "phase1_schemas:sha256:6b7ef6d7959589b45ea35795a7eafbbd219f5ff6ee8c22d71214d758286e1ba4"
+  ],
+  "gate_id": "phase1-data-preparation-v1",
+  "graph_ready": false,
+  "objectives_ready": false,
+  "phase0_transform_ready": false,
+  "phase1_data_ready": false,
+  "sample_ready": false,
+  "schema_version": "1.0.0",
+  "training_authorized": false
+}

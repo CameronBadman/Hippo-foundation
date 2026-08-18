@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/licensing/v1/evidence-bundle.schema.json",
+  "title": "Licence evidence bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "bundle_id",
+    "review_id",
+    "subject_kind",
+    "subject_id",
+    "subject_binding_sha256",
+    "assembled_at",
+    "contains_evaluation_content",
+    "documents",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "licence_evidence_bundle" },
+    "bundle_id": { "$ref": "#/$defs/id" },
+    "review_id": { "$ref": "#/$defs/id" },
+    "subject_kind": { "enum": ["source", "evaluation", "encoder"] },
+    "subject_id": { "type": "string", "minLength": 1 },
+    "subject_binding_sha256": { "$ref": "#/$defs/digest" },
+    "assembled_at": { "$ref": "#/$defs/timestamp" },
+    "contains_evaluation_content": { "const": false },
+    "documents": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/document" }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "role",
+        "source_kind",
+        "original_url",
+        "resolved_url",
+        "revision",
+        "snapshot_path",
+        "media_type",
+        "content_encoding",
+        "byte_count",
+        "sha256",
+        "retrieved_at",
+        "etag",
+        "last_modified",
+        "mutable"
+      ],
+      "properties": {
+        "document_id": { "$ref": "#/$defs/id" },
+        "role": {
+          "enum": [
+            "applicability_statement",
+            "legal_code",
+            "publisher_terms",
+            "platform_terms",
+            "download_terms",
+            "repository_licence",
+            "model_or_dataset_card",
+            "repository_tree",
+            "embedded_licence",
+            "provenance",
+            "official_legal_metadata",
+            "first_party_attestation"
+          ]
+        },
+        "source_kind": {
+          "enum": ["https_response", "repository_file", "official_metadata", "local_attestation"]
+        },
+        "original_url": { "type": "string", "format": "uri" },
+        "resolved_url": { "type": "string", "format": "uri" },
+        "revision": { "type": ["string", "null"], "minLength": 1 },
+        "snapshot_path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+        },
+        "media_type": { "type": "string", "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$" },
+        "content_encoding": { "type": ["string", "null"], "minLength": 1 },
+        "byte_count": { "type": "integer", "minimum": 0, "maximum": 16777216 },
+        "sha256": { "$ref": "#/$defs/digest" },
+        "retrieved_at": { "$ref": "#/$defs/timestamp" },
+        "etag": { "type": ["string", "null"], "minLength": 1 },
+        "last_modified": { "type": ["string", "null"], "minLength": 1 },
+        "mutable": { "type": "boolean" }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finding_id", "category", "blocking", "summary"],
+      "properties": {
+        "finding_id": { "$ref": "#/$defs/id" },
+        "category": {
+          "enum": [
+            "missing_provenance",
+            "conflicting_terms",
+            "third_party_rights",
+            "attribution",
+            "share_alike",
+            "privacy_publicity",
+            "trademark",
+            "commercial_scope",
+            "clickthrough_authority",
+            "missing_implementation",
+            "other"
+          ]
+        },
+        "blocking": { "type": "boolean" },
+        "summary": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

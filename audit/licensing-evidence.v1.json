@@ -1,0 +1,164 @@
+{
+  "contains_evaluation_content": false,
+  "generated_at": "2026-08-17T14:22:22Z",
+  "record_kind": "licence_evidence_audit_index",
+  "schema_version": "1.0.0",
+  "subjects": [
+    {
+      "bundle_sha256": "sha256:3d5f5040d29f2dc5a01d250c5d494f74d18dff65678e50ac00b859160e588505",
+      "captured_document_count": 5,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "privacy_publicity",
+        "third_party_rights",
+        "trademark"
+      ],
+      "missing_document_count": 0,
+      "review_id": "wikidata-20260720-rights-v2",
+      "subject_id": "wikidata@20260720-json",
+      "subject_kind": "source",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:dcae55354c4d1a6dd24c5a7c0575acf53c0d071eb0a89aa3c84c5d4cd2053e51",
+      "captured_document_count": 5,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "privacy_publicity",
+        "share_alike",
+        "third_party_rights"
+      ],
+      "missing_document_count": 0,
+      "review_id": "enwiki-20260801-rights-v2",
+      "subject_id": "enwiki@20260801",
+      "subject_kind": "source",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:7b7f288690741d6e7c5dbea5d16719e6bc3c76e9c895a7ca65c1309c08d697b6",
+      "captured_document_count": 5,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "commercial_scope",
+        "conflicting_terms",
+        "missing_provenance"
+      ],
+      "missing_document_count": 0,
+      "review_id": "gte-modernbert-base-rights-v1",
+      "subject_id": "gte-modernbert-base-frozen-v1",
+      "subject_kind": "encoder",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:533b303e2735d88bc0c46a15c680f8769927a8cd796c218dab7fe2d570b5b524",
+      "captured_document_count": 4,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "attribution",
+        "share_alike"
+      ],
+      "missing_document_count": 0,
+      "review_id": "vitaminc-rights-v2",
+      "subject_id": "vitaminc",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:7f082c7065c60d550c7c0761099565f6160f53a60815bfdd4ddb6ed2047172c4",
+      "captured_document_count": 4,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "clickthrough_authority",
+        "third_party_rights"
+      ],
+      "missing_document_count": 0,
+      "review_id": "contractnli-rights-v2",
+      "subject_id": "contractnli",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:887ff651fbc4829e7dc97bd95dd2593ce0ecf29169c465c77ff8086946a30f17",
+      "captured_document_count": 8,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "conflicting_terms",
+        "other",
+        "third_party_rights"
+      ],
+      "missing_document_count": 0,
+      "review_id": "eventstoryline-v1.5-rights-v2",
+      "subject_id": "eventstoryline-v1.5",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:3accff0bf6d5aa8f3962d4329dc49762ec85e0c90f15926de1ec4524fb2a6ef1",
+      "captured_document_count": 7,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "missing_provenance",
+        "other",
+        "third_party_rights"
+      ],
+      "missing_document_count": 0,
+      "review_id": "evidencebench-original-test-rights-v2",
+      "subject_id": "evidencebench-original-test",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:c038c8109c4e192d6294df573b530b51cabd8efd6195d2e11ef2612cbca9f30d",
+      "captured_document_count": 5,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "missing_provenance",
+        "privacy_publicity",
+        "third_party_rights"
+      ],
+      "missing_document_count": 0,
+      "review_id": "socialiqa-v1.4-validation-rights-v2",
+      "subject_id": "socialiqa-v1.4-validation",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:dd1437b780f800e055b6e62f6df4f28413966bece89cea2b7eb9116b41f85db1",
+      "captured_document_count": 0,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "missing_implementation",
+        "missing_provenance"
+      ],
+      "missing_document_count": 0,
+      "review_id": "hf-logic-owa-v1-rights-v2",
+      "subject_id": "hf-logic-owa-v1",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    },
+    {
+      "bundle_sha256": "sha256:0f931f779fd7c43b53286ca56f0d82182ba39d612c890840dc04648dfb974e21",
+      "captured_document_count": 0,
+      "commercial_context": "unclear",
+      "decision": "pending",
+      "finding_categories": [
+        "missing_implementation",
+        "missing_provenance"
+      ],
+      "missing_document_count": 0,
+      "review_id": "hf-process-state-v1-rights-v2",
+      "subject_id": "hf-process-state-v1",
+      "subject_kind": "evaluation",
+      "training_authorized": false
+    }
+  ]
+}

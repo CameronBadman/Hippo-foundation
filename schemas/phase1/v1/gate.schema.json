@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase1/v1/gate.schema.json",
+  "title": "Phase 1 data preparation readiness report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "gate_id", "evaluated_at", "contracts_frozen", "phase0_transform_ready", "encoder_ready", "sample_ready", "graph_ready", "objectives_ready", "phase1_data_ready", "training_authorized", "blockers", "evidence"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "gate_id": { "const": "phase1-data-preparation-v1" },
+    "evaluated_at": { "type": "string", "format": "date-time" },
+    "contracts_frozen": { "type": "boolean" },
+    "phase0_transform_ready": { "type": "boolean" },
+    "encoder_ready": { "type": "boolean" },
+    "sample_ready": { "type": "boolean" },
+    "graph_ready": { "type": "boolean" },
+    "objectives_ready": { "type": "boolean" },
+    "phase1_data_ready": { "type": "boolean" },
+    "training_authorized": { "const": false },
+    "blockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  }
+}

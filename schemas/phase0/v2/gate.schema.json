@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v2/gate.schema.json",
+  "title": "Phase 0 v2 readiness report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "gate_id", "evaluated_at", "schemas_frozen", "storage_identity_ready", "source_audit_ready", "licensing_ready", "public_confirmatory_ready", "quarantine_ready", "structural_inventory_ready", "admission_ready", "foundation_acquisition_authorized", "foundation_transform_ready", "training_authorized", "blockers", "evidence"],
+  "properties": {
+    "schema_version": { "const": "2.0.0" },
+    "gate_id": { "const": "phase0-public-foundation-v2" },
+    "evaluated_at": { "type": "string", "format": "date-time" },
+    "schemas_frozen": { "type": "boolean" },
+    "storage_identity_ready": { "type": "boolean" },
+    "source_audit_ready": { "type": "boolean" },
+    "licensing_ready": { "type": "boolean" },
+    "public_confirmatory_ready": { "type": "boolean" },
+    "quarantine_ready": { "type": "boolean" },
+    "structural_inventory_ready": { "type": "boolean" },
+    "admission_ready": { "type": "boolean" },
+    "foundation_acquisition_authorized": { "type": "boolean" },
+    "foundation_transform_ready": { "type": "boolean" },
+    "training_authorized": { "const": false },
+    "blockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  }
+}

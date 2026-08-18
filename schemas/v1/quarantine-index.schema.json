@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/quarantine-index.schema.json",
+  "title": "Public union quarantine index without labels or split membership",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "index_id", "closure_policy_id", "source_seal_ids", "coverage", "identifiers", "raw_hashes", "normalized_hashes", "fingerprints"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "index_id": { "type": "string", "minLength": 1 },
+    "closure_policy_id": { "const": "quarantine-closure-v1" },
+    "source_seal_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "coverage": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/coverage" } },
+    "identifiers": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true },
+    "raw_hashes": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "uniqueItems": true },
+    "normalized_hashes": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "uniqueItems": true },
+    "fingerprints": { "type": "array", "items": { "$ref": "#/$defs/fingerprint" } }
+  },
+  "$defs": {
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seal_id", "sealed_record_count", "seed_identifier_count", "closure_identifier_count", "relationship_count", "raw_hash_count", "normalized_hash_count", "fingerprint_count", "closure_complete"],
+      "properties": {
+        "seal_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "sealed_record_count": { "type": "integer", "minimum": 1 },
+        "seed_identifier_count": { "type": "integer", "minimum": 0 },
+        "closure_identifier_count": { "type": "integer", "minimum": 0 },
+        "relationship_count": { "type": "integer", "minimum": 0 },
+        "raw_hash_count": { "type": "integer", "minimum": 0 },
+        "normalized_hash_count": { "type": "integer", "minimum": 0 },
+        "fingerprint_count": { "type": "integer", "minimum": 0 },
+        "closure_complete": { "const": true }
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": ["string", "null"] }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fingerprint_id", "kind", "minhash", "shingle_hashes"],
+      "properties": {
+        "fingerprint_id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["word5", "character5"] },
+        "minhash": { "type": "array", "minItems": 128, "maxItems": 128, "items": { "type": "integer", "minimum": 0 } },
+        "shingle_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{32}$" }, "uniqueItems": true }
+      }
+    }
+  }
+}

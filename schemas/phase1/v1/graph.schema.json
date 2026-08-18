@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase1/v1/graph.schema.json",
+  "title": "Phase 1 graph and neighbourhood records",
+  "oneOf": [
+    { "$ref": "#/$defs/node" },
+    { "$ref": "#/$defs/statement" },
+    { "$ref": "#/$defs/neighbourCandidate" },
+    { "$ref": "#/$defs/neighbourOverflow" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value", "source_version", "artifact_sha256"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 },
+        "artifact_sha256": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "entityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entity_id"],
+      "properties": {
+        "kind": { "const": "entity_ref" },
+        "entity_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "literal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "datatype", "lexical_value", "language", "unit", "calendar_model", "precision"],
+      "properties": {
+        "kind": { "const": "literal" },
+        "datatype": { "type": "string", "minLength": 1 },
+        "lexical_value": { "type": "string" },
+        "language": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "calendar_model": { "type": ["string", "null"] },
+        "precision": { "type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991 }
+      }
+    },
+    "sentinel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sentinel"],
+      "properties": {
+        "kind": { "const": "sentinel" },
+        "sentinel": { "enum": ["somevalue", "novalue"] }
+      }
+    },
+    "value": {
+      "oneOf": [
+        { "$ref": "#/$defs/entityRef" },
+        { "$ref": "#/$defs/literal" },
+        { "$ref": "#/$defs/sentinel" }
+      ]
+    },
+    "snak": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property_id", "value"],
+      "properties": {
+        "property_id": { "type": "string", "minLength": 1 },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference_id", "snaks"],
+      "properties": {
+        "reference_id": { "type": "string", "minLength": 1 },
+        "snaks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/snak" } }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "node_id", "source_kind", "title", "body", "community_id", "pagerank", "in_degree", "out_degree", "text_characters", "quarantine_decision", "provenance_refs"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "const": "node" },
+        "node_id": { "type": "string", "minLength": 1 },
+        "source_kind": { "enum": ["wikipedia", "wikidata"] },
+        "title": { "type": "string", "minLength": 1 },
+        "body": { "type": "string" },
+        "community_id": { "type": "string", "minLength": 1 },
+        "pagerank": { "type": "number", "minimum": 0 },
+        "in_degree": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "out_degree": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "text_characters": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "quarantine_decision": { "const": "clear" },
+        "provenance_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } }
+      }
+    },
+    "statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "statement_id", "subject", "property_id", "value", "rank", "qualifiers", "references", "quarantine_decision", "provenance_refs"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "const": "statement" },
+        "statement_id": { "type": "string", "minLength": 1 },
+        "subject": { "$ref": "#/$defs/entityRef" },
+        "property_id": { "type": "string", "minLength": 1 },
+        "value": { "$ref": "#/$defs/value" },
+        "rank": { "enum": ["preferred", "normal", "deprecated"] },
+        "qualifiers": { "type": "array", "items": { "$ref": "#/$defs/snak" } },
+        "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+        "quarantine_decision": { "const": "clear" },
+        "provenance_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } }
+      }
+    },
+    "neighbourCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "candidate_id", "center_node_id", "neighbour_node_id", "source_kind", "direction", "value_kind", "property_id", "statement_id", "diversity_key", "rank", "quarantine_decision", "provenance_refs"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "const": "neighbour_candidate" },
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "center_node_id": { "type": "string", "minLength": 1 },
+        "neighbour_node_id": { "type": ["string", "null"] },
+        "source_kind": { "enum": ["wikipedia", "wikidata"] },
+        "direction": { "enum": ["outgoing", "incoming"] },
+        "value_kind": { "enum": ["entity_ref", "literal"] },
+        "property_id": { "type": "string", "minLength": 1 },
+        "statement_id": { "type": "string", "minLength": 1 },
+        "diversity_key": { "type": "string", "minLength": 1 },
+        "rank": { "enum": ["preferred", "normal", "deprecated"] },
+        "quarantine_decision": { "const": "clear" },
+        "provenance_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } }
+      }
+    },
+    "neighbourOverflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "reason", "candidate"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "record_kind": { "const": "neighbour_overflow" },
+        "reason": { "enum": ["property_cap", "category_cap"] },
+        "candidate": { "$ref": "#/$defs/neighbourCandidate" }
+      }
+    }
+  }
+}

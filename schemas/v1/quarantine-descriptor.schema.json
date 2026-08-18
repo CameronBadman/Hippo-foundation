@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/v1/quarantine-descriptor.schema.json",
+  "title": "Foundation-record quarantine descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["identifiers", "raw_sha256", "normalized_sha256", "fingerprint"],
+  "properties": {
+    "identifiers": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true },
+    "raw_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "normalized_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "fingerprint": { "$ref": "#/$defs/fingerprint" }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": ["string", "null"] }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fingerprint_id", "kind", "minhash", "shingle_hashes"],
+      "properties": {
+        "fingerprint_id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["word5", "character5"] },
+        "minhash": { "type": "array", "minItems": 128, "maxItems": 128, "items": { "type": "integer", "minimum": 0 } },
+        "shingle_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{32}$" }, "uniqueItems": true }
+      }
+    }
+  }
+}

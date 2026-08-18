@@ -1,0 +1,311 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "hippocampus-foundation-sources-v1",
+  "generated_at": "2026-08-16T11:43:22Z",
+  "storage_requirements": [
+    {
+      "locator_id": "drive_lake",
+      "provider": "google_drive_shared_drive",
+      "identity": "Shared drives/Data/graph-memory-data-lake",
+      "required_root": "/content/drive/Shareddrives/Data/graph-memory-data-lake",
+      "environment": "Google Colab with the authorized shared Drive mounted at /content/drive",
+      "verification": "Resolve the registered absolute root without symlinks, then hash every artifact from raw bytes. A similarly named local directory is not interchangeable."
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "wikidata@20260720-json",
+      "publisher": "Wikimedia Foundation",
+      "version": "20260720",
+      "snapshot_at": "2026-07-20T00:00:00Z",
+      "role": "foundation_candidate",
+      "trust_level": "publisher_primary",
+      "admission_status": "accepted",
+      "admission_reason": "Pinned official full JSON dump preserves statements, ranks, qualifiers, references, and sitelinks; byte admission remains conditional on the clean-room source audit.",
+      "licence": {
+        "identifier": "CC0-1.0",
+        "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+        "review_status": "approved",
+        "commercial_use": "allowed",
+        "allowed_uses": ["acquire", "inventory", "quarantine", "train", "redistribute"],
+        "reviewer": "codex-primary-source-review",
+        "reviewed_at": "2026-08-16T11:43:22Z"
+      },
+      "artifacts": [
+        {
+          "artifact_id": "wikidata-20260720-all-json-bz2",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikidata/2026-07-20/wikidata-20260720-all.json.bz2",
+          "source_url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260720/wikidata-20260720-all.json.bz2",
+          "media_type": "application/json",
+          "compression": "bzip2",
+          "expected_bytes": 102354154676,
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "value": "2acc94e09ef1c2c39bf996eb6f23c43c491f8d0d",
+              "origin": "publisher",
+              "verified": true
+            }
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        }
+      ],
+      "inventory": {
+        "compressed_bytes": {"status": "not_measured", "value": null, "reason": "Clean-room byte audit has not run."},
+        "materialised_bytes": {"status": "not_measured", "value": null, "reason": "Phase 0 does not materialise the dump."},
+        "documents": {"status": "not_applicable", "value": null, "reason": "The unit is a Wikidata entity, not a document."},
+        "document_versions": {"status": "not_applicable", "value": null, "reason": "The pinned dump contains one entity snapshot."},
+        "tokens": {"status": "not_measured", "value": null, "reason": "Tokenisation is outside Phase 0."},
+        "nodes": {"status": "not_measured", "value": null, "reason": "Streaming entity inventory has not run."},
+        "edges": {"status": "not_measured", "value": null, "reason": "Streaming statement inventory has not run."},
+        "qualifiers": {"status": "not_measured", "value": null, "reason": "Streaming qualifier inventory has not run."},
+        "evidence_spans": {"status": "not_applicable", "value": null, "reason": "Wikidata references are structured records, not source-text spans."},
+        "rejected_records": {"status": "not_measured", "value": null, "reason": "Streaming parse validation has not run."}
+      },
+      "quarantine_required": true,
+      "leakage_status": "not_audited"
+    },
+    {
+      "source_id": "wikidata@20260812-legacy-lake",
+      "publisher": "Wikimedia Foundation",
+      "version": "20260812",
+      "snapshot_at": "2026-08-12T00:00:00Z",
+      "role": "forensic_only",
+      "trust_level": "legacy_unreviewed",
+      "admission_status": "blocked",
+      "admission_reason": "Files were acquired before this clean-room control plane. Historical sizes and hashes are selectors only until independently re-audited; the truthy export also omits information required by the foundation contract.",
+      "licence": {
+        "identifier": "CC0-1.0",
+        "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+        "review_status": "approved",
+        "commercial_use": "allowed",
+        "allowed_uses": ["acquire", "inventory", "quarantine", "train", "redistribute"],
+        "reviewer": "codex-primary-source-review",
+        "reviewed_at": "2026-08-16T11:43:22Z"
+      },
+      "artifacts": [
+        {
+          "artifact_id": "wikidata-20260812-lexemes-json-bz2",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikidata/2026-08-12/wikidata-20260812-lexemes.json.bz2",
+          "source_url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260812/wikidata-20260812-lexemes.json.bz2",
+          "media_type": "application/json",
+          "compression": "bzip2",
+          "expected_bytes": 442289093,
+          "checksums": [
+            {"algorithm": "sha1", "value": "89a9595d624efdc0f55951b4f432345eaa1cdcca", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "2ad38ef0e85e598fbcd45e151d5e04ded5a435afe0c6352592c57152805ee41f", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "wikidata-20260812-truthy-nt-bz2",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikidata/2026-08-12/wikidata-20260812-truthy-BETA.nt.bz2",
+          "source_url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260812/wikidata-20260812-truthy-BETA.nt.bz2",
+          "media_type": "application/n-triples",
+          "compression": "bzip2",
+          "expected_bytes": 43252160708,
+          "checksums": [
+            {"algorithm": "sha1", "value": "54892492cfbdcacc6a2ebbf06cbab319b306354c", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "cfb0438796aa984b420ef167696f92439eed216a9f3ff873900dd0e6d3a9ef23", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        }
+      ],
+      "inventory": {
+        "compressed_bytes": {"status": "not_measured", "value": null, "reason": "Only pre-clean-room observations exist."},
+        "materialised_bytes": {"status": "not_measured", "value": null, "reason": "No clean-room materialisation exists."},
+        "documents": {"status": "not_applicable", "value": null, "reason": "The unit is a Wikidata entity or lexeme."},
+        "document_versions": {"status": "not_applicable", "value": null, "reason": "The dumps are snapshots."},
+        "tokens": {"status": "not_measured", "value": null, "reason": "Tokenisation is outside Phase 0."},
+        "nodes": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "edges": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "qualifiers": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "evidence_spans": {"status": "not_applicable", "value": null, "reason": "No source-text spans are represented."},
+        "rejected_records": {"status": "not_measured", "value": null, "reason": "Clean-room parsing has not run."}
+      },
+      "quarantine_required": true,
+      "leakage_status": "blocked"
+    },
+    {
+      "source_id": "enwiki@20260801-legacy-lake",
+      "publisher": "Wikimedia Foundation",
+      "version": "20260801",
+      "snapshot_at": "2026-08-01T00:00:00Z",
+      "role": "forensic_only",
+      "trust_level": "legacy_unreviewed",
+      "admission_status": "blocked",
+      "admission_reason": "Files were acquired before the clean-room boundary. Historical hashes are retained only as expected selectors; current bytes, licensing obligations, and leakage closure must be independently audited.",
+      "licence": {
+        "identifier": "CC-BY-SA-4.0-and-GFDL",
+        "terms_url": "https://dumps.wikimedia.org/legal.html",
+        "review_status": "pending",
+        "commercial_use": "unclear",
+        "allowed_uses": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "artifacts": [
+        {
+          "artifact_id": "enwiki-20260801-redirect-sql-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-redirect.sql.gz",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-redirect.sql.gz",
+          "media_type": "application/sql",
+          "compression": "gzip",
+          "expected_bytes": 185009639,
+          "checksums": [
+            {"algorithm": "sha1", "value": "448446698ab5edbe756ca92c39b217790e4bfb56", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "fe8ff4b6052f2f2bc655bcce5de91d61a07be8ee64862e31288932174f73fca2", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "enwiki-20260801-linktarget-sql-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-linktarget.sql.gz",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-linktarget.sql.gz",
+          "media_type": "application/sql",
+          "compression": "gzip",
+          "expected_bytes": 1419859095,
+          "checksums": [
+            {"algorithm": "sha1", "value": "430cd0ac6adbad6360d90732f9b15372b45e2acb", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "673bea06212358a8a0a52803c192918c7fd78b4a8158af990321147bb4843e49", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "enwiki-20260801-page-sql-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-page.sql.gz",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-page.sql.gz",
+          "media_type": "application/sql",
+          "compression": "gzip",
+          "expected_bytes": 2407863833,
+          "checksums": [
+            {"algorithm": "sha1", "value": "da4f34b75de78746c32538a70ec0010654328acf", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "dd1dc29b33394d14c92b0ac329464f021a3de430fc6a8785e4f3b9f32a57dd90", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "enwiki-20260801-categorylinks-sql-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-categorylinks.sql.gz",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-categorylinks.sql.gz",
+          "media_type": "application/sql",
+          "compression": "gzip",
+          "expected_bytes": 2507076915,
+          "checksums": [
+            {"algorithm": "sha1", "value": "7b4f943073f71c930a16d4b70f873e59bfbd7461", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "247e1f205a0ee07a62251b685713056c020551cc64862b9b4c6f2df04cf705ac", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pagelinks-sql-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-pagelinks.sql.gz",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-pagelinks.sql.gz",
+          "media_type": "application/sql",
+          "compression": "gzip",
+          "expected_bytes": 7018640517,
+          "checksums": [
+            {"algorithm": "sha1", "value": "2980639f6422fd8979d30b42265582785299c0f8", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "e2fb2f31d0031b55b1a73ba76d4835db2974e35eec93f966250a3b2d57f3b271", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pages-articles-xml-bz2",
+          "locator_id": "drive_lake",
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-pages-articles.xml.bz2",
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-pages-articles.xml.bz2",
+          "media_type": "application/xml",
+          "compression": "bzip2",
+          "expected_bytes": 25554567998,
+          "checksums": [
+            {"algorithm": "sha1", "value": "41654af3b2cb8eddc0433293de2964ac4598397b", "origin": "publisher", "verified": false},
+            {"algorithm": "sha256", "value": "4f571b366b761b5bc14662a63847ad1c7d7ecf3d5c1fa4e66a853de172b2325a", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        }
+      ],
+      "inventory": {
+        "compressed_bytes": {"status": "not_measured", "value": null, "reason": "Only pre-clean-room observations exist."},
+        "materialised_bytes": {"status": "not_measured", "value": null, "reason": "No clean-room materialisation exists."},
+        "documents": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "document_versions": {"status": "not_measured", "value": null, "reason": "The pages-articles dump is not revision history."},
+        "tokens": {"status": "not_measured", "value": null, "reason": "Tokenisation is outside Phase 0."},
+        "nodes": {"status": "not_measured", "value": null, "reason": "Graph construction is outside Phase 0."},
+        "edges": {"status": "not_measured", "value": null, "reason": "Graph construction is outside Phase 0."},
+        "qualifiers": {"status": "not_applicable", "value": null, "reason": "MediaWiki page/link exports do not use Wikidata qualifiers."},
+        "evidence_spans": {"status": "not_measured", "value": null, "reason": "Evidence extraction is outside Phase 0."},
+        "rejected_records": {"status": "not_measured", "value": null, "reason": "Clean-room parsing has not run."}
+      },
+      "quarantine_required": true,
+      "leakage_status": "blocked"
+    },
+    {
+      "source_id": "conceptnet@5.7.0-legacy-lake",
+      "publisher": "ConceptNet project",
+      "version": "5.7.0",
+      "snapshot_at": "2019-05-01T00:00:00Z",
+      "role": "forensic_only",
+      "trust_level": "legacy_unreviewed",
+      "admission_status": "blocked",
+      "admission_reason": "The archive predates the clean-room boundary, lacked a publisher checksum in the historical acquisition, and requires a licence/provenance review before any admission decision.",
+      "licence": {
+        "identifier": "unreviewed",
+        "terms_url": "https://github.com/commonsense/conceptnet5/wiki/Copying-and-sharing-ConceptNet",
+        "review_status": "pending",
+        "commercial_use": "unclear",
+        "allowed_uses": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "artifacts": [
+        {
+          "artifact_id": "conceptnet-assertions-5.7.0-csv-gz",
+          "locator_id": "drive_lake",
+          "filename": "raw/conceptnet/5.7.0/conceptnet-assertions-5.7.0.csv.gz",
+          "source_url": "https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz",
+          "media_type": "text/tab-separated-values",
+          "compression": "gzip",
+          "expected_bytes": 497963447,
+          "checksums": [
+            {"algorithm": "sha1", "value": "29ad0b536309ae2f818cbb3ae6c98ed978238e17", "origin": "local", "verified": false},
+            {"algorithm": "sha256", "value": "accd65fe94038584295574ddc26e1500c1919c8c4532bf771811cafd0948af7e", "origin": "local", "verified": false}
+          ],
+          "raw_policy": "immutable",
+          "integrity_status": "unverified"
+        }
+      ],
+      "inventory": {
+        "compressed_bytes": {"status": "not_measured", "value": null, "reason": "Only pre-clean-room observations exist."},
+        "materialised_bytes": {"status": "not_measured", "value": null, "reason": "No clean-room materialisation exists."},
+        "documents": {"status": "not_applicable", "value": null, "reason": "The archive contains assertions, not documents."},
+        "document_versions": {"status": "not_applicable", "value": null, "reason": "The archive is a fixed release."},
+        "tokens": {"status": "not_measured", "value": null, "reason": "Tokenisation is outside Phase 0."},
+        "nodes": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "edges": {"status": "not_measured", "value": null, "reason": "Clean-room streaming inventory has not run."},
+        "qualifiers": {"status": "not_applicable", "value": null, "reason": "ConceptNet assertions do not use the foundation qualifier envelope."},
+        "evidence_spans": {"status": "not_measured", "value": null, "reason": "Evidence extraction is outside Phase 0."},
+        "rejected_records": {"status": "not_measured", "value": null, "reason": "Clean-room parsing has not run."}
+      },
+      "quarantine_required": true,
+      "leakage_status": "blocked"
+    }
+  ]
+}

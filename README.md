@@ -33,14 +33,19 @@ cannot proceed without protected exact-scope user ADC created with an approved
 desktop OAuth client file, and none was supplied to this work. The separately
 connected Drive integration has no accessible shared drive named `Data`, so it
 was not used as a substitute. Phase 0 also lacks
-verified source bytes, sealed evaluation envelopes, the public quarantine
-index, structural inventories, and admission receipts. Phase 1 consequently
+verified source bytes, sealed evaluation envelopes with independently anchored
+access logs, the public quarantine index, structural inventories, and admission
+receipts. Phase 1 consequently
 lacks a ready Phase 0 gate and its sample, graph, and objective manifests.
 
 There is no training command or ML runtime dependency. Every Phase 0 and Phase
-1 report mechanically sets `training_authorized` to `false`. The encoder check
-performed so far was static identity verification only; no embedding inference,
-model fitting, threshold tuning, or optimization was run.
+1 report mechanically sets `training_authorized` to `false`. The preserved v1
+encoder record is historical and cannot satisfy the current Phase 1 v2 gate:
+its verifier checked the declared assets and Python files, but did not prove
+that no other snapshot entry existed. The snapshot and bake-off report are not
+present in this restored workspace, so a fresh exact-layout v2 verification is
+required. No embedding inference, model fitting, threshold tuning, or
+optimization was run.
 
 ## Core idea
 
@@ -93,6 +98,7 @@ forced into a binary accept/reject outcome.
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Data and training strategy](docs/DATA_AND_TRAINING.md)
+- [Dataset role and lineage review](audit/DATASET_REVIEW.md)
 - [Safety, leakage, and evaluation](docs/SAFETY_AND_EVALUATION.md)
 - [Decision log and open questions](docs/DECISIONS.md)
 - [Phase 0 runbook](docs/PHASE_0_RUNBOOK.md)
@@ -122,8 +128,8 @@ configurations into this project.
    approval mechanically.
 3. Capture and bind the remaining publisher checksum evidence.
 4. Pin adapters or generators, derive dependency-closed evaluation envelopes,
-   seal them to the custodian's offline public key, and compile their public
-   quarantine union.
+   seal them to the custodian's offline public key, externally anchor each
+   per-seal access-log head, and compile their public quarantine union.
 5. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
    only if the Phase 0 acquisition gate becomes ready, then re-audit and build
    structural inventories and admission receipts.

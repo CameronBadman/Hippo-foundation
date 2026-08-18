@@ -1,0 +1,25 @@
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Machine-specific storage locations and all sensitive evaluation material.
+storage-map.json
+private/
+vault/
+*.gpg
+*.asc
+*.partial
+
+# Phase 0 may emit reports locally; reviewed receipts are added explicitly.
+artifacts/
+
+# Local iterative-repair log restored from the archive; not project source.
+fix-results.tsv

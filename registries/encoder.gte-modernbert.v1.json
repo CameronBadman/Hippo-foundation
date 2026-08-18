@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "record_kind": "encoder_spec",
+  "encoder_id": "gte-modernbert-base-frozen-v1",
+  "model_id": "Alibaba-NLP/gte-modernbert-base",
+  "revision": "e7f32e3c00f91d699e8c43b53106206bcc72bb22",
+  "bakeoff_report_sha256": "sha256:723c1095df9ae12319b21a6062d730abaf48cfe0b5135ac753f7d9ed5c535bff",
+  "bakeoff_decision": {
+    "sample_pages": 40000,
+    "selected_context": 2048,
+    "weighted_score": 0.880103841832298,
+    "adjacent_hop_auc": 0.637600294139477,
+    "neighbour_recall_at_50": 0.04444936290383339,
+    "collision_rate": 0.0002
+  },
+  "assets": [
+    {
+      "path": "1_Pooling/config.json",
+      "bytes": 297,
+      "sha256": "sha256:4bf279dd9204db673304cab6e7db8448f427412a0d87f04c3e19f1de55dd98cd"
+    },
+    {
+      "path": "config.json",
+      "bytes": 1184,
+      "sha256": "sha256:8ba54dc3d35d7194f5178a4194b649f146753e02dabd22bdca5c5cbac15069ed"
+    },
+    {
+      "path": "config_sentence_transformers.json",
+      "bytes": 205,
+      "sha256": "sha256:f6bbc7812d09c4ae1cba610fbdad3aea0ca9b3b8affe5a130d31709bdbc94e99"
+    },
+    {
+      "path": "model.safetensors",
+      "bytes": 298041568,
+      "sha256": "sha256:3e85899d5728cb7de79781c0c3acfb91ccef9f875f1f7e0b3c9f3dd4b6a724ba"
+    },
+    {
+      "path": "modules.json",
+      "bytes": 229,
+      "sha256": "sha256:8f4b264b80206c830bebbdcae377e137925650a433b689343a63bdc9b3145460"
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 694,
+      "sha256": "sha256:ea97ecdbcc73713039d8d64dbb05e3689495c96657fbd9a18f5bed381be81049"
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 3583228,
+      "sha256": "sha256:6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30"
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 20867,
+      "sha256": "sha256:9654072f7c873161814043cf08cb5ed72f71d0b935abcd4e267935cb34352c21"
+    }
+  ],
+  "dimension": 768,
+  "pooling": "CLS",
+  "normalize_embeddings": false,
+  "default_context_tokens": 2048,
+  "maximum_context_tokens": 8192,
+  "input_recipe": {
+    "fields": ["title", "body"],
+    "separator": "\n\n",
+    "truncation": "tokenizer_total_budget",
+    "chunking": false
+  },
+  "execution_policy": {
+    "local_files_only": true,
+    "trust_remote_code": false,
+    "inference_mode": true,
+    "gradients_enabled": false,
+    "weights_mutable": false
+  },
+  "licence_review_id": "gte-modernbert-base-rights-v1"
+}

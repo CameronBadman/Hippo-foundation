@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/storage/v1/drive-observation.schema.json",
+  "title": "Read-only Google Drive identity observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "observed_at",
+    "requested_scope",
+    "scope_exact",
+    "same_account_human_attested",
+    "principal_permission_id_sha256",
+    "provider",
+    "provider_resource_id",
+    "root_resource_id",
+    "observed_root",
+    "method",
+    "checks",
+    "contains_evaluation_content",
+    "api_drive_write_authorized",
+    "drive_write_performed",
+    "mount_write_capability_assessed",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "drive_identity_observation" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "requested_scope": { "const": "https://www.googleapis.com/auth/drive.readonly" },
+    "scope_exact": { "const": true },
+    "same_account_human_attested": { "const": true },
+    "principal_permission_id_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "provider": { "const": "google_drive_shared_drive" },
+    "provider_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+    "root_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+    "observed_root": {
+      "const": "/content/drive/Shareddrives/Data/graph-memory-data-lake"
+    },
+    "method": { "const": "google_drive_api_v3_authenticated" },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unique_shared_drive",
+        "unique_direct_folder",
+        "folder_not_shortcut",
+        "list_get_consistent",
+        "live_drivefs_mount",
+        "identity_stable"
+      ],
+      "properties": {
+        "unique_shared_drive": { "const": true },
+        "unique_direct_folder": { "const": true },
+        "folder_not_shortcut": { "const": true },
+        "list_get_consistent": { "const": true },
+        "live_drivefs_mount": { "const": true },
+        "identity_stable": { "const": true }
+      }
+    },
+    "contains_evaluation_content": { "const": false },
+    "api_drive_write_authorized": { "const": false },
+    "drive_write_performed": { "const": false },
+    "mount_write_capability_assessed": { "const": false },
+    "training_authorized": { "const": false }
+  }
+}

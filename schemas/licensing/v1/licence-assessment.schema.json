@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/licensing/v1/licence-assessment.schema.json",
+  "title": "Human licence assessment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "review_id",
+    "subject_kind",
+    "subject_id",
+    "subject_binding_sha256",
+    "bundle_sha256",
+    "decision",
+    "commercial_context",
+    "licence_identifiers",
+    "allowed_uses",
+    "excluded_uses",
+    "obligations",
+    "finding_dispositions",
+    "reviewer",
+    "reviewed_at",
+    "valid_until",
+    "training_authorized",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "licence_assessment" },
+    "review_id": { "$ref": "#/$defs/id" },
+    "subject_kind": { "enum": ["source", "evaluation", "encoder"] },
+    "subject_id": { "type": "string", "minLength": 1 },
+    "subject_binding_sha256": { "$ref": "#/$defs/digest" },
+    "bundle_sha256": { "$ref": "#/$defs/digest" },
+    "decision": { "enum": ["approved", "rejected", "pending"] },
+    "commercial_context": { "enum": ["allowed", "prohibited", "unclear"] },
+    "licence_identifiers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "allowed_uses": { "$ref": "#/$defs/uses" },
+    "excluded_uses": { "$ref": "#/$defs/uses" },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["obligation_id", "category", "description"],
+        "properties": {
+          "obligation_id": { "$ref": "#/$defs/id" },
+          "category": {
+            "enum": ["attribution", "notice", "share_alike", "marking", "privacy", "takedown", "access_terms", "other"]
+          },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "finding_dispositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "disposition", "rationale_document_id"],
+        "properties": {
+          "finding_id": { "$ref": "#/$defs/id" },
+          "disposition": { "enum": ["unresolved", "resolved", "acknowledged_nonblocking"] },
+          "rationale_document_id": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_.-]*$" }
+        }
+      }
+    },
+    "reviewer": { "type": ["string", "null"], "minLength": 1 },
+    "reviewed_at": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] },
+    "valid_until": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] },
+    "training_authorized": { "const": false },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "uses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "acquire",
+          "inventory",
+          "quarantine",
+          "transform",
+          "embed",
+          "inference",
+          "evaluate",
+          "commercial_service",
+          "train",
+          "redistribute_source",
+          "redistribute_derived",
+          "redistribute_model"
+        ]
+      }
+    }
+  }
+}
