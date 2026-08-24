@@ -1,13 +1,13 @@
 # Machine-learning integrity audit — Phases 0, 1, 2A, and 2B
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 ## Decision boundary
 
 The current operational decisions are only:
 
 1. whether registered source acquisition or transformation may begin under the
-   Phase 0 v3 evidence controls; and
+   direct Phase 0 v4 external-evidence firewall; and
 2. whether deterministic Phase 1 v2 development-data artifacts satisfy their
    frozen contracts; and
 3. whether the local Phase 2A procedural candidates reproduce exactly, agree
@@ -27,7 +27,7 @@ historical evidence from the restored audit record; they were not repeated in
 this review and are not treated as new verification.
 
 The future evaluation decision is declared in
-`registries/evaluations.v2.json`: assess frozen evidence-grounded graph-memory
+`registries/evaluations.v4.json`: assess frozen evidence-grounded graph-memory
 behaviour before confirmatory labels, answers, hidden spans, or results are
 disclosed. The population is the exact sealed partitions and private generated
 sets. The split unit is the highest available document, work, entity, story,
@@ -47,6 +47,32 @@ because no training or model-selection phase is authorized.
   single-document rights review with licensing/v1 evidence bundles and
   accountable assessments. The licensing layer has two locked schemas;
   Phase 1 v2 has separately locked gate and encoder-verification schemas.
+- Phase 0 v4 adds eight independently locked schemas without modifying the
+  frozen v2/v3 artifacts. Its direct gate binds exact predecessor registries,
+  the complete Drive observation, retained publisher checksum statements,
+  current rights packets, explicit evaluation roles, authenticated custody
+  anchors, the complete quarantine union, source audits, inventories, and
+  admissions. It does not import or filter a historical gate's blockers.
+- `registries/evaluations.v4.json` preserves SocialIQA validation as
+  development-only and the previously exposed EvidenceBench partition as
+  diagnostic-only. Five other entries remain confirmatory candidates. Role
+  history is append-only; development/validation partitions cannot be promoted,
+  exposed entries cannot be confirmatory, and custody cannot move backwards.
+- Private v4 envelopes require a 256-bit commitment nonce. Public commitments
+  omit the nonce and private payload, and v4 schema errors report paths and
+  failed keywords without rendering rejected instances. Public overlap
+  selectors remain membership-revealing for guessed text and are not claimed
+  to be zero-knowledge.
+- The v4 matcher implements exact identifier, dependency-family, raw-hash,
+  normalized-hash, and exact-Jaccard near-match checks before features. Missing
+  lineage or selectors is `undetermined`; only `clear` permits features.
+- Public contribution coverage is re-derived from its records, and a serialized
+  clear receipt is accepted only when the matcher reproduces the complete
+  decision from the bound descriptor and union index.
+- V4 custody anchors bind the exact seal receipt, access-log count and head,
+  monotonic sequence, validity window, and registry-pinned signing fingerprint.
+  Detached GPG verification uses an isolated temporary keyring rather than the
+  user's keyring.
 - Storage attestations bind stable provider/root resource IDs, mounted root,
   method, verifier, and observation time. Source audits bind the exact registry
   and attestation, reject unsafe paths, hash raw bytes, detect mutation during
@@ -245,7 +271,8 @@ the separate exact-scope identity observation, and no resource ID was bound.
 
 ## Evidence still missing or weak
 
-- `registries/sources.v2.json` still has null shared-Drive and root-folder IDs.
+- `registries/sources.v4.pending.json` still has null shared-Drive and
+  root-folder IDs and deliberately null publisher-statement URLs.
   No authenticated observation, bound registry, storage attestation, or fresh
   source audit exists. Native authorization and the read-only mount now pass,
   but the remaining external step is to create provable exact
@@ -255,27 +282,29 @@ the separate exact-scope identity observation, and no resource ID was bound.
   unavailable until that client file is supplied locally. The connected Drive
   integration cannot substitute because it has no accessible `Data` drive.
 - The Wikidata checksum entry marked `verified` reflects a prior primary-source
-  observation, but the v2 workspace does not yet contain the publisher checksum
-  artifact or a verification receipt. All English Wikipedia checksum flags are
-  false. The overall publisher-pin gate is therefore blocked.
+  observation, but the workspace does not retain its publisher statement or a
+  v4 receipt. No official statement URL was guessed during implementation. The
+  overall publisher-evidence gate is therefore blocked.
 - Forty-three allowlisted legal/provenance responses are captured and rehashed
   into 10 subject-bound bundles with no missing catalogued document. All 10
   assessments remain pending; these captures are evidence for review, not legal
-  approvals. The two private first-party confirmatory evaluations have empty
-  bundles and cannot be approved.
+  approvals. Evaluation entry hashes changed in v4, so new exact bundles and
+  assessments must be assembled before the v4 gate can verify them. The two
+  private first-party confirmatory evaluations have empty historical bundles
+  and cannot be approved.
 - Every confirmatory evaluation remains declared rather than sealed. Archive
   hashes and adapters are missing; private confirmatory generators and custody
   are not implemented; dependency closure is incomplete; no access logs or
   independent head anchors exist; and no complete Phase 0 quarantine union
   exists. The public Phase 2A and Phase 2B fixtures do not satisfy those
   requirements.
-- The registered source bytes have not passed the v2 audit. Wikidata has not
-  been acquired under the v2 gate. No structural inventory or admission receipt
+- The registered source bytes have not passed a v4 audit. Wikidata has not
+  been acquired under the v4 gate. No structural inventory or admission receipt
   exists.
 - The Phase 1 CLI does not transform raw Wikipedia/Wikidata dumps into its graph
-  records and does not generate objective labels. Phase 0 v2 compiles
-  fingerprint selectors but has no v2 record-matching command, so real
-  `quarantine_decision: clear` records cannot yet be mechanically established.
+  records and does not generate objective labels. Phase 0 v4 compiles and
+  matches its fingerprint selectors, but no raw-source-to-graph consumer yet
+  requires and preserves a v4 `quarantine_decision: clear` receipt.
   Phase 1 manifests bind hashes and semantics, but are detached unsigned JSON;
   the gate does not independently reopen the output files named by those hashes.
 - No model-based label-only, metadata-only, degree-only, lexical-marker,
@@ -286,12 +315,13 @@ the separate exact-scope identity observation, and no resource ID was bound.
 
 ## Current gate interpretation
 
-`audit/phase0-gate.v3.licensing.json` is correctly blocked.
-`contracts_frozen` and `licensing_evidence_verified` are true, meaning the exact
-packet set and bindings verify; `licensing_ready` is false because all human
-decisions are pending. Storage, source bytes, confirmatory seals, quarantine,
-inventories, and admissions are also not ready. Acquisition, transformation,
-and training are unauthorized.
+`audit/phase0-gate.v4.initial.json` is the current direct report and is
+correctly blocked. Contract and registry-role checks pass. Storage identity,
+publisher evidence, current rights evidence, confirmatory custody, quarantine,
+source bytes, inventories, and admissions are not ready. Acquisition,
+transformation, and training are unauthorized. The older v3 licensing report
+remains historical evidence that the prior packet structure rehashed and every
+then-current decision was pending; it is not a v4 prerequisite or approval.
 
 `audit/phase1-gate.v2.licensing.json` is also correctly blocked. Contract checks
 pass, but fresh encoder identity evidence, encoder licensing, the Phase 0
@@ -304,10 +334,11 @@ The leading leakage risks are page/revision/redirect/sitelink overlap;
 entity-neighbourhood and incident-statement overlap; DOI/PMID/PMCID work
 overlap; contract/story/document/time overlap; generator grammar/world/seed
 overlap; exact and near duplicates; pretrained-encoder contamination; and human
-adaptation after seeing confirmatory results. The v2 envelope and contribution
+adaptation after seeing confirmatory results. The v4 envelope and contribution
 design can represent those dependency families, but no cleanliness claim is
-warranted until all seven envelopes are derived from pinned bytes, sealed, and
-recomputed into the public union.
+warranted until all seven role-specific envelopes are derived from pinned
+bytes, the five confirmatory candidates are sealed and authenticated, and the
+complete union is recomputed.
 
 Within the local Phase 2 fixtures, exact and normalized input hashes and every
 allocated dependency family are disjoint across roles. Phase 2B also checks

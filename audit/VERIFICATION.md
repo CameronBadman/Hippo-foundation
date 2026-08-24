@@ -1,46 +1,85 @@
-# Phase 0 v3, Phase 1 v2, Phase 2A, and Phase 2B verification record
+# Phase 0 v4, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
-Verification date: 2026-08-24
+Verification date: 2026-08-25
 
 ## Current checks and restoration context
 
+- Current 2026-08-25 run: `.venv/bin/pytest -q` passed all 171 tests in
+  329.00 seconds. This includes the complete pre-existing regression suite,
+  v4 role and lineage invariants, external-evidence binding, adversarial
+  contribution/receipt tampering, private-error redaction, tri-state
+  pre-feature quarantine, a synthetic blocker-free path, and a real isolated
+  GPG detached-signature verification.
+- Current static and interface checks: `git diff --check`, Python bytecode
+  compilation, `uv lock --check`, and all three installed CLI help surfaces
+  passed. The v4 CLI validated both predecessor-bound registries and
+  `audit/phase0-gate.v4.initial.json` against all eight locked schemas.
+- Current packaging check: `uv build --out-dir /tmp/hf-phase0-v4-dist` produced
+  an sdist and wheel. Direct wheel inspection found the v4 implementation and
+  all eight v4 schemas; loading the extracted wheel from outside the repository
+  located its packaged schema directory and reproduced all eight locks.
 - Preserved 2026-08-18 restoration record: missing `src/`, `tests/`, and
   `scripts/` content was restored without
   overwriting existing paths from the local source distribution with SHA-256
   `6aa097cfb7d03fc9a87901eb69afb63fc0a876984dc0d78944eac119766a24b6`.
   That restoration operation was not repeated in the Phase 2B verification.
-- `.venv/bin/pytest -q` passed all 159 tests in 317.56 seconds. The Phase 0/1 regressions cover arbitrary
-  undeclared encoder entries, legacy encoder-attestation rejection, access-log
-  schema and symlink safety, externally anchored suffix-truncation detection,
-  consuming evaluation actions, and rejection of development partitions as
-  confirmatory data. New Phase 2 regressions cover deterministic regeneration,
-  all open-world actions, explicit negation, cycles, oracle faults, quarantine
-  rejection, cross-role overlap, target tampering, output collisions, symlinked
-  output parents, schema locks, and the absence of a training surface. Phase 2B
-  adds deterministic process generation, conservative cross-product cases,
-  temporal/provenance ordering, exact frontier/entity lineage, dual-oracle
-  faults, patch preconditions and rollback, canonical artifact reproduction,
-  full v2 overlap surfaces, mixed v1/v2 audit, CLI round trip, and output
-  collision rejection.
-- `uv lock --check`, Python bytecode compilation, all three installed CLI help surfaces,
-  and Phase 0 v2 source/evaluation registry validation passed.
-- The checked fail-closed gate reports remain covered by the suite but were not
-  regenerated during Phase 2B work. Their contents expose missing per-seal
-  access logs/anchors, reject SocialIQA validation as confirmatory, reject the
-  legacy encoder record, and keep `training_authorized: false`.
+- Preserved 2026-08-24 Phase 2B result: 159 tests passed in 317.56 seconds. Its
+  checks covered the older Phase 0/1 gates and both Phase 2 slices, including
+  deterministic regeneration, temporal/provenance ordering, oracle agreement,
+  rollback, overlap surfaces, CLI round trips, output collision rejection, and
+  the absence of a training surface.
+- The v3 and earlier checked fail-closed reports were not regenerated during
+  this v4 work. Their historical status is retained separately from the newly
+  reproduced direct v4 report.
 - Phase 1 v2 reproduced the locked digests for its gate and new exact-layout
   encoder-verification schema. The latter is
   `sha256:e7fbdb108a9cd2750422668c4f35a0fee4a310afaf9d289065028ee3fd3e402d`.
-- A fresh source distribution and wheel were built into a temporary directory.
+- Preserved 2026-08-24 packaging result: a source distribution and wheel were
+  built into a temporary directory.
   Wheel inspection found all three console scripts and all schemas, including
   Phase 1 v2 and both Phase 2 contract versions. A clean temporary environment
   installed the wheel plus its declared dependencies, loaded the package from
   site-packages, reproduced the Phase 2 v1 and v2 schema locks, and validated
   both checked-in process roles, their ledgers, and both clean corpus audits.
-- Ruff check and format checks passed for the Phase 2 package and its changed
-  contract/surface tests. No whole-repository Ruff claim is made. The declared
+- Preserved 2026-08-24 lint result: Ruff check and format checks passed for the
+  Phase 2 package and its changed contract/surface tests. No whole-repository
+  Ruff claim is made. The declared
   runtime dependencies remain only `jsonschema` and `rfc8785`; neither is an ML
   framework.
+
+## Phase 0 v4 external-evidence firewall
+
+- Eight additive JSON Schema 2020-12 contracts reproduce their independent RFC
+  8785/SHA-256 locks. Frozen v2/v3 schemas and registries were not edited.
+- The pending source registry validates against the exact v2 predecessor and
+  preserves every source entry byte-for-byte. Its stable Drive IDs and seven
+  publisher-statement URLs remain null, so it cannot produce ready external
+  evidence.
+- The v4 evaluation registry validates against the exact v2 predecessor.
+  SocialIQA validation is development-only, the exposed EvidenceBench partition
+  is diagnostic-only, and exactly five entries remain confirmatory candidates.
+  All five candidates remain declared and blocked rather than being represented
+  as sealed.
+- The focused v4/no-training suite passed 13 tests. It covers role laundering,
+  predecessor rewriting, full observation binding, exact and stale publisher
+  statements, dependency closure, nonce-hardened commitments, private error
+  redaction, safe integers, tri-state matching, a complete synthetic ready path,
+  removal of each evidence family, an isolated real GPG detached-signature
+  round trip when the local GPG agent is available, and the absence of caller
+  acquisition overrides.
+- The synthetic path reaches both acquisition and transformation readiness with
+  no blockers while retaining `training_authorized: false`. Its source bytes,
+  rights attestation, custodian, key, and approvals are explicitly synthetic
+  test fixtures and support no claim about a real source or evaluation.
+- `audit/phase0-gate.v4.initial.json` was regenerated through the direct v4 CLI
+  and validates against the v4 gate schema. Contract, source-registry, and
+  evaluation-role checks pass. Storage, publisher evidence, current rights
+  evidence, confirmatory custody, quarantine, byte audit, inventories, and
+  admissions remain blocked. Acquisition, transformation, and training are
+  false.
+- No live Drive call, publisher capture, human approval, confirmatory-item read,
+  source download, graph transformation, embedding, model run, threshold
+  selection, or training occurred in this implementation pass.
 
 ## Phase 2A procedural slice
 
@@ -156,6 +195,10 @@ and were not independently rerun during this repository review.
 
 ## Reproduced fail-closed reports
 
+- `audit/phase0-gate.v4.initial.json` validates as the direct Phase 0 v4 gate
+  and is blocked. Its contract and role-classification flags are true; every
+  external evidence family is absent or incomplete, and both action flags are
+  false.
 - `audit/phase0-gate.v3.licensing.json` validates as a Phase 0 v3 gate and is
   blocked. `contracts_frozen` and `licensing_evidence_verified` are true;
   `licensing_ready` is false because all decisions remain pending. Storage,
@@ -244,19 +287,20 @@ and were not independently rerun during this repository review.
 
 - Stable shared-Drive and root-folder resource IDs have not been obtained, so no
   Drive observation, bound registry, storage attestation, or byte audit exists.
-- Publisher checksum evidence is incomplete. Legal/provenance captures exist,
-  but every human assessment remains pending. All seven confirmatory evaluation
-  envelopes, adapters/generators, seals, contributions, and the public union
-  remain absent.
+- Publisher statement locations and receipts are absent. Legal/provenance
+  captures exist, but every historical human assessment remains pending and v4
+  evaluation entries need newly bound packets. Five confirmatory envelopes,
+  adapters/generators, seals, signed anchors, all seven role-specific
+  contributions, and the public union remain absent.
 - A prior diagnostic exposed the public EvidenceBench test JSON. The registry
   and evidence packet now block its confirmatory use until replacement or
   independent custody; its item-level observations were not used here.
-- Registered source bytes have not passed Phase 0 v2 audit/inventory/admission.
+- Registered source bytes have not passed Phase 0 v4 audit/inventory/admission.
   The Wikidata acquisition target was not downloaded under this implementation.
 - No raw-source-to-Phase-1 transformer exists. No 40,000-node sample, capped
   graph artifact, or eight-family objective replay manifest has been created.
-  Phase 0 v2 also lacks the record matcher needed to establish a transformer's
-  `quarantine_decision: clear` output.
+  Phase 0 v4 has the record matcher, but no transformer consumes and preserves
+  its `quarantine_decision: clear` output.
 - The earlier restored-workspace claim that `.git` was an empty read-only
   directory no longer applies; this directory is now a writable Git worktree.
 

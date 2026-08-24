@@ -9,6 +9,11 @@ authorize training.
 
 ## Entry conditions
 
+Phase 1 v2 is frozen and still accepts only its historical Phase 0 v3 gate
+schema. The active Phase 0 boundary is now v4, so no current Phase 1 command may
+consume a v4 report by relabelling or conversion. Implement an additive Phase 1
+v3 consumer after a real v4 transformation report exists.
+
 Do not run a data-producing Phase 1 command until all of these are true:
 
 - a Phase 0 v3 report is no more than 72 hours old;
@@ -27,9 +32,10 @@ produce Phase 1 artifacts.
 
 The CLI consumes already constructed `.jsonl`, `.ndjson`, or optional Parquet
 records conforming to the Phase 1 schemas. A raw Wikipedia/Wikidata-to-Phase-1
-transformer and its required Phase 0 quarantine matcher are not implemented
-yet. Consequently, no real transformed record can currently establish the
-required `quarantine_decision: clear` lineage. Parquet reads require `pyarrow`
+transformer is not implemented yet. The Phase 0 v4 quarantine matcher now
+exists, but this frozen Phase 1 version does not consume or preserve its
+`quarantine_decision: clear` receipt. Consequently, no real transformed record
+can currently establish the required lineage. Parquet reads require `pyarrow`
 supplied by the execution environment; it is intentionally not a project
 runtime dependency.
 

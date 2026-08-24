@@ -12,6 +12,33 @@ freezes `Alibaba-NLP/gte-modernbert-base` as a non-trainable text encoder for
 deterministic data preparation; that choice does not select the later trainable
 model family.
 
+## Data authorization boundary
+
+Phase 0 v4 sits before every raw-source transformer. It is a direct evidence
+firewall rather than a wrapper around the historical v2/v3 gates. A source may
+enter foundation transformation only when all of the following bind to the
+same versioned registry entries and bytes:
+
+- a fresh exact-scope Drive observation and stable provider resource IDs;
+- a retained, freshly verified publisher checksum statement for every byte
+  artifact;
+- an exact source audit and structural inventory;
+- accountable, unexpired rights assessments over the current subject hashes;
+- explicit development, diagnostic, confirmatory, or retired evaluation roles;
+- dependency-complete public quarantine contributions derived from privately
+  nonce-hardened envelopes;
+- ciphertext receipts, hash-chained access logs, and fresh GPG-detached
+  custodian anchors for every confirmatory set; and
+- source admission receipts binding the complete quarantine union.
+
+The mandatory record matcher runs before graph features, embeddings,
+neighbourhoods, negatives, or samples. Its outcomes are `excluded`,
+`undetermined`, and `clear`; only `clear` permits feature construction. A ready
+Phase 0 report can authorize acquisition or transformation, but its schema
+always fixes `training_authorized` to `false`. No raw-source-to-graph consumer
+is implemented yet, so the v4 transformation gate is not currently consumed by
+Phase 1.
+
 ## Graph contract
 
 ### Node

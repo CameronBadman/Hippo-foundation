@@ -1,16 +1,187 @@
-# Phase 0 v3 clean-room runbook
+# Phase 0 v4 clean-room runbook
 
 Phase 0 establishes frozen contracts, storage identity, provenance, licensing,
 evaluation quarantine, immutable raw-byte inventory, source admission, and a
 mechanical readiness gate. It does not transform a graph, generate model
 examples, run an encoder, fit a model, tune a threshold, or authorize training.
 
-The operational authorization boundary is `gate-v3`, licensing/v1 assessment
-bundles, and v3 admission receipts. Phase 0 v2 remains a frozen dependency for
-storage, source-audit, inventory, seal, and quarantine evidence. The historical
-`gate`, `source acquire`, and `source assess-admission` routes use v2 licence
-reviews; do not use them as substitutes for the v3 paths. Commands ending in
-`-v1` reproduce still older artifacts only.
+The active authorization boundary is the direct `gate-v4`, licensing/v1
+assessment bundles, signed custody anchors, and v4 admission receipts. It
+validates the frozen v2/v3 contracts for historical integrity but never imports
+their blocker list or treats either historical gate as readiness evidence.
+Unsuffixed commands and commands ending in `-v1` or `-v3` reproduce older
+contracts only; they do not satisfy v4.
+
+## Active v4 command path
+
+Validate the frozen contracts and exact migrations:
+
+```bash
+uv run hf-phase0 registry validate-v4 \
+  --source-predecessor registries/sources.v2.json \
+  --evaluation-predecessor registries/evaluations.v2.json \
+  --instance registries/sources.v4.pending.json \
+  --instance registries/evaluations.v4.json
+```
+
+The pending source registry deliberately has null stable Drive IDs and null
+publisher statement URLs. It cannot pass the real gate. After independently
+verifying every official statement URL, create a successor registry, then bind
+one fresh exact-scope observation within 15 minutes:
+
+```bash
+uv run hf-phase0 storage bind-drive-v4 \
+  --registry artifacts/sources.v4.publisher-pinned.json \
+  --observation artifacts/drive-observation.v1.json \
+  --registry-id hippocampus-foundation-sources-v4-drive-bound \
+  --registry-output artifacts/sources.v4.drive-bound.json \
+  --attestation-output artifacts/storage-attestation.v4.json \
+  --verifier DRIVE-CUSTODIAN-ID \
+  --bound-at OBSERVATION-BIND-TIME
+```
+
+Retain each official checksum statement as immutable evidence; this command
+does not fetch it:
+
+```bash
+uv run hf-phase0 source publisher-receipt-v4 \
+  --registry artifacts/sources.v4.drive-bound.json \
+  --evidence-id REGISTERED-EVIDENCE-ID \
+  --statement private/publisher/STATEMENT.txt \
+  --resolved-url EXACT-SAME-HOST-HTTPS-URL \
+  --retrieved-at RETRIEVED-AT \
+  --verified-at VERIFIED-AT \
+  --verifier PUBLISHER-EVIDENCE-REVIEWER \
+  --output private/publisher/ARTIFACT.receipt.v4.json
+```
+
+Reassemble rights packets against the v4 entries before human review. The v4
+evaluation role fields changed their subject hashes, so historical evaluation
+assessments cannot be reused as approvals. The catalogue contains evidence
+locations, not decisions.
+
+Every private v4 envelope must include an unpredictable 64-hex-character
+`commitment_nonce`. The nonce and private payload remain inside the encrypted
+envelope. Seal outside the development environment:
+
+```bash
+uv run hf-phase0 seal create-v4 \
+  --input private/envelopes/DATASET.v4.json \
+  --output vault/DATASET.v4.gpg \
+  --recipient OFFLINE-ENCRYPTION-KEY-FINGERPRINT \
+  --receipt private/receipts/DATASET.v4.json \
+  --contribution private/contributions/DATASET.v4.json \
+  --evaluations artifacts/evaluations.v4.sealed.json \
+  --custodian OFFLINE-CUSTODIAN-ID \
+  --created-at CREATED-AT
+```
+
+The custodian creates the anchor object under
+`schemas/phase0/v4/access-anchor.schema.json`, signs its RFC 8785 bytes with a
+detached GPG signature, and supplies the public key. The signing-key fingerprint
+must already be pinned in the evaluation registry. `gate-v4` accepts anchor
+chains in sequence order as
+`ANCHOR=SIGNATURE=PUBLIC_KEY=ACCESS_LOG`; the newest anchor must cover the full
+log.
+
+Compile every role's contribution, including development and diagnostics:
+
+```bash
+uv run hf-phase0 quarantine compile-v4 \
+  --evaluations artifacts/evaluations.v4.sealed.json \
+  --contribution private/contributions/DATASET.v4.json \
+  --index-id public-evaluation-union-v4 \
+  --output artifacts/public-quarantine-index.v4.json
+```
+
+Before creating any feature, derive a source descriptor and obtain a tri-state
+decision:
+
+```bash
+uv run hf-phase0 quarantine descriptor-v4 \
+  --input private/source-record.json \
+  --output artifacts/source-record.descriptor.v4.json
+uv run hf-phase0 quarantine check-v4 \
+  --descriptor artifacts/source-record.descriptor.v4.json \
+  --index artifacts/public-quarantine-index.v4.json \
+  --checked-at CHECKED-AT \
+  --output artifacts/source-record.quarantine.v4.json
+```
+
+Only `clear` permits later feature construction. `excluded` and `undetermined`
+both exit with status 2. Descriptor input may contain source text, but the
+output contains only hashes, identifiers, lineage state, and fingerprints.
+
+Audit and inventory using one `--publisher STATEMENT=RECEIPT` option per
+artifact:
+
+```bash
+uv run hf-phase0 source audit-v4 \
+  --registry artifacts/sources.v4.drive-bound.json \
+  --storage-attestation artifacts/storage-attestation.v4.json \
+  --publisher private/publisher/STATEMENT.txt=private/publisher/ARTIFACT.receipt.v4.json \
+  --evaluated-at EVALUATED-AT \
+  --output artifacts/source-audit.v4.json
+
+uv run hf-phase0 source count-v4 \
+  --registry artifacts/sources.v4.drive-bound.json \
+  --storage-attestation artifacts/storage-attestation.v4.json \
+  --source-audit artifacts/source-audit.v4.json \
+  --artifact-id ARTIFACT-ID \
+  --publisher private/publisher/STATEMENT.txt=private/publisher/ARTIFACT.receipt.v4.json \
+  --evaluated-at EVALUATED-AT \
+  --output artifacts/inventory.ARTIFACT-ID.v4.json
+```
+
+Then issue one exact admission receipt per foundation source:
+
+```bash
+uv run hf-phase0 source assess-admission-v4 \
+  --source-id SOURCE-ID \
+  --registry artifacts/sources.v4.drive-bound.json \
+  --evaluations artifacts/evaluations.v4.sealed.json \
+  --storage-attestation artifacts/storage-attestation.v4.json \
+  --source-audit artifacts/source-audit.v4.json \
+  --licence-assessment private/licensing-v4/SOURCE-REVIEW/assessment.final.json \
+  --licence-bundle private/licensing-v4/SOURCE-REVIEW/bundle.json \
+  --publisher private/publisher/STATEMENT.txt=private/publisher/ARTIFACT.receipt.v4.json \
+  --quarantine artifacts/public-quarantine-index.v4.json \
+  --inventory artifacts/inventory.ARTIFACT-ID.v4.json \
+  --assessor ACCOUNTABLE-ASSESSOR-ID \
+  --assessed-at ASSESSED-AT \
+  --output artifacts/admission.SOURCE-ID.v4.json
+```
+
+The complete gate uses both predecessor registries and repeats every evidence
+option as required:
+
+```bash
+uv run hf-phase0 gate-v4 \
+  --sources artifacts/sources.v4.drive-bound.json \
+  --source-predecessor artifacts/sources.v4.publisher-pinned.json \
+  --evaluations artifacts/evaluations.v4.sealed.json \
+  --evaluation-predecessor registries/evaluations.v4.json \
+  --drive-observation artifacts/drive-observation.v1.json \
+  --storage-attestation artifacts/storage-attestation.v4.json \
+  --publisher private/publisher/STATEMENT.txt=private/publisher/ARTIFACT.receipt.v4.json \
+  --source-audit artifacts/source-audit.v4.json \
+  --licence-assessment private/licensing-v4/REVIEW/assessment.final.json=private/licensing-v4/REVIEW/bundle.json \
+  --seal-v4 vault/DATASET.v4.gpg=private/receipts/DATASET.v4.json \
+  --anchor-v4 private/anchors/DATASET.json=private/anchors/DATASET.sig=private/anchors/CUSTODIAN.pub=private/DATASET.access.jsonl \
+  --contribution private/contributions/DATASET.v4.json \
+  --quarantine artifacts/public-quarantine-index.v4.json \
+  --inventory artifacts/inventory.ARTIFACT-ID.v4.json \
+  --admission artifacts/admission.SOURCE-ID.v4.json \
+  --evaluated-at EVALUATED-AT \
+  --output artifacts/phase0-gate.v4.json
+```
+
+Exit status 2 is blocked; 0 permits only the action named by the ready flag.
+`source acquire-v4` consumes the acquisition flag and accepts no caller URL,
+destination, size, or checksum. Re-audit after any download. No Phase 0 command
+authorizes training.
+
+## Frozen v3 reference workflow
 
 ## Control order
 

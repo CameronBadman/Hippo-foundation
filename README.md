@@ -11,14 +11,17 @@ older Hippocampus implementation.
 
 ## Status
 
-Phase 0 v3 clean-room controls and Phase 1 v2 deterministic data-preparation
-controls are implemented locally. Phase 0 covers evidence-bound storage,
-licensing, source, inventory, admission, evaluation-seal, quarantine, and
-readiness records. Phase 1 freezes graph/objective contracts, a deterministic
+Phase 0 v4 clean-room controls and Phase 1 v2 deterministic data-preparation
+controls are implemented locally. Phase 0 v4 is an additive, direct external-
+evidence firewall: it binds the exact Drive observation, retained publisher
+checksum statements, accountable rights packets, explicit evaluation roles,
+authenticated custody anchors, the complete quarantine union, source-byte
+audits, inventories, and admission receipts. Phase 1 freezes graph/objective
+contracts, a deterministic
 40,000-node sampler, complete neighbour-overflow accounting, development
 objective replay, and separate encoder identity/licensing readiness. The
-frozen Phase 0 v2 and Phase 1 v1 contracts remain available for historical
-reproducibility.
+frozen Phase 0 v2/v3 and Phase 1 v1 contracts remain available for historical
+reproducibility; v4 does not delegate readiness to either historical gate.
 
 Phase 2A and Phase 2B are also implemented locally. The preparation-only Phase
 2 CLI generates and verifies 16 open-world candidates and 32 staged-write
@@ -31,7 +34,10 @@ contract and leakage-control fixtures, not admitted corpora: they are bound
 only to a local reservation quarantine index, their rights records remain
 pending, and no predictive performance was measured.
 
-Both current gates are blocked. Forty-three allowlisted legal/provenance
+The checked real-state Phase 0 v4 and Phase 1 v2 gates are blocked. Phase 0 v4
+corrects evaluation roles: SocialIQA validation is development-only, the
+previously exposed EvidenceBench partition is diagnostic-only, and five other
+datasets remain confirmatory candidates. Forty-three allowlisted legal/provenance
 documents have been captured into 10 digest-bound review packets; none is a
 human approval. Every assessment remains pending, and two private confirmatory
 first-party evaluations have no external evidence documents. The native
@@ -44,8 +50,9 @@ cannot proceed without protected exact-scope user ADC created with an approved
 desktop OAuth client file, and none was supplied to this work. The separately
 connected Drive integration has no accessible shared drive named `Data`, so it
 was not used as a substitute. Phase 0 also lacks
-verified source bytes, sealed evaluation envelopes with independently anchored
-access logs, the complete Phase 0 quarantine union, structural inventories,
+verified publisher statements and source bytes, version-current rights packets,
+sealed evaluation envelopes with GPG-signed independently anchored access logs,
+the complete Phase 0 v4 quarantine union, structural inventories,
 and admission receipts. Phase 1 consequently
 lacks a ready Phase 0 gate and its sample, graph, and objective manifests.
 
@@ -133,8 +140,8 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Complete the external evidence firewall without opening item-level held-out
-   data in the development environment.
+1. Execute the implemented external-evidence firewall without opening
+   item-level confirmatory data in the development environment.
 2. Attempt the repaired native `colab drivemount --read-only` flow first. With
    an approved protected desktop OAuth client, create exact-scope ADC in the
    same CPU runtime, run the read-only Drive identity probe, and bind its stable
@@ -152,6 +159,8 @@ configurations into this project.
 6. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
    only if the Phase 0 acquisition gate becomes ready, then re-audit and build
    structural inventories and admission receipts.
-7. Run the Phase 1 data-preparation pipeline on admitted, quarantine-cleared
-   records and evaluate its gate. This still does not authorize training.
+7. After a ready v4 transformation report exists, add the separately versioned
+   raw-source consumer and Phase 1 v3 input gate. Then run data preparation on
+   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4,
+   and no Phase 1 readiness report authorizes training.
 # Hippo-foundation

@@ -2,14 +2,18 @@
 
 External-source review date: 2026-08-18
 
-Local procedural status updated: 2026-08-24
+Local governance status updated: 2026-08-25
 
 ## Outcome
 
-The current evaluation registry is not a training-data roster. Its entries were
-declared for confirmatory evaluation, and their labels or results must not be
-used to select model architecture, dataset mixtures, thresholds, prompts, or
-training duration.
+The Phase 0 v4 evaluation registry is not a training-data roster. It now records
+the evidence-supported roles directly: SocialIQA v1.4 validation is
+development-only, the exposed EvidenceBench original test is diagnostic-only,
+and VitaminC, ContractNLI, EventStoryLine v1.5, and the two private first-party
+sets are confirmatory candidates. Candidate status is not custody readiness;
+all five retain blockers and none is sealed. Labels or results from a
+confirmatory candidate must not be used to select model architecture, dataset
+mixtures, thresholds, prompts, or training duration.
 
 The defensible near-term training roster is narrower:
 
@@ -150,6 +154,8 @@ independent custody, source-disjoint time windows, and later domain transfer.
 - Wikipedia attribution and ShareAlike treatment for graph artifacts,
   embeddings, checkpoints, and service outputs remains a legal and product
   decision, not a code inference.
-- The current evaluation registry needs a versioned redesign that separates
-  development, diagnostic, and confirmatory records. Until then, its blockers
-  must remain and it must not be repurposed as training configuration.
+- The v4 role redesign is implemented and predecessor-bound. The unresolved
+  work is external evidence: exact archives and adapters, refreshed rights
+  packets over the new entry hashes, dependency-complete envelopes, independent
+  custody, and authenticated anchors. The registry must not be repurposed as
+  training configuration.

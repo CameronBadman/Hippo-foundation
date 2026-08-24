@@ -67,6 +67,34 @@ receipts. Historical v1 commands remain explicitly suffixed and cannot satisfy
 the v2 gate. Registry assertions are not represented as independent external
 evidence when no captured source artifact exists.
 
+### 2026-08-25: Phase 0 v4 is the active external-evidence firewall
+
+Phase 0 v4 supersedes v2/v3 operationally while preserving their frozen
+contracts. Its gate evaluates exact evidence directly and emits structured
+subject-specific blockers. It binds the full Drive observation, retained
+publisher statements, current rights bundles, explicit evaluation roles,
+GPG-authenticated access anchors, the complete quarantine union, exact byte
+audits, inventories, and admissions. Acquisition and transformation remain
+separate, and training is always unauthorized. Phase 1 v2 does not consume v4;
+that integration must be additive rather than a conversion of the frozen v2
+gate schema.
+
+### 2026-08-25: evaluation roles cannot be laundered
+
+SocialIQA v1.4 validation is development-only and the exposed EvidenceBench
+partition is diagnostic-only. Five other datasets remain unsealed
+confirmatory candidates. A development or exposed partition cannot regain
+confirmation status through renaming, encryption, or registry versioning.
+Exposure history is append-only and custody cannot move backwards.
+
+### 2026-08-25: private commitments require nonce hardening
+
+Each v4 private evaluation envelope contains an unpredictable 256-bit nonce.
+Public record and envelope commitments bind the private material without
+publishing that nonce or payload. Validation errors report only paths and
+failed schema keywords. Public overlap selectors remain membership-revealing
+for guessed text and are not represented as zero-knowledge evidence.
+
 ### 2026-08-18: native-first, identity-bound Drive access
 
 Phase 0 attempts Colab's native read-only Drive mount before any fallback. A
@@ -124,15 +152,16 @@ objective replay covers eight frozen families, permits at most seven negatives
 beside one target, and requires an explicit evidence-backed negative basis;
 absence of an edge is not a negative.
 
-### 2026-08-16, revised 2026-08-17: public evaluation quarantine
+### 2026-08-16, revised 2026-08-25: public evaluation quarantine
 
-The v2 confirmatory declarations are VitaminC, ContractNLI, EventStoryLine v1.5,
-EvidenceBench original test, SocialIQA v1.4 validation, and two private
-first-party families: open-world logic and process-state reasoning. Their
+The v4 registry assigns VitaminC, ContractNLI, EventStoryLine v1.5, and two
+private first-party families to confirmatory candidate use. EvidenceBench is
+diagnostic and SocialIQA validation is development-only. All seven roles'
 document/work/entity/story/contract/time/generator dependencies, exact hashes,
 and near duplicates must be excluded before foundation transformation. Each
-dataset has separate coverage bound to its encrypted receipt; a union index
-cannot conceal a missing dataset. All seven remain unsealed and blocked.
+dataset has separate coverage; confirmatory coverage is also bound to its
+encrypted receipt and authenticated anchor. A union index cannot conceal a
+missing dataset. The five confirmation candidates remain unsealed and blocked.
 
 ### 2026-08-16: offline-key confirmatory vault
 
@@ -153,7 +182,7 @@ Wikipedia remains undecided because the current copy is pre-clean-room.
 ## Candidate decisions requiring admission or later registration
 
 - Admit the registered English Wikipedia `20260801` and Wikidata `20260720`
-  pair only after both pass the Phase 0 v2 evidence and admission controls.
+  pair only after both pass the Phase 0 v4 evidence and admission controls.
 - Add Wikidata before other large external graphs.
 - Evaluate ASER Core and CauseNet before their larger/noisier alternatives.
 - Pair a filtered OpenAlex graph with commercial-use-compatible PMC full text

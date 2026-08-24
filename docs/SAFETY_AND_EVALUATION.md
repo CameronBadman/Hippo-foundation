@@ -18,6 +18,12 @@ Maintain four physically and procedurally distinct classes:
 Access to sealed data must be logged. Once a sealed result influences a model or
 policy decision, that set is no longer sealed for future confirmation.
 
+The checked Phase 0 v4 registry applies these roles mechanically. SocialIQA
+v1.4 validation remains development data. The EvidenceBench partition whose
+content was previously opened remains diagnostic-only. Neither can regain
+confirmatory status through renaming, encryption, or a new registry entry.
+Role history is append-only and custody state cannot move backwards.
+
 ## Split requirements
 
 Splits must occur at the highest relevant dependency unit:
@@ -46,6 +52,17 @@ Every dataset version must carry a leakage register covering:
 - target evidence present in model-only features;
 - future information relative to a temporal test cutoff;
 - upstream pretrained-model contamination that cannot be ruled out.
+
+Public quarantine records may disclose only the minimum selectors needed to
+detect source overlap. They must not disclose labels, answers, private worlds,
+seeds, result reports, evaluator internals, or the private commitment nonce.
+Every private envelope uses an unpredictable 256-bit nonce before its envelope
+and record commitments are published; an unsalted hash of a predictable answer
+is not confidentiality. Validation errors must identify paths and failed schema
+keywords without echoing rejected private instances. Public exact and near-
+match selectors still reveal membership for guessed source text, so their
+release requires a separate disclosure review and must not be described as
+zero-knowledge.
 
 Unavoidable upstream contamination must be disclosed. A newly created private
 evaluation is required for the strongest zero-shot claim.

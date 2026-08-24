@@ -1,7 +1,46 @@
-# Phase 0 v2 controls
+# Phase 0 controls
 
-The following rules are normative for the default Phase 0 implementation.
-Historical v1 commands do not satisfy a v2 gate.
+## Active v4 additions
+
+The v2 controls below remain frozen historical requirements. Phase 0 v4 adds
+the following normative controls and does not infer readiness from a v2 or v3
+gate report:
+
+- Source and evaluation registries carry exact predecessor hashes. Historical
+  source entries cannot be rewritten, development partitions cannot be
+  relabelled confirmatory, exposed sets remain diagnostic or retired, exposure
+  history is append-only, and custody cannot move backwards.
+- A storage attestation must bind the complete fresh storage/v1 observation,
+  including exact `drive.readonly` scope, same-account attestation, permission
+  identity digest, stable resource IDs, and all six positive checks.
+- Every artifact requires a retained publisher checksum statement, exact target
+  row, same-host HTTPS resolution, statement digest and byte count, and a fresh
+  verification receipt. A null statement URL is an explicit blocker.
+- Every private evaluation envelope contains an unpredictable 256-bit
+  commitment nonce. Public commitments bind that private envelope without
+  publishing the nonce or private payload; validator errors may not echo a
+  rejected private instance.
+- Confirmatory custody requires the exact ciphertext receipt, a non-consuming
+  hash-chained access log, and a fresh detached GPG signature from the signing
+  key fingerprint pinned in the evaluation registry. A self-asserted local log
+  head is not an independent anchor.
+- The v4 matcher makes exact identifier, dependency-family, raw-hash,
+  normalized-hash, and exact-Jaccard near-match decisions before any feature or
+  embedding. Incomplete lineage or absent selectors is `undetermined`, never
+  `clear`.
+- Contribution counts are derived from their constituent records. A serialized
+  quarantine decision is accepted only when the matcher reproduces the complete
+  receipt from its bound descriptor and union index.
+- Gate blockers and evidence bindings are structured records. Acquisition and
+  transformation are separate flags; both remain distinct from training, which
+  is always false.
+- Frozen Phase 1 v2 cannot consume a v4 report. A Phase 1 v3 consumer must be
+  additive and bind v4 evidence without relabelling it as an older gate.
+
+## Frozen v2 controls
+
+The following rules remain normative for the historical Phase 0 v2
+implementation. Historical v1 commands do not satisfy a v2 gate.
 
 - Raw artifacts are immutable. Downloads use a `.partial` sibling and are
   promoted atomically only after registered size and checksum verification.
@@ -56,6 +95,7 @@ Historical v1 commands do not satisfy a v2 gate.
   or negative mining.
 - Phase 0 has no training command, model dependency, optimization loop, or
   permission to train. Its gate always emits `training_authorized: false`.
-- Phase 1 data preparation may begin only from a ready, blocker-free Phase 0 v2
-  transformation gate and its admitted quarantine index. A ready Phase 1 data
-  gate still does not authorize training.
+- Historical Phase 1 v1 data preparation may begin only from its ready,
+  blocker-free Phase 0 v2 transformation gate and admitted quarantine index.
+  Frozen Phase 1 v2 instead requires its exact Phase 0 v3 predecessor. Neither
+  consumes v4, and no Phase 1 data gate authorizes training.

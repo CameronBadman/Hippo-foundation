@@ -98,11 +98,11 @@ Primary sources:
   data and cannot be confirmatory.
 
 These are possible supervision and evaluation assets, not foundation-scale
-corpora. The seven records in `registries/evaluations.v2.json` are historical
-confirmatory declarations, not a training roster. That registry must be revised
-before sealing because one record names a validation partition and another has
-a recorded exposure incident. Every other named dataset remains an unadmitted
-candidate.
+corpora. The seven records in `registries/evaluations.v4.json` are role-explicit
+evaluation declarations, not a training roster. SocialIQA validation is now
+development-only, the exposed EvidenceBench partition is diagnostic-only, and
+five other records are unsealed confirmatory candidates. Every named dataset
+remains unadmitted.
 
 ### Write and change shaping
 

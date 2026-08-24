@@ -14,8 +14,11 @@ families.
 
 ## Current checkpoint
 
-Phase 0 v3 and Phase 1 v2 implement fail-closed governance and deterministic
-data-preparation controls, but both gates remain blocked. Phase 2A now provides
+Phase 0 v4 and Phase 1 v2 implement fail-closed governance and deterministic
+data-preparation controls, but both checked real-state gates remain blocked.
+Phase 0 v4 has frozen contracts, corrected evaluation roles, a direct evidence
+gate, authenticated custody anchors, and a tri-state pre-feature matcher. Phase
+2A now provides
 a reproducible 32-example procedural open-world candidate slice. Phase 2B adds
 64 immutable process-state candidates, two transition oracles, exact patch
 rollback, and a clean four-corpus training/development dependency audit. Both
@@ -53,14 +56,12 @@ Phase 2 audit reports no cross-role identity or split-family overlap. This
 completes the local semantic milestone; it does not authorize training or
 canonical writes.
 
-### 3. Complete the external evidence firewall — next
+### 3. Complete the external evidence firewall — controls implemented, evidence next
 
 Follow the bounded plan in `NEXT_MILESTONE.md`:
 
-- replace the current evaluation declarations with explicit development,
-  diagnostic, and valid confirmatory roles;
-- keep SocialIQA validation in development and the exposed EvidenceBench set in
-  diagnostic/retired status;
+- preserve the implemented development, diagnostic, and confirmatory role
+  corrections and append-only exposure histories;
 - resolve exact Drive identity, publisher checksums, and accountable human
   rights decisions;
 - pin adapters and archives, create dependency-closed envelopes, seal valid
@@ -68,7 +69,7 @@ Follow the bounded plan in `NEXT_MILESTONE.md`:
 - compile the complete public quarantine union before any source
   transformation.
 
-Exit only with a fresh Phase 0 v3 report where foundation transformation is
+Exit only with a fresh Phase 0 v4 report where foundation transformation is
 ready and training remains unauthorized.
 
 ### 4. Define and build the real graph-data path
@@ -87,6 +88,10 @@ Exit when the fixture pipeline is deterministic and real-data execution is
 mechanically impossible without a ready Phase 0 gate.
 
 ### 5. Complete Phase 1 data preparation
+
+Add a Phase 1 v3 input gate that binds the exact Phase 0 v4 report and
+per-record clear receipts; do not convert or relabel v4 evidence for the frozen
+Phase 1 v2 consumer.
 
 Generate and independently audit all eight graph-mechanics objective families,
 the frozen 40,000-node sample, and the complete neighbour-overflow ledger.
