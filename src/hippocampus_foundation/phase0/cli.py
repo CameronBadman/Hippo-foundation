@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import stat
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -79,6 +80,36 @@ from .v3 import (
     assess_admission_v3,
     evaluate_gate_v3,
 )
+from .evaluation_firewall import (
+    VerifiedSealReceipt,
+    build_quarantine_contribution_v4,
+    compile_quarantine_index_v4,
+    make_seal_receipt_v4,
+    validate_evaluation_registry_v4,
+    validate_source_registry_v4,
+    verify_seal_ciphertext_v4,
+)
+from .external_evidence import (
+    MAX_OPENPGP_EVIDENCE_BYTES,
+    MAX_PUBLISHER_STATEMENT_BYTES,
+    VerifiedAccessAnchor,
+    VerifiedPublisherReceipt,
+    bind_drive_observation_v4,
+    build_publisher_checksum_receipt_v4,
+    verify_access_anchor_v4,
+    verify_publisher_checksum_receipt_v4,
+)
+from .quarantine_v4 import (
+    build_source_record_descriptor_v4,
+    match_quarantine_record_v4,
+)
+from .source_evidence_v4 import (
+    assess_admission_v4,
+    audit_source_registry_v4,
+    build_structural_inventory_v4,
+)
+from .v4 import evaluate_gate_v4
+from .v4_contracts import validate_schema_lock_v4, validate_v4
 
 
 def _emit(value: Any) -> None:
@@ -106,6 +137,44 @@ def _load_stdin_json() -> Any:
         return json.load(sys.stdin)
     except json.JSONDecodeError as exc:
         raise Phase0Error(f"invalid JSON on stdin: {exc}") from exc
+
+
+def _read_bounded_regular_file(path: Path, maximum_bytes: int, label: str) -> bytes:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise Phase0Error(f"cannot open {label} safely: {path}") from exc
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise Phase0Error(f"{label} is not a regular file: {path}")
+        if before.st_size > maximum_bytes:
+            raise Phase0Error(f"{label} exceeds its size limit: {path}")
+        with os.fdopen(descriptor, "rb", closefd=False) as handle:
+            value = handle.read(maximum_bytes + 1)
+        after = os.fstat(descriptor)
+    except OSError as exc:
+        raise Phase0Error(f"cannot read {label} safely: {path}") from exc
+    finally:
+        os.close(descriptor)
+    identity_before = (
+        before.st_dev,
+        before.st_ino,
+        before.st_size,
+        before.st_mtime_ns,
+    )
+    identity_after = (
+        after.st_dev,
+        after.st_ino,
+        after.st_size,
+        after.st_mtime_ns,
+    )
+    if len(value) > maximum_bytes or identity_before != identity_after:
+        raise Phase0Error(f"{label} changed or exceeded its size limit: {path}")
+    return value
 
 
 def _assignment(value: str, option: str) -> tuple[str, str]:
@@ -990,6 +1059,577 @@ def _source_assess_admission_v3(args: argparse.Namespace) -> int:
     return 0
 
 
+def _parts(value: str, option: str, count: int) -> list[str]:
+    parts = value.split("=")
+    if len(parts) != count or any(not part for part in parts):
+        shape = "=".join(f"PART{index + 1}" for index in range(count))
+        raise Phase0Error(f"{option} must be {shape}")
+    return parts
+
+
+def _registry_validate_v4(args: argparse.Namespace) -> int:
+    digests = validate_schema_lock_v4(
+        Path(args.schema_root) if args.schema_root else None
+    )
+    source_predecessor = (
+        _json_object(Path(args.source_predecessor))
+        if args.source_predecessor
+        else None
+    )
+    evaluation_predecessor = (
+        _json_object(Path(args.evaluation_predecessor))
+        if args.evaluation_predecessor
+        else None
+    )
+    checked: list[str] = []
+    schema_by_kind = {
+        "storage_attestation": "storage-evidence.schema.json",
+        "publisher_checksum_receipt": "publisher-evidence.schema.json",
+        "evaluation_envelope": "evaluation-evidence.schema.json",
+        "quarantine_contribution": "evaluation-evidence.schema.json",
+        "quarantine_index": "evaluation-evidence.schema.json",
+        "seal_receipt": "evaluation-evidence.schema.json",
+        "access_log_anchor": "access-anchor.schema.json",
+        "source_record_descriptor": "quarantine-decision.schema.json",
+        "quarantine_decision": "quarantine-decision.schema.json",
+        "source_audit": "source-evidence.schema.json",
+        "structural_inventory": "source-evidence.schema.json",
+        "admission_receipt": "source-evidence.schema.json",
+    }
+    for path_text in args.instance:
+        instance = _json_object(Path(path_text))
+        if instance.get("registry_kind") == "sources":
+            validate_source_registry_v4(instance, source_predecessor)
+        elif instance.get("registry_kind") == "evaluations":
+            validate_evaluation_registry_v4(instance, evaluation_predecessor)
+        elif instance.get("gate_id") == "phase0-external-evidence-firewall-v4":
+            validate_v4(instance, "gate.schema.json")
+        else:
+            record_kind = instance.get("record_kind")
+            schema_name = schema_by_kind.get(record_kind)
+            if schema_name is None:
+                raise Phase0Error(
+                    f"cannot identify Phase 0 v4 instance kind: {path_text}"
+                )
+            validate_v4(instance, schema_name)
+        checked.append(path_text)
+    _emit(
+        {
+            "ok": True,
+            "schema_digests": digests,
+            "instances": sorted(checked),
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
+def _storage_bind_drive_v4(args: argparse.Namespace) -> int:
+    registry = _json_object(Path(args.registry))
+    observation = _json_object(Path(args.observation))
+    bound_at = args.bound_at or datetime.now(timezone.utc).isoformat().replace(
+        "+00:00", "Z"
+    )
+    bound_registry, attestation = bind_drive_observation_v4(
+        registry,
+        observation,
+        registry_id=args.registry_id,
+        verifier=args.verifier,
+        bound_at=bound_at,
+    )
+    registry_output = Path(args.registry_output)
+    attestation_output = Path(args.attestation_output)
+    _refuse_output(registry_output)
+    _refuse_output(attestation_output)
+    _write_json_exclusive(registry_output, bound_registry)
+    _write_json_exclusive(attestation_output, attestation)
+    _emit(
+        {
+            "ok": True,
+            "bound_at": bound_at,
+            "observation_sha256": canonical_sha256(observation),
+            "source_registry_sha256": canonical_sha256(bound_registry),
+            "storage_attestation_sha256": canonical_sha256(attestation),
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
+def _source_publisher_receipt_v4(args: argparse.Namespace) -> int:
+    registry = _json_object(Path(args.registry))
+    statement = _read_bounded_regular_file(
+        Path(args.statement),
+        MAX_PUBLISHER_STATEMENT_BYTES,
+        "publisher checksum statement",
+    )
+    receipt = build_publisher_checksum_receipt_v4(
+        source_registry=registry,
+        evidence_id=args.evidence_id,
+        statement=statement,
+        resolved_url=args.resolved_url,
+        retrieved_at=args.retrieved_at,
+        verified_at=args.verified_at,
+        verifier=args.verifier,
+    )
+    output = Path(args.output)
+    _refuse_output(output)
+    _write_json_exclusive(output, receipt)
+    _emit(receipt)
+    return 0
+
+
+def _load_publisher_receipts_v4(
+    values: Sequence[str],
+    *,
+    source_registry: dict[str, Any],
+    evaluated_at: str,
+) -> list[VerifiedPublisherReceipt]:
+    result: list[VerifiedPublisherReceipt] = []
+    evidence_ids: set[str] = set()
+    for value in values:
+        statement_text, receipt_text = _parts(value, "--publisher", 2)
+        receipt = _json_object(Path(receipt_text))
+        verified = verify_publisher_checksum_receipt_v4(
+            receipt,
+            _read_bounded_regular_file(
+                Path(statement_text),
+                MAX_PUBLISHER_STATEMENT_BYTES,
+                "publisher checksum statement",
+            ),
+            source_registry,
+            evaluated_at=evaluated_at,
+        )
+        evidence_id = receipt["evidence_id"]
+        if evidence_id in evidence_ids:
+            raise Phase0Error(f"duplicate --publisher evidence: {evidence_id}")
+        evidence_ids.add(evidence_id)
+        result.append(verified)
+    return result
+
+
+def _source_audit_v4(args: argparse.Namespace) -> int:
+    registry = _json_object(Path(args.registry))
+    receipts = _load_publisher_receipts_v4(
+        args.publisher,
+        source_registry=registry,
+        evaluated_at=args.evaluated_at,
+    )
+    result = audit_source_registry_v4(
+        registry,
+        _json_object(Path(args.storage_attestation)),
+        receipts,
+        evaluated_at=args.evaluated_at,
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0 if result["all_verified"] else 2
+
+
+def _source_count_v4(args: argparse.Namespace) -> int:
+    registry = _json_object(Path(args.registry))
+    receipts = _load_publisher_receipts_v4(
+        args.publisher,
+        source_registry=registry,
+        evaluated_at=args.evaluated_at,
+    )
+    matches = [
+        item
+        for item in receipts
+        if item.receipt["artifact_id"] == args.artifact_id
+    ]
+    if len(matches) != 1:
+        raise Phase0Error("--artifact-id must have exactly one publisher receipt")
+    result = build_structural_inventory_v4(
+        registry=registry,
+        storage_attestation=_json_object(Path(args.storage_attestation)),
+        source_audit=_json_object(Path(args.source_audit)),
+        publisher_receipt=matches[0],
+        artifact_id=args.artifact_id,
+        evaluated_at=args.evaluated_at,
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0
+
+
+def _quarantine_contribution_v4(args: argparse.Namespace) -> int:
+    result = build_quarantine_contribution_v4(_json_object(Path(args.envelope)))
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0
+
+
+def _quarantine_compile_v4(args: argparse.Namespace) -> int:
+    evaluations = _json_object(Path(args.evaluations))
+    validate_evaluation_registry_v4(evaluations)
+    result = compile_quarantine_index_v4(
+        _load_many(args.contribution),
+        expected_dataset_ids=(item["dataset_id"] for item in evaluations["datasets"]),
+        index_id=args.index_id,
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0
+
+
+def _quarantine_descriptor_v4(args: argparse.Namespace) -> int:
+    record = _load_stdin_json() if args.input == "-" else load_json(Path(args.input))
+    if not isinstance(record, dict):
+        raise Phase0Error("v4 descriptor input must be a JSON object")
+    expected = {
+        "descriptor_id",
+        "source_id",
+        "artifact_id",
+        "record_id",
+        "raw_text",
+        "normalized_text",
+        "identifiers",
+        "dependency_units",
+        "lineage_complete",
+        "derived_at",
+    }
+    if set(record) != expected:
+        raise Phase0Error(
+            "v4 descriptor input fields differ: "
+            f"missing={sorted(expected - set(record))}, "
+            f"extra={sorted(set(record) - expected)}"
+        )
+    raw_text = record["raw_text"]
+    normalized_text = record["normalized_text"]
+    if raw_text is not None and not isinstance(raw_text, str):
+        raise Phase0Error("raw_text must be a string or null")
+    if normalized_text is not None and not isinstance(normalized_text, str):
+        raise Phase0Error("normalized_text must be a string or null")
+    result = build_source_record_descriptor_v4(
+        descriptor_id=record["descriptor_id"],
+        source_id=record["source_id"],
+        artifact_id=record["artifact_id"],
+        record_id=record["record_id"],
+        raw_content=raw_text.encode("utf-8") if raw_text is not None else None,
+        text=normalized_text,
+        identifiers=record["identifiers"],
+        dependency_units=record["dependency_units"],
+        lineage_complete=record["lineage_complete"],
+        derived_at=record["derived_at"],
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0
+
+
+def _quarantine_check_v4(args: argparse.Namespace) -> int:
+    result = match_quarantine_record_v4(
+        _json_object(Path(args.descriptor)),
+        _json_object(Path(args.index)),
+        checked_at=args.checked_at,
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0 if result["decision"] == "clear" else 2
+
+
+def _seal_create_v4(args: argparse.Namespace) -> int:
+    envelope = _load_stdin_json() if args.input == "-" else load_json(Path(args.input))
+    if not isinstance(envelope, dict):
+        raise Phase0Error("v4 seal input must be a JSON object")
+    evaluations = _json_object(Path(args.evaluations))
+    contribution = build_quarantine_contribution_v4(envelope)
+    output_paths = [Path(args.output), Path(args.receipt), Path(args.contribution)]
+    if any(path.exists() or path.is_symlink() for path in output_paths):
+        raise Phase0Error("refusing to overwrite seal, receipt, or contribution output")
+    fingerprint, ciphertext_sha256 = encrypt_canonical_bundle(
+        envelope, Path(args.output), args.recipient
+    )
+    created_at = args.created_at or datetime.now(timezone.utc).isoformat().replace(
+        "+00:00", "Z"
+    )
+    receipt = make_seal_receipt_v4(
+        evaluation_registry=evaluations,
+        envelope=envelope,
+        contribution=contribution,
+        ciphertext_sha256=ciphertext_sha256,
+        public_key_fingerprint=fingerprint,
+        custodian=args.custodian,
+        created_at=created_at,
+    )
+    _write_json_exclusive(Path(args.contribution), contribution)
+    _write_json_exclusive(Path(args.receipt), receipt)
+    _emit(receipt)
+    return 0
+
+
+def _load_verified_seals_v4(
+    values: Sequence[str],
+    *,
+    evaluation_registry: dict[str, Any],
+    contributions: Sequence[dict[str, Any]],
+) -> list[VerifiedSealReceipt]:
+    contribution_by_dataset = {
+        item["dataset_id"]: item for item in contributions
+    }
+    if len(contribution_by_dataset) != len(contributions):
+        raise Phase0Error("duplicate contribution dataset")
+    result: list[VerifiedSealReceipt] = []
+    datasets: set[str] = set()
+    for value in values:
+        ciphertext_text, receipt_text = _parts(value, "--seal-v4", 2)
+        receipt = _json_object(Path(receipt_text))
+        dataset_id = receipt.get("dataset_id")
+        if dataset_id in datasets:
+            raise Phase0Error(f"duplicate --seal-v4 dataset: {dataset_id}")
+        contribution = contribution_by_dataset.get(dataset_id)
+        if contribution is None:
+            raise Phase0Error(f"seal lacks contribution: {dataset_id}")
+        result.append(
+            verify_seal_ciphertext_v4(
+                Path(ciphertext_text),
+                receipt,
+                evaluation_registry=evaluation_registry,
+                contribution=contribution,
+            )
+        )
+        datasets.add(dataset_id)
+    return result
+
+
+def _load_verified_anchor_chains_v4(
+    values: Sequence[str],
+    *,
+    evaluation_registry: dict[str, Any],
+    verified_seals: Sequence[VerifiedSealReceipt],
+    evaluated_at: str,
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, VerifiedAccessAnchor]]:
+    seal_by_id = {item.receipt["seal_id"]: item for item in verified_seals}
+    dataset_by_seal = {
+        item["seal_id"]: item
+        for item in evaluation_registry["datasets"]
+        if item["seal_id"] is not None
+    }
+    previous: dict[str, VerifiedAccessAnchor] = {}
+    full_events: dict[str, list[dict[str, Any]]] = {}
+    for value in values:
+        anchor_text, signature_text, key_text, log_text = _parts(
+            value, "--anchor-v4", 4
+        )
+        anchor = _json_object(Path(anchor_text))
+        seal_id = anchor["seal_id"]
+        verified_seal = seal_by_id.get(seal_id)
+        dataset = dataset_by_seal.get(seal_id)
+        if verified_seal is None or dataset is None:
+            raise Phase0Error(f"anchor uses an unverified seal: {seal_id}")
+        expected_fingerprint = dataset["custodian_signing_key_fingerprint"]
+        if expected_fingerprint is None:
+            raise Phase0Error(f"anchor seal lacks a pinned custodian key: {seal_id}")
+        events = read_access_events(Path(log_text))
+        if len(events) < anchor["event_count"]:
+            raise Phase0Error(f"anchor event_count exceeds its log: {seal_id}")
+        prefix = events[: anchor["event_count"]]
+        verified = verify_access_anchor_v4(
+            anchor,
+            signature=_read_bounded_regular_file(
+                Path(signature_text),
+                MAX_OPENPGP_EVIDENCE_BYTES,
+                "detached access-anchor signature",
+            ),
+            public_key=_read_bounded_regular_file(
+                Path(key_text),
+                MAX_OPENPGP_EVIDENCE_BYTES,
+                "custodian public key",
+            ),
+            expected_signing_key_fingerprint=expected_fingerprint,
+            access_events=prefix,
+            seal_receipt=verified_seal.receipt,
+            evaluated_at=evaluated_at,
+            previous_anchor=previous.get(seal_id),
+        )
+        previous[seal_id] = verified
+        existing = full_events.get(seal_id)
+        if existing is not None and existing != events:
+            raise Phase0Error(f"anchor chain changed access log: {seal_id}")
+        full_events[seal_id] = events
+    for seal_id, anchor in previous.items():
+        if anchor.anchor["event_count"] != len(full_events[seal_id]):
+            raise Phase0Error(f"latest anchor does not cover the full log: {seal_id}")
+    return full_events, previous
+
+
+def _evaluate_from_v4_args(args: argparse.Namespace) -> dict[str, Any]:
+    sources = _json_object(Path(args.sources))
+    evaluations = _json_object(Path(args.evaluations))
+    contributions = _load_many(args.contribution)
+    publisher_receipts = _load_publisher_receipts_v4(
+        args.publisher,
+        source_registry=sources,
+        evaluated_at=args.evaluated_at,
+    )
+    assessments, bundles = _load_licence_assessments_v1(args.licence_assessment)
+    verified_seals = _load_verified_seals_v4(
+        args.seal_v4,
+        evaluation_registry=evaluations,
+        contributions=contributions,
+    )
+    access_events, anchors = _load_verified_anchor_chains_v4(
+        args.anchor_v4,
+        evaluation_registry=evaluations,
+        verified_seals=verified_seals,
+        evaluated_at=args.evaluated_at,
+    )
+    return evaluate_gate_v4(
+        evaluated_at=args.evaluated_at,
+        source_registry=sources,
+        source_registry_predecessor=_json_object(Path(args.source_predecessor)),
+        evaluation_registry=evaluations,
+        evaluation_registry_predecessor=_json_object(
+            Path(args.evaluation_predecessor)
+        ),
+        drive_observation=(
+            _json_object(Path(args.drive_observation))
+            if args.drive_observation
+            else None
+        ),
+        storage_attestation=(
+            _json_object(Path(args.storage_attestation))
+            if args.storage_attestation
+            else None
+        ),
+        publisher_receipts=publisher_receipts,
+        source_audit=(
+            _json_object(Path(args.source_audit)) if args.source_audit else None
+        ),
+        licence_assessments=assessments,
+        verified_bundles=bundles,
+        quarantine_contributions=contributions,
+        quarantine_index=(
+            _json_object(Path(args.quarantine)) if args.quarantine else None
+        ),
+        verified_seals=verified_seals,
+        evaluation_access_events=access_events,
+        verified_access_anchors=anchors,
+        structural_inventories=_load_many(args.inventory),
+        admission_receipts=_load_many(args.admission),
+    )
+
+
+def _gate_v4(args: argparse.Namespace) -> int:
+    result = _evaluate_from_v4_args(args)
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0 if result["foundation_transform_ready"] else 2
+
+
+def _source_assess_admission_v4(args: argparse.Namespace) -> int:
+    sources = _json_object(Path(args.registry))
+    source = next(
+        (item for item in sources["sources"] if item["source_id"] == args.source_id),
+        None,
+    )
+    if source is None:
+        raise Phase0Error(f"unknown source_id: {args.source_id}")
+    publisher_receipts = _load_publisher_receipts_v4(
+        args.publisher,
+        source_registry=sources,
+        evaluated_at=args.assessed_at,
+    )
+    artifact_ids = {item["artifact_id"] for item in source["artifacts"]}
+    publisher_receipts = [
+        item
+        for item in publisher_receipts
+        if item.receipt["artifact_id"] in artifact_ids
+    ]
+    assessment = _json_object(Path(args.licence_assessment))
+    bundle = load_verified_bundle(Path(args.licence_bundle))
+    result = assess_admission_v4(
+        source_id=args.source_id,
+        source_registry=sources,
+        evaluation_registry=_json_object(Path(args.evaluations)),
+        storage_attestation=_json_object(Path(args.storage_attestation)),
+        source_audit=_json_object(Path(args.source_audit)),
+        publisher_receipts=publisher_receipts,
+        assessment=assessment,
+        verified_bundle=bundle,
+        inventories=_load_many(args.inventory),
+        quarantine_index=_json_object(Path(args.quarantine)),
+        assessor=args.assessor,
+        assessed_at=args.assessed_at,
+    )
+    if args.output:
+        output = Path(args.output)
+        _refuse_output(output)
+        _write_json_exclusive(output, result)
+    _emit(result)
+    return 0
+
+
+def _source_acquire_v4(args: argparse.Namespace) -> int:
+    authorization = _evaluate_from_v4_args(args)
+    if not authorization["foundation_acquisition_authorized"]:
+        codes = [item["code"] for item in authorization["blockers"]]
+        raise GateBlocked(
+            "Phase 0 v4 foundation acquisition gate is blocked: "
+            + ", ".join(codes)
+        )
+    registry = _json_object(Path(args.sources))
+    attestation = _json_object(Path(args.storage_attestation))
+    matches = [
+        (source, artifact)
+        for source in registry["sources"]
+        for artifact in source["artifacts"]
+        if artifact["artifact_id"] == args.artifact_id
+    ]
+    if len(matches) != 1:
+        raise Phase0Error("--artifact-id must resolve exactly once")
+    _, artifact = matches[0]
+    if artifact["availability"] != "acquisition_target":
+        raise GateBlocked("source acquire-v4 accepts only an acquisition target")
+    publisher_receipts = _load_publisher_receipts_v4(
+        args.publisher,
+        source_registry=registry,
+        evaluated_at=args.evaluated_at,
+    )
+    publisher_matches = [
+        item
+        for item in publisher_receipts
+        if item.receipt["artifact_id"] == args.artifact_id
+    ]
+    if len(publisher_matches) != 1:
+        raise GateBlocked("acquisition target lacks exact publisher evidence")
+    publisher = publisher_matches[0].receipt
+    destination = Path(attestation["observed_root"]) / artifact["filename"]
+    result = download_resumable(
+        url=artifact["source_url"],
+        destination=destination,
+        expected_bytes=artifact["expected_bytes"],
+        expected_checksums={publisher["algorithm"]: publisher["value"]},
+        minimum_free_bytes=args.minimum_free_bytes,
+    )
+    result["artifact_id"] = artifact["artifact_id"]
+    result["authorization_gate_sha256"] = canonical_sha256(authorization)
+    _emit(result)
+    return 0
+
+
 def _source_acquire_authorized(
     args: argparse.Namespace, authorization: dict[str, Any]
 ) -> int:
@@ -1102,6 +1742,45 @@ def _add_v3_gate_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--evaluated-at", required=True)
 
 
+def _add_v4_gate_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--sources", required=True)
+    parser.add_argument("--source-predecessor", required=True)
+    parser.add_argument("--evaluations", required=True)
+    parser.add_argument("--evaluation-predecessor", required=True)
+    parser.add_argument("--drive-observation")
+    parser.add_argument("--storage-attestation")
+    parser.add_argument(
+        "--publisher",
+        action="append",
+        default=[],
+        metavar="STATEMENT=RECEIPT",
+    )
+    parser.add_argument("--source-audit")
+    parser.add_argument(
+        "--licence-assessment",
+        action="append",
+        default=[],
+        metavar="ASSESSMENT=BUNDLE",
+    )
+    parser.add_argument(
+        "--seal-v4",
+        action="append",
+        default=[],
+        metavar="CIPHERTEXT=RECEIPT",
+    )
+    parser.add_argument(
+        "--anchor-v4",
+        action="append",
+        default=[],
+        metavar="ANCHOR=SIGNATURE=PUBLIC_KEY=ACCESS_LOG",
+    )
+    parser.add_argument("--contribution", action="append", default=[])
+    parser.add_argument("--quarantine")
+    parser.add_argument("--inventory", action="append", default=[])
+    parser.add_argument("--admission", action="append", default=[])
+    parser.add_argument("--evaluated-at", required=True)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="hf-phase0")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -1118,6 +1797,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--instance", action="append", default=[], metavar="PATH=SCHEMA"
     )
     validate_v1.set_defaults(handler=_registry_validate_v1)
+    validate_v4_command = registry_commands.add_parser("validate-v4")
+    validate_v4_command.add_argument("--schema-root")
+    validate_v4_command.add_argument("--source-predecessor")
+    validate_v4_command.add_argument("--evaluation-predecessor")
+    validate_v4_command.add_argument(
+        "--instance", action="append", default=[], metavar="PATH"
+    )
+    validate_v4_command.set_defaults(handler=_registry_validate_v4)
 
     storage = commands.add_parser("storage")
     storage_commands = storage.add_subparsers(dest="storage_command", required=True)
@@ -1134,6 +1821,15 @@ def build_parser() -> argparse.ArgumentParser:
     bind_drive.add_argument("--verifier", required=True)
     bind_drive.add_argument("--bound-at")
     bind_drive.set_defaults(handler=_storage_bind_drive_v1)
+    bind_drive_v4 = storage_commands.add_parser("bind-drive-v4")
+    bind_drive_v4.add_argument("--registry", required=True)
+    bind_drive_v4.add_argument("--observation", required=True)
+    bind_drive_v4.add_argument("--registry-id", required=True)
+    bind_drive_v4.add_argument("--registry-output", required=True)
+    bind_drive_v4.add_argument("--attestation-output", required=True)
+    bind_drive_v4.add_argument("--verifier", required=True)
+    bind_drive_v4.add_argument("--bound-at")
+    bind_drive_v4.set_defaults(handler=_storage_bind_drive_v4)
 
     source = commands.add_parser("source")
     source_commands = source.add_subparsers(dest="source_command", required=True)
@@ -1147,6 +1843,15 @@ def build_parser() -> argparse.ArgumentParser:
     audit_v1.add_argument("--storage-map", required=True)
     audit_v1.add_argument("--output")
     audit_v1.set_defaults(handler=_source_audit_v1)
+    audit_v4 = source_commands.add_parser("audit-v4")
+    audit_v4.add_argument("--registry", required=True)
+    audit_v4.add_argument("--storage-attestation", required=True)
+    audit_v4.add_argument(
+        "--publisher", action="append", default=[], metavar="STATEMENT=RECEIPT"
+    )
+    audit_v4.add_argument("--evaluated-at", required=True)
+    audit_v4.add_argument("--output")
+    audit_v4.set_defaults(handler=_source_audit_v4)
     count = source_commands.add_parser("count")
     count.add_argument("--registry", required=True)
     count.add_argument("--storage-attestation", required=True)
@@ -1168,9 +1873,30 @@ def build_parser() -> argparse.ArgumentParser:
     )
     count_v1.add_argument("--output")
     count_v1.set_defaults(handler=_source_count_v1)
+    count_v4 = source_commands.add_parser("count-v4")
+    count_v4.add_argument("--registry", required=True)
+    count_v4.add_argument("--storage-attestation", required=True)
+    count_v4.add_argument("--source-audit", required=True)
+    count_v4.add_argument("--artifact-id", required=True)
+    count_v4.add_argument(
+        "--publisher", action="append", default=[], metavar="STATEMENT=RECEIPT"
+    )
+    count_v4.add_argument("--evaluated-at", required=True)
+    count_v4.add_argument("--output")
+    count_v4.set_defaults(handler=_source_count_v4)
     remote = source_commands.add_parser("remote")
     remote.add_argument("--url", required=True)
     remote.set_defaults(handler=_source_remote)
+    publisher_receipt_v4 = source_commands.add_parser("publisher-receipt-v4")
+    publisher_receipt_v4.add_argument("--registry", required=True)
+    publisher_receipt_v4.add_argument("--evidence-id", required=True)
+    publisher_receipt_v4.add_argument("--statement", required=True)
+    publisher_receipt_v4.add_argument("--resolved-url", required=True)
+    publisher_receipt_v4.add_argument("--retrieved-at", required=True)
+    publisher_receipt_v4.add_argument("--verified-at", required=True)
+    publisher_receipt_v4.add_argument("--verifier", required=True)
+    publisher_receipt_v4.add_argument("--output", required=True)
+    publisher_receipt_v4.set_defaults(handler=_source_publisher_receipt_v4)
     assess = source_commands.add_parser("assess-admission")
     assess.add_argument("--source-id", required=True)
     assess.add_argument("--registry", required=True)
@@ -1197,6 +1923,23 @@ def build_parser() -> argparse.ArgumentParser:
     assess_v3.add_argument("--assessed-at", required=True)
     assess_v3.add_argument("--output")
     assess_v3.set_defaults(handler=_source_assess_admission_v3)
+    assess_v4 = source_commands.add_parser("assess-admission-v4")
+    assess_v4.add_argument("--source-id", required=True)
+    assess_v4.add_argument("--registry", required=True)
+    assess_v4.add_argument("--evaluations", required=True)
+    assess_v4.add_argument("--storage-attestation", required=True)
+    assess_v4.add_argument("--source-audit", required=True)
+    assess_v4.add_argument("--licence-assessment", required=True)
+    assess_v4.add_argument("--licence-bundle", required=True)
+    assess_v4.add_argument("--quarantine", required=True)
+    assess_v4.add_argument("--inventory", action="append", default=[])
+    assess_v4.add_argument(
+        "--publisher", action="append", default=[], metavar="STATEMENT=RECEIPT"
+    )
+    assess_v4.add_argument("--assessor", required=True)
+    assess_v4.add_argument("--assessed-at", required=True)
+    assess_v4.add_argument("--output")
+    assess_v4.set_defaults(handler=_source_assess_admission_v4)
     acquire = source_commands.add_parser("acquire")
     _add_v2_gate_arguments(acquire)
     acquire.add_argument("--artifact-id", required=True)
@@ -1207,6 +1950,11 @@ def build_parser() -> argparse.ArgumentParser:
     acquire_v3.add_argument("--artifact-id", required=True)
     acquire_v3.add_argument("--minimum-free-bytes", required=True, type=int)
     acquire_v3.set_defaults(handler=_source_acquire_v3)
+    acquire_v4 = source_commands.add_parser("acquire-v4")
+    _add_v4_gate_arguments(acquire_v4)
+    acquire_v4.add_argument("--artifact-id", required=True)
+    acquire_v4.add_argument("--minimum-free-bytes", required=True, type=int)
+    acquire_v4.set_defaults(handler=_source_acquire_v4)
     acquire_v1 = source_commands.add_parser("acquire-v1")
     acquire_v1.add_argument("--registry", required=True)
     acquire_v1.add_argument("--storage-map", required=True)
@@ -1240,6 +1988,26 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--descriptor", required=True)
     check.add_argument("--index", required=True)
     check.set_defaults(handler=_quarantine_check)
+    contribution_v4 = quarantine_commands.add_parser("contribution-v4")
+    contribution_v4.add_argument("--envelope", required=True)
+    contribution_v4.add_argument("--output")
+    contribution_v4.set_defaults(handler=_quarantine_contribution_v4)
+    compile_v4 = quarantine_commands.add_parser("compile-v4")
+    compile_v4.add_argument("--evaluations", required=True)
+    compile_v4.add_argument("--contribution", action="append", default=[])
+    compile_v4.add_argument("--index-id", default="public-evaluation-union-v4")
+    compile_v4.add_argument("--output")
+    compile_v4.set_defaults(handler=_quarantine_compile_v4)
+    descriptor_v4 = quarantine_commands.add_parser("descriptor-v4")
+    descriptor_v4.add_argument("--input", default="-")
+    descriptor_v4.add_argument("--output")
+    descriptor_v4.set_defaults(handler=_quarantine_descriptor_v4)
+    check_v4 = quarantine_commands.add_parser("check-v4")
+    check_v4.add_argument("--descriptor", required=True)
+    check_v4.add_argument("--index", required=True)
+    check_v4.add_argument("--checked-at", required=True)
+    check_v4.add_argument("--output")
+    check_v4.set_defaults(handler=_quarantine_check_v4)
 
     seal = commands.add_parser("seal")
     seal_commands = seal.add_subparsers(dest="seal_command", required=True)
@@ -1252,6 +2020,16 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--evaluations", required=True)
     create.add_argument("--custodian", required=True)
     create.set_defaults(handler=_seal_create_v2)
+    create_v4 = seal_commands.add_parser("create-v4")
+    create_v4.add_argument("--input", default="-")
+    create_v4.add_argument("--output", required=True)
+    create_v4.add_argument("--recipient", required=True)
+    create_v4.add_argument("--receipt", required=True)
+    create_v4.add_argument("--contribution", required=True)
+    create_v4.add_argument("--evaluations", required=True)
+    create_v4.add_argument("--custodian", required=True)
+    create_v4.add_argument("--created-at")
+    create_v4.set_defaults(handler=_seal_create_v4)
     create_v1 = seal_commands.add_parser("create-v1")
     create_v1.add_argument("--input", default="-")
     create_v1.add_argument("--output", required=True)
@@ -1444,6 +2222,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_v3_gate_arguments(gate_v3)
     gate_v3.add_argument("--output")
     gate_v3.set_defaults(handler=_gate_v3)
+
+    gate_v4 = commands.add_parser("gate-v4")
+    _add_v4_gate_arguments(gate_v4)
+    gate_v4.add_argument("--output")
+    gate_v4.set_defaults(handler=_gate_v4)
 
     gate_v1 = commands.add_parser("gate-v1")
     gate_v1.add_argument("--sources", required=True)

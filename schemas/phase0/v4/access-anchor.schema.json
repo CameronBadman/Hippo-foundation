@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4/access-anchor.schema.json",
+  "title": "Phase 0 v4 authenticated access-log anchor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "seal_id",
+    "seal_receipt_sha256",
+    "event_count",
+    "head_event_sha256",
+    "sequence",
+    "previous_anchor_sha256",
+    "anchored_at",
+    "valid_until",
+    "authority_id",
+    "signing_key_fingerprint",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "4.0.0" },
+    "record_kind": { "const": "access_log_anchor" },
+    "seal_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "seal_receipt_sha256": { "$ref": "#/$defs/digest" },
+    "event_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "head_event_sha256": { "$ref": "#/$defs/digest" },
+    "sequence": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "previous_anchor_sha256": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+    "anchored_at": { "$ref": "#/$defs/timestamp" },
+    "valid_until": { "$ref": "#/$defs/timestamp" },
+    "authority_id": { "type": "string", "minLength": 1 },
+    "signing_key_fingerprint": { "type": "string", "pattern": "^[0-9A-F]{40,64}$" },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  }
+}

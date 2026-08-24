@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4/registry.schema.json",
+  "title": "Phase 0 v4 source and evaluation registries",
+  "oneOf": [
+    { "$ref": "#/$defs/sourceRegistry" },
+    { "$ref": "#/$defs/evaluationRegistry" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nullableDigest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value", "origin", "verified"],
+      "properties": {
+        "algorithm": { "enum": ["md5", "sha1", "sha256"] },
+        "value": { "type": "string", "pattern": "^[0-9a-f]+$" },
+        "origin": { "enum": ["publisher", "local"] },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "locator_id",
+        "filename",
+        "source_url",
+        "media_type",
+        "compression",
+        "expected_bytes",
+        "checksums",
+        "raw_policy",
+        "integrity_status",
+        "availability",
+        "inventory_kind",
+        "required_nonzero_counters",
+        "required_zero_counters"
+      ],
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "locator_id": { "type": "string", "minLength": 1 },
+        "filename": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "media_type": { "type": "string", "minLength": 1 },
+        "compression": { "enum": ["none", "gzip", "bzip2"] },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "checksums": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/checksum" } },
+        "raw_policy": { "const": "immutable" },
+        "integrity_status": { "enum": ["unverified", "verified"] },
+        "availability": { "enum": ["preexisting", "acquisition_target"] },
+        "inventory_kind": { "enum": ["wikipedia_xml", "mediawiki_sql", "wikidata_json", "conceptnet_assertions"] },
+        "required_nonzero_counters": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "required_zero_counters": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "storageRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locator_id", "provider", "provider_resource_id", "root_resource_id", "required_root"],
+      "properties": {
+        "locator_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "provider": { "const": "google_drive_shared_drive" },
+        "provider_resource_id": { "type": ["string", "null"], "minLength": 3 },
+        "root_resource_id": { "type": ["string", "null"], "minLength": 3 },
+        "required_root": { "type": "string", "pattern": "^/" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "publisher", "version", "snapshot_at", "role", "admission_status", "licence_review_id", "artifacts", "quarantine_required"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "publisher": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "snapshot_at": { "$ref": "#/$defs/timestamp" },
+        "role": { "enum": ["foundation_candidate", "forensic_only"] },
+        "admission_status": { "enum": ["pending", "accepted", "blocked"] },
+        "licence_review_id": { "type": "string", "minLength": 1 },
+        "artifacts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/artifact" } },
+        "quarantine_required": { "type": "boolean" }
+      }
+    },
+    "publisherEvidenceRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "source_id", "artifact_id", "statement_url", "statement_format", "max_age_hours"],
+      "properties": {
+        "evidence_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "source_id": { "type": "string", "minLength": 1 },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "statement_url": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "uri", "pattern": "^https://" }
+          ]
+        },
+        "statement_format": { "const": "gnu_checksum_manifest_v1" },
+        "max_age_hours": { "type": "integer", "minimum": 1, "maximum": 168 }
+      }
+    },
+    "sourceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registry_kind", "registry_id", "previous_registry_sha256", "generated_at", "storage_requirements", "publisher_evidence_requirements", "sources"],
+      "properties": {
+        "schema_version": { "const": "4.0.0" },
+        "registry_kind": { "const": "sources" },
+        "registry_id": { "type": "string", "minLength": 1 },
+        "previous_registry_sha256": { "$ref": "#/$defs/digest" },
+        "generated_at": { "$ref": "#/$defs/timestamp" },
+        "storage_requirements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/storageRequirement" } },
+        "publisher_evidence_requirements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/publisherEvidenceRequirement" } },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+    "exposureEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "event_kind", "recorded_at", "evidence_refs"],
+      "properties": {
+        "event_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "event_kind": { "enum": ["metadata_only", "publisher_designated_development", "content_exposed", "result_consumed", "retired"] },
+        "recorded_at": { "$ref": "#/$defs/timestamp" },
+        "evidence_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "task_role",
+        "usage_role",
+        "official_source",
+        "resolved_version",
+        "partition",
+        "archive_sha256",
+        "seal_id",
+        "licence_review_id",
+        "adapter_id",
+        "adapter_sha256",
+        "custody_state",
+        "project_exposure",
+        "confirmation_eligible",
+        "exposure_history",
+        "blockers",
+        "dependency_units",
+        "previous_entry_sha256",
+        "custodian_signing_key_fingerprint",
+        "quarantine_required",
+        "training_authorized"
+      ],
+      "properties": {
+        "dataset_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "task_role": { "type": "string", "minLength": 1 },
+        "usage_role": { "enum": ["development", "diagnostic", "confirmatory", "retired"] },
+        "official_source": { "type": "string", "minLength": 1 },
+        "resolved_version": { "type": ["string", "null"], "minLength": 1 },
+        "partition": { "type": ["string", "null"], "minLength": 1 },
+        "archive_sha256": { "$ref": "#/$defs/nullableDigest" },
+        "seal_id": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_.-]+$" },
+        "licence_review_id": { "type": "string", "minLength": 1 },
+        "adapter_id": { "type": ["string", "null"], "minLength": 1 },
+        "adapter_sha256": { "$ref": "#/$defs/nullableDigest" },
+        "custody_state": { "enum": ["declared", "pinned", "sealed", "consumed", "retired"] },
+        "project_exposure": { "enum": ["metadata_only", "development", "content_exposed", "consumed", "retired"] },
+        "confirmation_eligible": { "type": "boolean" },
+        "exposure_history": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/exposureEvent" } },
+        "blockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "dependency_units": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "previous_entry_sha256": { "$ref": "#/$defs/digest" },
+        "custodian_signing_key_fingerprint": { "type": ["string", "null"], "pattern": "^[0-9A-F]{40,64}$" },
+        "quarantine_required": { "const": true },
+        "training_authorized": { "const": false }
+      }
+    },
+    "evaluationRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registry_kind", "registry_id", "previous_registry_sha256", "generated_at", "closure_policy_id", "evaluation_protocol", "datasets"],
+      "properties": {
+        "schema_version": { "const": "4.0.0" },
+        "registry_kind": { "const": "evaluations" },
+        "registry_id": { "type": "string", "minLength": 1 },
+        "previous_registry_sha256": { "$ref": "#/$defs/digest" },
+        "generated_at": { "$ref": "#/$defs/timestamp" },
+        "closure_policy_id": { "const": "quarantine-closure-v4" },
+        "evaluation_protocol": { "type": "object" },
+        "datasets": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evaluation" } }
+      }
+    }
+  }
+}

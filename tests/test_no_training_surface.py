@@ -34,6 +34,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "licence",
         "gate",
         "gate-v3",
+        "gate-v4",
         "gate-v1",
     }
     assert not ({"train", "fit", "optimize", "model"} & set(top_level_choices))
@@ -90,6 +91,52 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "--artifact-id",
         "--evaluated-at",
     }.issubset(acquire_v3_options)
+
+    acquire_v4_parser = source_choices["acquire-v4"]
+    acquire_v4_options = {
+        option
+        for action in acquire_v4_parser._actions
+        for option in action.option_strings
+    }
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        acquire_v4_options
+    )
+    assert {
+        "--sources",
+        "--source-predecessor",
+        "--evaluations",
+        "--evaluation-predecessor",
+        "--publisher",
+        "--artifact-id",
+        "--evaluated-at",
+    }.issubset(acquire_v4_options)
+    gate_v4_parser = top_level_choices["gate-v4"]
+    gate_v4_options = {
+        option
+        for action in gate_v4_parser._actions
+        for option in action.option_strings
+    }
+    assert {
+        "--sources",
+        "--source-predecessor",
+        "--evaluations",
+        "--evaluation-predecessor",
+        "--drive-observation",
+        "--storage-attestation",
+        "--publisher",
+        "--source-audit",
+        "--licence-assessment",
+        "--seal-v4",
+        "--anchor-v4",
+        "--contribution",
+        "--quarantine",
+        "--inventory",
+        "--admission",
+        "--evaluated-at",
+    }.issubset(gate_v4_options)
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        gate_v4_options
+    )
 
     phase1_parser = build_phase1_parser()
     phase1_choices = next(

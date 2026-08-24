@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4/quarantine-decision.schema.json",
+  "title": "Phase 0 v4 pre-feature quarantine decision",
+  "oneOf": [
+    { "$ref": "#/$defs/descriptor" },
+    { "$ref": "#/$defs/receipt" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "value", "source_version"],
+      "properties": {
+        "namespace": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "value": { "type": "string", "minLength": 1 },
+        "source_version": { "type": ["string", "null"], "minLength": 1 }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fingerprint_id", "kind", "minhash", "shingle_hashes"],
+      "properties": {
+        "fingerprint_id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["word5", "character5"] },
+        "minhash": { "type": "array", "minItems": 128, "maxItems": 128, "items": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 } },
+        "shingle_hashes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[0-9a-f]{32}$" } }
+      }
+    },
+    "descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "descriptor_id", "source_id", "artifact_id", "record_id", "raw_sha256", "normalized_sha256", "identifiers", "dependency_units", "lineage_complete", "fingerprints", "derived_at", "contains_features", "contains_embeddings", "training_authorized"],
+      "properties": {
+        "schema_version": { "const": "4.0.0" },
+        "record_kind": { "const": "source_record_descriptor" },
+        "descriptor_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+        "source_id": { "type": "string", "minLength": 1 },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "record_id": { "type": "string", "minLength": 1 },
+        "raw_sha256": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "normalized_sha256": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "identifiers": { "type": "array", "items": { "$ref": "#/$defs/identifier" } },
+        "dependency_units": { "type": "array", "items": { "$ref": "#/$defs/identifier" } },
+        "lineage_complete": { "type": "boolean" },
+        "fingerprints": { "type": "array", "items": { "$ref": "#/$defs/fingerprint" } },
+        "derived_at": { "$ref": "#/$defs/timestamp" },
+        "contains_features": { "const": false },
+        "contains_embeddings": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reference"],
+      "properties": {
+        "kind": { "enum": ["identifier", "dependency_family", "raw_hash", "normalized_hash", "character5", "word5"] },
+        "reference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "record_kind", "descriptor_sha256", "quarantine_index_sha256", "matcher_policy_id", "decision", "reasons", "matches", "features_permitted", "checked_at", "training_authorized"],
+      "properties": {
+        "schema_version": { "const": "4.0.0" },
+        "record_kind": { "const": "quarantine_decision" },
+        "descriptor_sha256": { "$ref": "#/$defs/digest" },
+        "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+        "matcher_policy_id": { "const": "pre-feature-quarantine-v4" },
+        "decision": { "enum": ["excluded", "undetermined", "clear"] },
+        "reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["lineage_incomplete", "selector_evidence_missing", "identifier_match", "dependency_family_match", "raw_hash_match", "normalized_hash_match", "character5_near_match", "word5_near_match"] }
+        },
+        "matches": { "type": "array", "items": { "$ref": "#/$defs/match" } },
+        "features_permitted": { "type": "boolean" },
+        "checked_at": { "$ref": "#/$defs/timestamp" },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}
