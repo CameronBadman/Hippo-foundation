@@ -1,147 +1,157 @@
-# Next milestone: Phase 2B staged-write process-state slice
+# Next milestone: complete the external evidence firewall
 
 ## Outcome
 
-Build a second deterministic first-party family that proves reversible staged
-write decisions over immutable process-state snapshots. It must exercise the
-write path without mutating canonical memory, training a model, or consuming
-private confirmation data.
+Make foundation-data transformation mechanically possible only after storage
+identity, publisher bytes, rights decisions, evaluation quarantine, structural
+inventory, and admission evidence all bind to the same exact artifacts.
 
-The milestone produces separate training-role and development-role candidate
-artifacts for `attach`, `update`, `deprecate`, `new_node`, `duplicate`,
-`conflict`, `stage`, and `ignore`. Every proposed change remains a detached
-patch against a frozen input snapshot.
+The target is a fresh Phase 0 v3 transformation report whose evidence checks
+are ready while `training_authorized` remains `false`. This milestone does not
+train a model, create embeddings, tune thresholds, inspect held-out items in the
+development environment, or admit data through a documentation-only claim.
+
+## Why this is next
+
+The two local Phase 2 semantic slices are now reproducible and isolated. The
+actual programme bottleneck is external evidence: current Phase 0 and Phase 1
+gates remain blocked, rights assessments are pending, confirmatory envelopes
+are unsealed, stable Drive resource IDs are absent, and registered source bytes
+have not been audited and admitted.
 
 ## Decision definition
 
-Before generation, freeze:
+- Decision: may a registered source artifact enter foundation transformation?
+- Unit: one exact source artifact at one registered publisher version and one
+  stable storage resource identity.
+- Information allowed: publisher metadata and checksums, byte observations,
+  accountable rights assessments, public quarantine selectors derived under
+  custody, structural inventories, and exact registry/gate bindings.
+- Split unit: the highest available document, work, entity, page/revision,
+  story, contract, paper, generator, world, seed-family, or time dependency.
+- Principal error: transforming bytes that overlap confirmation data, lack
+  sufficient rights, come from the wrong storage identity, or changed after
+  review.
 
-- the unit of analysis: one proposed observation against one immutable graph
-  snapshot and candidate attachment neighbourhood;
-- prediction time: only the snapshot, proposed observation, visible evidence,
-  risk class, scope, and bounded candidate frontier;
-- outcome: one write-policy action plus a reversible staged patch or null;
-- split unit: operation family, grammar, world, relation composition, entity
-  family, and seed family; and
-- error costs: unsupported overwrite, cross-scope attachment, and false
-  deprecation cost more than staging or ignoring an ambiguous proposal.
+## Ordered work plan
 
-No later state, accepted patch, evaluator output, or target from another example
-may influence prediction-time features.
+### 1. Bind exact read-only storage identity
 
-## Contract changes
+Use a disposable CPU runtime and the already verified native read-only Drive
+mount path. Create exact `drive.readonly` user ADC in that runtime with an
+approved protected desktop OAuth client, explicitly attest that the ADC and
+mount refer to the same account, and run the identity probe within its 15-minute
+binding window.
 
-Add independently locked Phase 2B contracts for:
+Create a new source-registry version and storage attestation containing the
+stable shared-Drive and root-folder resource IDs. Do not infer IDs from names,
+paths, a different connector account, or historical mount evidence. Use the
+pinned rclone fallback only if native mounting fails and all fallback identity
+preconditions remain satisfied.
 
-- typed immutable state snapshots with node/edge lifecycle, scope, valid time,
-  observation time, provenance, conflict, and risk state;
-- proposed observations and bounded candidate attachment points;
-- write-policy examples with the exact prediction-time snapshot, action,
-  reversible patch, preconditions, postconditions, evidence, costs, role,
-  quarantine binding, and generator lineage;
-- generator specs allocating operation, grammar, world, composition, entity,
-  and seed families before generation; and
-- transition-integrity reports binding both oracle results, unchanged input
-  hashes, staged-output hashes, action counts, overlap findings, duplicates,
-  and shortcut diagnostics.
+### 2. Finish accountable rights review
 
-Extend the training-source registry rather than using the confirmatory
-evaluation registry as training configuration. Rights remain pending and every
-record must keep `training_authorized: false`.
+Give the 10 digest-bound evidence packets to an accountable human reviewer.
+Each assessment must explicitly approve, reject, or retain pending status for
+the declared use, commercial compatibility, transformation, source/derived
+redistribution, and model-output implications.
 
-## State and action semantics
+Code may validate and bind a decision but may not manufacture one. Rejected or
+incompatible sources must retire; pending assessments continue to block
+admission.
 
-Use conservative rules:
+### 3. Capture remaining publisher byte evidence
 
-- `attach`: the observation is supported, in scope, and has one unambiguous
-  existing attachment point;
-- `update`: it revises a mutable candidate-state value with explicit temporal
-  and provenance support;
-- `deprecate`: evidence explicitly invalidates an existing candidate claim
-  without erasing its history;
-- `new_node`: the observation is supported but no compatible existing entity
-  exists;
-- `duplicate`: an equivalent supported claim already exists;
-- `conflict`: supported evidence contradicts live state and cannot be safely
-  resolved at prediction time;
-- `stage`: a potentially useful change lacks evidence, identity, scope, or risk
-  certainty required for a more specific action; and
-- `ignore`: the proposal is irrelevant, unsupported, prohibited, or outside
-  the visible scope.
+Bind publisher checksum artifacts and verification receipts for every
+registered source byte target. Preserve the distinction between an observed
+publisher statement and a locally rehashed archive. Any mismatch, missing pin,
+mutable URL, or stale evidence blocks acquisition or admission.
 
-Absence is never evidence for deprecation. Conflict never authorizes overwrite.
-High-risk or irreversible canonical changes are outside this milestone.
+### 4. Correct evaluation roles before sealing
 
-## Independent verification
+Version the evaluation registry so development, diagnostic, retired, and
+confirmatory roles are explicit. Keep SocialIQA validation in development.
+Keep the exposed EvidenceBench partition diagnostic or retired. Do not recover
+confirmation status by renaming or encrypting a partition already used for
+development decisions.
 
-Implement two transition oracles that share only parsed immutable input types:
+Freeze dependency closure before any source transformation. The registry must
+name the document/work/entity/story/contract/paper/time and procedural-family
+selectors that a custodian must cover.
 
-1. a declarative precondition/effect evaluator that derives admissible actions
-   and a normalized patch; and
-2. a copy-on-write state interpreter that tries each bounded action, validates
-   invariants on the resulting candidate state, and compares the observable
-   delta.
+### 5. Build the custodied confirmation boundary
 
-They must agree on the action, patch, preconditions, and postconditions. The
-interpreter works on a fresh deep copy per example and must prove that the input
-snapshot hash is unchanged before and after evaluation. Generated or predicted
-patches may not become truth for later examples.
+Pin every public adapter and implement the two private first-party generators
+outside the development environment. Derive each public quarantine
+contribution from the same exact envelope that is encrypted to the custodian's
+offline key. Create one schema-valid hash-chained access log per seal and bind
+its head to an independently supplied anchor.
 
-## Leakage and shortcut controls
+Do not disclose labels, answers, hidden spans, private worlds, seeds, result
+reports, or evaluator internals. A consumed, tuned-on, or decision-influencing
+holdout must retire rather than being represented as clean.
 
-- Allocate every dependency family to a role before generating rows; prohibit
-  random row splitting.
-- Keep action names and case types out of template IDs, example IDs,
-  provenance, formatting, and prediction-time metadata.
-- Quarantine exact and normalized state/proposal inputs plus every procedural
-  dependency identifier against the explicitly bound public index.
-- Reject cross-role artifact, snapshot, entity, operation, grammar, world,
-  composition, or seed overlap.
-- Record majority, operation-family, grammar, template, entity-count,
-  candidate-count, patch-size, and risk-only baselines. Treat suspiciously high
-  diagnostics as blockers until the shortcut is removed or justified.
-- Add label-shuffle and proposal-only negative controls before any trainer is
-  considered.
+### 6. Compile and exercise the complete quarantine union
 
-## Public CLI
+Compile all valid contributions into one public union. Add the missing
+record-matching path so raw and normalized hashes, exact identifiers, and
+approved near-match fingerprints are checked before graph features,
+embeddings, neighbourhoods, negatives, or sampling are produced.
 
-Extend `hf-phase2` with preparation-only commands:
+Test exact, normalized, related-entity, family, near-match, malformed,
+ambiguous, and mutation cases. A record with incomplete dependency lineage is
+not equivalent to a clear record.
 
-- `process generate` writes canonical examples, manifest, and transition
-  report without overwriting outputs;
-- `process verify` deterministically regenerates both oracle results and every
-  bound hash;
-- `process replay` applies staged patches only to disposable copies and emits a
-  complete delta ledger; and
-- `corpus audit` expands its overlap checks to operation/entity families and
-  immutable snapshot hashes.
+### 7. Audit, inventory, and admit source bytes
 
-No command may train, fit, optimize, commit canonical state, or expose a model
-surface.
+Reopen bytes through the bound read-only identity, verify publisher pins,
+detect read-time mutation, and produce structural inventories that bind the
+same artifact hashes. Issue an admission receipt only when storage, rights,
+source audit, inventory, and complete quarantine evidence agree exactly.
 
-## Acceptance criteria
+Generate a fresh Phase 0 v3 gate report from those records. Only then may the
+raw-source-to-graph fixture path be implemented or executed on admitted bytes.
+Training remains behind a later, separate authorization boundary.
 
-- Each of the eight write actions has at least two distinct positive cases and
-  explicit near-miss cases that should choose a safer action.
-- Unknown, explicit negative, contradiction, temporal ordering, scope mismatch,
-  duplicate identity, ambiguous attachment, cyclic reference, and high-risk
-  cases agree across both oracles.
-- Input snapshot bytes and hashes remain unchanged through generation, replay,
-  and verification.
-- Every non-null patch is reversible, provenance-complete, scoped, and produces
-  the declared postcondition on a disposable copy.
-- Training and development share no artifact, snapshot, entity, operation,
-  grammar, world, composition, or seed family.
-- Missing provenance, time, scope, risk, rights, split, quarantine, precondition,
-  or rollback evidence fails validation.
-- Output collisions, confirmatory generation, target-bearing metadata,
-  oracle disagreement, cross-role overlap, and state mutation are rejected.
-- Existing Phase 0, Phase 1, and Phase 2A tests and package smoke checks remain
-  green.
+## Verification matrix
 
-## Explicit exclusions
+- Every schema lock and pre-existing regression remains green.
+- Registry versions preserve historical records and reject role laundering.
+- Every evidence digest rehashes to a checked artifact; detached placeholder
+  hashes are rejected.
+- Storage attestation fails on wrong account, broad scope, unstable IDs,
+  expired observation, writable mount evidence, or registry mismatch.
+- Seals fail on missing dependency closure, ciphertext mismatch, missing log,
+  missing independent anchor, or consuming/tuning events.
+- Quarantine matching happens before any derived feature and rejects exact,
+  normalized, identifier, and threshold-qualified near matches.
+- Admission fails on any stale, missing, contradictory, or mismatched evidence.
+- Current gate artifacts and every newly produced artifact retain
+  `training_authorized: false`.
 
-This milestone does not add canonical writes, online learning, a trainer, ML
-dependencies, model weights, private confirmation worlds, external source
-acquisition, real Wikipedia/Wikidata transformation, or a production graph
-store. Those remain behind later roadmap and authorization gates.
+## Required external inputs and pause points
+
+The exact-scope Drive observation requires a user-supplied approved desktop
+OAuth client and interactive authorization. Rights approval requires an
+accountable human reviewer. Offline encryption and independent log anchoring
+require the designated custodian. Stop at each of those boundaries rather than
+substituting guessed identity, automated legal approval, development-held
+private material, or a self-asserted anchor.
+
+## Exit criteria
+
+Exit only when a clean rerun from exact bytes produces:
+
+1. a bound storage identity and fresh source audit;
+2. non-pending accountable rights decisions for every admitted subject;
+3. verified publisher pins and structural inventories;
+4. correctly role-classified evaluation records;
+5. dependency-complete seals, access logs, and independent anchors;
+6. the complete public quarantine union and pre-feature match evidence;
+7. admission receipts binding all of the above; and
+8. a Phase 0 v3 transformation report that is ready while training remains
+   unauthorized.
+
+If any dependency is missing, contradictory, exposed, or not independently
+rehashable, the honest outcome is a blocked gate, not a weakened acceptance
+criterion.

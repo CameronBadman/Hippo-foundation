@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "quarantine_index",
+  "index_id": "phase2-public-reservations-v2",
+  "closure_policy_id": "quarantine-closure-v2",
+  "source_seal_ids": [
+    "phase2-process-public-reservations-fixture-v1",
+    "phase2-public-reservations-fixture-v1"
+  ],
+  "contribution_sha256s": [
+    "sha256:7cb5e351acd1482285c52268cb6f4390e2ae2b85860c7123d8adbcb3eb54d6a1",
+    "sha256:d1042c5062b8c6c9b6177c444b8e1b9edc5dc29488b05f7de3b86dc45082e677"
+  ],
+  "identifiers": [
+    {"namespace": "generator.entity_family", "value": "hf-process-reserved:entityfam:e0000", "source_version": null},
+    {"namespace": "generator.grammar", "value": "hf-process-reserved:gramfam:g0000", "source_version": null},
+    {"namespace": "generator.operation", "value": "hf-process-reserved:opfam:o0000", "source_version": null},
+    {"namespace": "generator.relation_composition", "value": "hf-process-reserved:compfam:c0000", "source_version": null},
+    {"namespace": "generator.seed_family", "value": "hf-process-reserved:seedfam:s0000", "source_version": null},
+    {"namespace": "generator.world", "value": "hf-logic-owa-reserved:world:w000000", "source_version": null},
+    {"namespace": "generator.world", "value": "hf-process-reserved:worldfam:w000000", "source_version": null},
+    {"namespace": "process.entity", "value": "node:reserved:000000", "source_version": null},
+    {"namespace": "process.proposal", "value": "proposal:reserved:000000", "source_version": null},
+    {"namespace": "process.snapshot", "value": "snapshot:reserved:000000", "source_version": null}
+  ],
+  "raw_hashes": [],
+  "normalized_hashes": [],
+  "fingerprints": []
+}

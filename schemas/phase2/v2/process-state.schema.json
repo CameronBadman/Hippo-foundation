@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v2/process-state.schema.json",
+  "title": "Phase 2 v2 immutable process state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "record_kind", "snapshot_id", "as_of", "scope_id", "relation_types", "nodes", "edges", "staged_proposals", "decision_records"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "record_kind": {"const": "process_state"},
+    "snapshot_id": {"$ref": "#/$defs/id"},
+    "as_of": {"type": "string", "format": "date-time"},
+    "scope_id": {"$ref": "#/$defs/id"},
+    "relation_types": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/relationType"}},
+    "nodes": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/node"}},
+    "edges": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/edge"}},
+    "staged_proposals": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/stagedProposal"}},
+    "decision_records": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/decisionRecord"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$"},
+    "count": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "risk": {"enum": ["low", "medium", "high"]},
+    "time": {
+      "type": "object", "additionalProperties": false, "required": ["start", "end"],
+      "properties": {
+        "start": {"oneOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]},
+        "end": {"oneOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]}
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evidence_id", "source_id", "stance", "observed_at"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/id"}, "source_id": {"$ref": "#/$defs/id"},
+        "stance": {"enum": ["supports", "contradicts", "contextualizes"]},
+        "observed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "relationType": {
+      "type": "object", "additionalProperties": false, "required": ["predicate", "object_kind", "acyclic"],
+      "properties": {"predicate": {"$ref": "#/$defs/id"}, "object_kind": {"enum": ["node", "value"]}, "acyclic": {"type": "boolean"}}
+    },
+    "node": {
+      "type": "object", "additionalProperties": false,
+      "required": ["node_id", "node_type", "label", "scope_id", "lifecycle", "valid_time", "observation_time", "provenance", "risk_class", "conflict_ids", "version"],
+      "properties": {
+        "node_id": {"$ref": "#/$defs/id"}, "node_type": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1},
+        "scope_id": {"$ref": "#/$defs/id"}, "lifecycle": {"enum": ["candidate", "active", "deprecated"]},
+        "valid_time": {"$ref": "#/$defs/time"}, "observation_time": {"type": "string", "format": "date-time"},
+        "provenance": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/provenance"}},
+        "risk_class": {"$ref": "#/$defs/risk"}, "conflict_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "version": {"$ref": "#/$defs/count"}
+      }
+    },
+    "edgeObject": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["kind", "node_id"], "properties": {"kind": {"const": "node"}, "node_id": {"$ref": "#/$defs/id"}}},
+        {"type": "object", "additionalProperties": false, "required": ["kind", "value"], "properties": {"kind": {"const": "value"}, "value": {"type": "string", "minLength": 1}}}
+      ]
+    },
+    "edge": {
+      "type": "object", "additionalProperties": false,
+      "required": ["edge_id", "subject_id", "predicate", "object", "scope_id", "lifecycle", "valid_time", "observation_time", "provenance", "risk_class", "mutable", "version", "previous_version_id", "conflict_ids"],
+      "properties": {
+        "edge_id": {"$ref": "#/$defs/id"}, "subject_id": {"$ref": "#/$defs/id"}, "predicate": {"$ref": "#/$defs/id"}, "object": {"$ref": "#/$defs/edgeObject"},
+        "scope_id": {"$ref": "#/$defs/id"}, "lifecycle": {"enum": ["candidate", "active", "superseded", "deprecated"]},
+        "valid_time": {"$ref": "#/$defs/time"}, "observation_time": {"type": "string", "format": "date-time"},
+        "provenance": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/provenance"}}, "risk_class": {"$ref": "#/$defs/risk"},
+        "mutable": {"type": "boolean"}, "version": {"$ref": "#/$defs/count"},
+        "previous_version_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "conflict_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "stagedProposal": {
+      "type": "object", "additionalProperties": false, "required": ["record_id", "proposal_id", "scope_id", "reason_codes", "evidence_ids", "created_at"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/id"}, "proposal_id": {"$ref": "#/$defs/id"}, "scope_id": {"$ref": "#/$defs/id"},
+        "reason_codes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "evidence_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "decisionRecord": {
+      "type": "object", "additionalProperties": false, "required": ["record_id", "decision_kind", "proposal_id", "related_ids", "evidence_ids", "created_at"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/id"}, "decision_kind": {"enum": ["duplicate", "conflict"]}, "proposal_id": {"$ref": "#/$defs/id"},
+        "related_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "created_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

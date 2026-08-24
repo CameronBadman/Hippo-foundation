@@ -1,0 +1,43 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "quarantine_contribution",
+  "seal_id": "phase2-process-public-reservations-fixture-v1",
+  "dataset_id": "phase2-process-reservation-fixture",
+  "resolved_version": "v1",
+  "archive_sha256": "sha256:fa8ab60a399d2216e7ce24ff090b60338c0ece751bb0142cc54dfc1fdf4906a4",
+  "adapter_id": "phase2-process-reservation-fixture-adapter-v1",
+  "adapter_sha256": "sha256:51dcc95f049575f56afdf3465a9b523f0ec637b7c1984d5f00940c10d9cb802f",
+  "bundle_sha256": "sha256:f5cbfa363bc1cd91a98607803b77e55a3f06dd206da3a99dcfa2907c9aa57c7d",
+  "records": [
+    {
+      "record_commitment": "sha256:814ac855c4e02f6d06b284aae55148114d052bf5681db8e0316266955ab49cc7",
+      "selectors": {
+        "identifiers": [
+          {"namespace": "generator.entity_family", "value": "hf-process-reserved:entityfam:e0000", "source_version": null},
+          {"namespace": "generator.grammar", "value": "hf-process-reserved:gramfam:g0000", "source_version": null},
+          {"namespace": "generator.operation", "value": "hf-process-reserved:opfam:o0000", "source_version": null},
+          {"namespace": "generator.relation_composition", "value": "hf-process-reserved:compfam:c0000", "source_version": null},
+          {"namespace": "generator.seed_family", "value": "hf-process-reserved:seedfam:s0000", "source_version": null},
+          {"namespace": "generator.world", "value": "hf-process-reserved:worldfam:w000000", "source_version": null},
+          {"namespace": "process.entity", "value": "node:reserved:000000", "source_version": null},
+          {"namespace": "process.proposal", "value": "proposal:reserved:000000", "source_version": null},
+          {"namespace": "process.snapshot", "value": "snapshot:reserved:000000", "source_version": null}
+        ],
+        "raw_hashes": [],
+        "normalized_hashes": [],
+        "fingerprints": []
+      },
+      "expected_dependency_count": 9,
+      "resolved_dependency_count": 9
+    }
+  ],
+  "coverage": {
+    "record_count": 1,
+    "covered_record_count": 1,
+    "uncovered_record_count": 0,
+    "expected_dependency_count": 9,
+    "resolved_dependency_count": 9,
+    "unresolved_dependency_count": 0,
+    "selector_count": 9
+  }
+}

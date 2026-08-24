@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]
     assert project["dependencies"] == ["jsonschema>=4.23,<5", "rfc8785>=0.1.4,<1"]
     assert project["scripts"] == {
         "hf-phase0": "hippocampus_foundation.phase0.cli:main",
@@ -21,9 +23,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
 
     parser = build_phase0_parser()
     top_level_choices = next(
-        action.choices
-        for action in parser._actions
-        if getattr(action, "choices", None)
+        action.choices for action in parser._actions if getattr(action, "choices", None)
     )
     assert set(top_level_choices) == {
         "registry",
@@ -46,9 +46,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     )
     acquire_parser = source_choices["acquire"]
     acquire_options = {
-        option
-        for action in acquire_parser._actions
-        for option in action.option_strings
+        option for action in acquire_parser._actions for option in action.option_strings
     }
     assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
         acquire_options
@@ -116,5 +114,17 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         for action in phase2_parser._actions
         if getattr(action, "choices", None)
     )
-    assert set(phase2_choices) == {"contracts", "procedural", "corpus"}
-    assert not ({"train", "fit", "optimize", "model"} & set(phase2_choices))
+    assert set(phase2_choices) == {"contracts", "procedural", "process", "corpus"}
+    assert not (
+        {"train", "fit", "optimize", "model", "commit", "apply"} & set(phase2_choices)
+    )
+    process_parser = phase2_choices["process"]
+    process_choices = next(
+        action.choices
+        for action in process_parser._actions
+        if getattr(action, "choices", None)
+    )
+    assert set(process_choices) == {"generate", "replay", "verify"}
+    assert not (
+        {"train", "fit", "optimize", "model", "commit", "apply"} & set(process_choices)
+    )

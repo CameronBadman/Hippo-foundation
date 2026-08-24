@@ -1,6 +1,8 @@
 # Dataset role, lineage, and rights review
 
-Review date: 2026-08-18
+External-source review date: 2026-08-18
+
+Local procedural status updated: 2026-08-24
 
 ## Outcome
 
@@ -15,9 +17,9 @@ The defensible near-term training roster is narrower:
    breadth, after rights approval, byte verification, and evaluation-family
    quarantine;
 2. first-party procedural graph data for exact traversal, open-world, process,
-   and write-policy supervision; the local open-world training/development
-   fixture and two oracles now exist, while process, private confirmation,
-   rights approval, and training authorization do not;
+   and write-policy supervision; the local open-world and process-state
+   training/development fixtures and their paired oracles now exist, while
+   private confirmation, rights approval, and training authorization do not;
 3. only the official training partitions of VitaminC, ContractNLI, and
    SocialIQA as optional specialist supervision, after lineage and rights
    review;
@@ -52,7 +54,7 @@ verified.
 | EventStoryLine v1.5 | The repository says v1.5 combines expert v1.0 and crowd v1.2 plot-link annotations and distributes evaluation data; its top-level licence is CC BY 3.0. The paper describes cross-document news stories clustered around a seminal event or topic. | Confirmatory or diagnostic event/causal evaluation after embedded-news rights review. It is not a large independent training source. | Treat v1.0, v1.2, and v1.5 as overlapping views of one corpus, not separate splits. Isolate by topic, story, document, event cluster, publisher, and time window. |
 | EvidenceBench original | The repository reports 426 items split 96/37/293 and says the public test is CC BY while train/dev are non-commercial ShareAlike; each candidate pool contains paper sentences. IARC's terms restrict substantial or commercial reuse absent permission and warn about third-party components. | The current original test is retired from clean confirmation because the project records prior exposure. At most it is a labelled diagnostic. Train/dev are not commercial-training candidates without a separate legal basis. | Replace with a genuinely fresh, independently custodied set and bind per-paper rights and source bytes. Split by paper, DOI/PMID/PMCID, publication family, systematic review, and near-duplicate text. |
 | SocialIQA v1.4 | The paper reports 37,588 questions, says contexts are derived from ATOMIC events, and assigns contexts to the same train/dev/test partition as their source ATOMIC event. The current publisher dataset card exposes 33,410 train and 1,954 validation examples and identifies CC BY 4.0. The paper used dev performance for hyperparameter selection. | Official train is a possible specialist source after ATOMIC lineage closure. Public validation is development only and cannot be confirmatory. A fresh test needs independent custody or a replacement design. | Preserve ATOMIC event/source, scenario, template, reasoning dimension, and near-duplicate families across all downstream SocialIQA records. |
-| First-party open-world and process generators | Phase 2A now contains a 32-example public open-world training/development candidate slice with two agreeing oracles and disjoint dependency families. It is bound only to a local reservation quarantine fixture. The process-state and private confirmatory generators, complete Phase 0 quarantine union, rights approval, and seals do not exist. | Highest-priority route to clean procedural candidates, but not an admitted training source or private confirmation set. | Split before generation by grammar, world, rule composition, operation family, and seed family. Keep confirmatory grammars/seeds with an independent custodian and separately verified oracle implementation. |
+| First-party open-world and process generators | Phase 2A contains 32 public open-world candidates and Phase 2B contains 64 public process-state candidates across training/development roles. Each family uses paired agreeing oracles and preallocated disjoint dependency families; Phase 2B additionally audits snapshot and entity isolation and exact rollback. They are bound only to a local reservation quarantine fixture. Private confirmatory generators, the complete Phase 0 quarantine union, rights approval, and seals do not exist. | Highest-priority route to clean procedural candidates, but not an admitted training source or private confirmation set. | Split before generation by grammar, world, rule composition, operation family, entity family, and seed family. Keep confirmatory grammars/seeds with an independent custodian and separately verified oracle implementation. |
 
 Primary evidence:
 
@@ -91,10 +93,11 @@ generators for:
 - attach/update/duplicate/conflict/stage decisions; and
 - asymmetric read and write costs.
 
-The Phase 2A read-path slice now cross-checks agenda closure against bounded
-proof-tree enumeration. The remaining process/write and private confirmatory
-families still require independent transition oracles. A random row split from
-one grammar is not independent evaluation.
+The Phase 2A read-path slice cross-checks agenda closure against bounded
+proof-tree enumeration. The Phase 2B write-path slice cross-checks declarative
+effects against a copy-on-write interpreter and replays every inverse patch.
+Private confirmatory families under independent custody remain unimplemented.
+A random row split from one grammar is not independent evaluation.
 
 ### Specialist stage
 

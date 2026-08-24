@@ -20,12 +20,15 @@ objective replay, and separate encoder identity/licensing readiness. The
 frozen Phase 0 v2 and Phase 1 v1 contracts remain available for historical
 reproducibility.
 
-Phase 2A is also implemented locally. Its preparation-only CLI deterministically
-generates and verifies 16 training-role and 16 development-role open-world
-policy candidates, compares agenda and proof-tree oracles, and audits artifact,
-input, grammar, world, relation-composition, and seed-family isolation. The
-slice is a contract and leakage-control fixture, not an admitted corpus: it is
-bound only to a local reservation quarantine index, its rights records remain
+Phase 2A and Phase 2B are also implemented locally. The preparation-only Phase
+2 CLI generates and verifies 16 open-world candidates and 32 staged-write
+process candidates per role. The read-path slice compares agenda and proof-tree
+oracles; the write-path slice compares declarative and copy-on-write transition
+oracles and replays every detached patch and inverse against disposable state.
+The mixed audit finds no cross-role artifact, input, snapshot, entity, or
+allocated dependency-family overlap across the four corpora. These slices are
+contract and leakage-control fixtures, not admitted corpora: they are bound
+only to a local reservation quarantine index, their rights records remain
 pending, and no predictive performance was measured.
 
 Both current gates are blocked. Forty-three allowlisted legal/provenance
@@ -114,7 +117,8 @@ forced into a binary accept/reject outcome.
 - [Phase 0 runbook](docs/PHASE_0_RUNBOOK.md)
 - [Phase 1 data-preparation runbook](docs/PHASE_1_RUNBOOK.md)
 - [Phase 2A procedural runbook](docs/PHASE_2A_RUNBOOK.md)
-- [Next milestone: staged-write process state](docs/NEXT_MILESTONE.md)
+- [Phase 2B staged-write runbook](docs/PHASE_2B_RUNBOOK.md)
+- [Next milestone: external evidence firewall](docs/NEXT_MILESTONE.md)
 - [Machine-learning integrity audit](audit/ML_AUDIT.md)
 - [Verification record](audit/VERIFICATION.md)
 
@@ -129,8 +133,8 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Implement the local Phase 2B staged-write process-state slice without adding
-   a trainer or canonical-write surface.
+1. Complete the external evidence firewall without opening item-level held-out
+   data in the development environment.
 2. Attempt the repaired native `colab drivemount --read-only` flow first. With
    an approved protected desktop OAuth client, create exact-scope ADC in the
    same CPU runtime, run the read-only Drive identity probe, and bind its stable

@@ -1,6 +1,6 @@
-# Machine-learning integrity audit — Phases 0, 1, and 2A
+# Machine-learning integrity audit — Phases 0, 1, 2A, and 2B
 
-Updated: 2026-08-18
+Updated: 2026-08-24
 
 ## Decision boundary
 
@@ -11,7 +11,11 @@ The current operational decisions are only:
 2. whether deterministic Phase 1 v2 development-data artifacts satisfy their
    frozen contracts; and
 3. whether the local Phase 2A procedural candidates reproduce exactly, agree
-   across two oracles, and remain isolated across training/development roles.
+   across two oracles, and remain isolated across training/development roles;
+   and
+4. whether the local Phase 2B process candidates reproduce exactly, agree
+   across two transition oracles, roll back exactly, and remain isolated from
+   the other training/development procedural artifacts.
 
 None of these decisions permits model training. There is no measured predictive
 performance and no basis for a claim about model quality, safety, calibration,
@@ -103,6 +107,25 @@ because no training or model-selection phase is authorized.
   each role, the two oracles agree, and the corpus audit finds no artifact,
   exact-input, normalized-input, grammar, world, relation-composition, or
   seed-family overlap. These are fixture observations, not model results.
+- Phase 2B has six separately locked additive contracts for immutable process
+  state, proposals, generator specs, registry entries, write-policy examples,
+  and generated artifacts. The original Phase 2A schema locks and checked
+  fixtures are unchanged.
+- The checked process candidates reproduce at their registered hashes: 32
+  training-role and 32 development-role examples. Each role has two direct and
+  two near-miss scenarios associated with every write action. Declarative and
+  copy-on-write oracles agree on the action, patch, conditions, and observable
+  delta for every example.
+- Every process patch is applied only to a fresh state copy during replay. All
+  64 inputs remain byte-identical and every non-null patch inverse restores the
+  exact starting snapshot hash. The mixed corpus audit finds no cross-role
+  artifact, exact-input, normalized-input, snapshot, entity, operation,
+  grammar, world, relation-composition, entity-family, or seed-family overlap
+  across the Phase 2A and Phase 2B manifests.
+- Restricted leave-one-snapshot-out shortcut diagnostics are at or below
+  0.3125 in both process roles, below the frozen 0.5 blocker. Patch-size
+  accuracy is 0.4375 but is marked prediction-time-ineligible because it is
+  derived from the target. These detached diagnostics are not model metrics.
 - Runtime dependencies contain no ML framework. None of the three CLIs exposes
   `train`, `fit`, `optimize`, or `model`; both gates and every Phase 1/Phase 2
   artifact hard-code `training_authorized: false`.
@@ -244,7 +267,8 @@ the separate exact-scope identity observation, and no resource ID was bound.
   hashes and adapters are missing; private confirmatory generators and custody
   are not implemented; dependency closure is incomplete; no access logs or
   independent head anchors exist; and no complete Phase 0 quarantine union
-  exists. The public Phase 2A fixture does not satisfy those requirements.
+  exists. The public Phase 2A and Phase 2B fixtures do not satisfy those
+  requirements.
 - The registered source bytes have not passed the v2 audit. Wikidata has not
   been acquired under the v2 gate. No structural inventory or admission receipt
   exists.
@@ -257,8 +281,8 @@ the separate exact-scope identity observation, and no resource ID was bound.
 - No model-based label-only, metadata-only, degree-only, lexical-marker,
   permutation, counterfactual, source-held-out, or generator-held-out baseline
   has been run because no model or complete development corpus exists. Phase 2A
-  records only small detached majority, grammar, template, and path-length
-  diagnostics; they are not predictive-performance measurements.
+  and Phase 2B record only small detached shortcut diagnostics; they are not
+  predictive-performance measurements.
 
 ## Current gate interpretation
 
@@ -285,17 +309,29 @@ design can represent those dependency families, but no cleanliness claim is
 warranted until all seven envelopes are derived from pinned bytes, sealed, and
 recomputed into the public union.
 
-Within the local Phase 2A fixture, exact and normalized input hashes and all
-four allocated dependency families are disjoint across roles. The bound
-quarantine index is explicitly named `phase2-public-reservations-v1`; it is a
-local reservation fixture derived from a checked-in envelope, public
-contribution, and byte-bound selector/adapter fixtures. It is not evidence that
-the examples are clear of every future confirmatory dependency. An early draft
+Within the local Phase 2 fixtures, exact and normalized input hashes and every
+allocated dependency family are disjoint across roles. Phase 2B also checks
+snapshot and entity identities, and the mixed audit covers both procedural
+families. The bound v2 quarantine index is a local reservation fixture compiled
+from checked-in envelopes, public contributions, and byte-bound
+selector/adapter fixtures. It is not evidence that the examples are clear of
+every future confirmatory dependency. An early Phase 2A draft
 placed case names in template and provenance metadata, and its template-only
 diagnostic reached 1.0. Those
 label-bearing fields were removed, case placement was seed-permuted, and the
 checked-in template-only diagnostic is 0.375. This correction happened before
 commit or model use.
+
+The Phase 2B oracles use separate transition implementations, but they share
+the frozen policy contract and process-state validator. Their agreement is
+therefore evidence against some implementation faults, not independent proof
+that the policy is correct. Adversarial cross-product checks found that an
+early rule order let duplicate/conflict structure precede evidence, identity,
+and risk gates; separate temporal checks also found lifecycle changes whose
+new evidence time was not reflected in the changed record. Both oracle paths
+were corrected, update/deprecation now close valid intervals and bind the new
+evidence time, and regressions cover the combined conditions. Correlated errors
+from a shared specification or author remain possible.
 
 There is no optimization result to audit and no metric improvement to report.
 The Phase 1 algorithms do not consult confirmatory scores. An unusually strong
@@ -335,4 +371,8 @@ of target-bearing generator fields. A final fixture-provenance near miss also
 established that every accepted evidence digest, including synthetic fixtures,
 must resolve to mechanically rehashable content rather than a schema-valid
 placeholder. That rule is recorded globally and enforced by a new derivation
-test. No training or evaluation was performed.
+test. Phase 2B added two reusable checks: test admissibility gates in
+cross-product with apparently decisive structural signals, and distinguish
+snapshot, proposal, evidence, and lifecycle timestamps before asserting future
+leakage or temporal validity. Both are recorded globally and enforced by
+regressions here. No training or evaluation was performed.

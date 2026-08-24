@@ -1,36 +1,42 @@
-# Phase 0 v3, Phase 1 v2, and Phase 2A verification record
+# Phase 0 v3, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
-Verification date: 2026-08-18
+Verification date: 2026-08-24
 
-## Current restoration checks
+## Current checks and restoration context
 
-- Missing `src/`, `tests/`, and `scripts/` content was restored without
+- Preserved 2026-08-18 restoration record: missing `src/`, `tests/`, and
+  `scripts/` content was restored without
   overwriting existing paths from the local source distribution with SHA-256
   `6aa097cfb7d03fc9a87901eb69afb63fc0a876984dc0d78944eac119766a24b6`.
-- `.venv/bin/pytest -q` passed all 115 tests. The Phase 0/1 regressions cover arbitrary
+  That restoration operation was not repeated in the Phase 2B verification.
+- `.venv/bin/pytest -q` passed all 159 tests in 317.56 seconds. The Phase 0/1 regressions cover arbitrary
   undeclared encoder entries, legacy encoder-attestation rejection, access-log
   schema and symlink safety, externally anchored suffix-truncation detection,
   consuming evaluation actions, and rejection of development partitions as
   confirmatory data. New Phase 2 regressions cover deterministic regeneration,
   all open-world actions, explicit negation, cycles, oracle faults, quarantine
   rejection, cross-role overlap, target tampering, output collisions, symlinked
-  output parents, schema locks, and the absence of a training surface.
-- `uv lock --check`, Python bytecode compilation, all three CLI help surfaces,
+  output parents, schema locks, and the absence of a training surface. Phase 2B
+  adds deterministic process generation, conservative cross-product cases,
+  temporal/provenance ordering, exact frontier/entity lineage, dual-oracle
+  faults, patch preconditions and rollback, canonical artifact reproduction,
+  full v2 overlap surfaces, mixed v1/v2 audit, CLI round trip, and output
+  collision rejection.
+- `uv lock --check`, Python bytecode compilation, all three installed CLI help surfaces,
   and Phase 0 v2 source/evaluation registry validation passed.
-- Both current fail-closed gate reports were regenerated with the restored
-  evidence. Phase 0 now exposes missing per-seal access logs/anchors and rejects
-  SocialIQA validation as confirmatory. Phase 1 rejects the legacy encoder
-  record. Both reports validate against their frozen schemas and keep
-  `training_authorized: false`.
+- The checked fail-closed gate reports remain covered by the suite but were not
+  regenerated during Phase 2B work. Their contents expose missing per-seal
+  access logs/anchors, reject SocialIQA validation as confirmatory, reject the
+  legacy encoder record, and keep `training_authorized: false`.
 - Phase 1 v2 reproduced the locked digests for its gate and new exact-layout
   encoder-verification schema. The latter is
   `sha256:e7fbdb108a9cd2750422668c4f35a0fee4a310afaf9d289065028ee3fd3e402d`.
 - A fresh source distribution and wheel were built into a temporary directory.
   Wheel inspection found all three console scripts and all schemas, including
-  Phase 1 v2 and Phase 2 v1. A clean temporary environment installed the wheel
-  plus its declared dependencies, loaded the package from that wheel,
-  reproduced the Phase 0 v3, Phase 1 v2, and Phase 2 v1 schema locks, verified
-  both checked-in Phase 2 roles, and reproduced the clean corpus audit.
+  Phase 1 v2 and both Phase 2 contract versions. A clean temporary environment
+  installed the wheel plus its declared dependencies, loaded the package from
+  site-packages, reproduced the Phase 2 v1 and v2 schema locks, and validated
+  both checked-in process roles, their ledgers, and both clean corpus audits.
 - Ruff check and format checks passed for the Phase 2 package and its changed
   contract/surface tests. No whole-repository Ruff claim is made. The declared
   runtime dependencies remain only `jsonschema` and `rfc8785`; neither is an ML
@@ -58,6 +64,41 @@ Verification date: 2026-08-18
 - Detached leave-one-world-out diagnostics are majority 0.375, grammar 0.0,
   template 0.375, and path length 0.5. They are shortcut checks on 16 examples
   per role, not model-performance results.
+
+## Phase 2B staged-write process slice
+
+- Six additive Phase 2 v2 schemas validate and reproduce their independent RFC
+  8785/SHA-256 lock anchors. The Phase 2A v1 schema digests and fixtures remain
+  unchanged.
+- The checked training-role JSONL is 229,439 bytes with SHA-256
+  `9124fa3cb284c48af9d20887e615c06fa6986998928920567180b4b847e0326e`.
+  The development-role JSONL is 230,495 bytes with SHA-256
+  `9314281a37f68f10a2b1652e0ff4db2c5732682cc46458381fdff66042164ebc`.
+- Each role has 32 examples: two direct and two near-miss scenarios associated
+  with every one of the eight write actions. Realized counts are 5 attach, 3
+  update, 2 deprecate, 2 new-node, 3 duplicate, 3 conflict, 7 stage, and 7
+  ignore examples per role.
+- Declarative precondition/effect and copy-on-write transition oracles agree on
+  action, target, patch conditions, and observable delta for all 64 examples.
+  Replays preserve every input and restore the exact starting snapshot after
+  every non-null patch inverse.
+- Process corpus audit
+  `corpus-audit-v2:bdd646f1f3570f5c98e472fb79bdfaaa2eefc5a387d4d08828683dff4fe7fd77`
+  finds no cross-role overlap. Mixed four-corpus audit
+  `corpus-audit-v2:e41f6a59e560464b1d639b67597d4b1140e4c050c6a921ec7482f5b29727e6b5`
+  also finds none across artifact, exact/normalized input, snapshot, entity,
+  operation, grammar, world, relation-composition, entity-family, and
+  seed-family surfaces.
+- Every eligible shortcut diagnostic is at or below 0.3125, below the frozen
+  0.5 blocker. Patch-size accuracy is 0.4375 but explicitly prediction-time
+  ineligible. These are fixture diagnostics, not predictive metrics.
+- The reservation index is re-derived from both checked public contributions;
+  its process source and adapter bytes are independently rehashed and their
+  exact copied selectors are checked. This remains a local fixture, not the
+  complete Phase 0 union.
+- Both source entries remain declared with pending rights review. No trainer,
+  canonical-write command, model, performance result, private confirmation
+  data, or training authorization was created.
 
 ## Restored Drive authorization and fallback record
 
@@ -216,8 +257,8 @@ and were not independently rerun during this repository review.
   graph artifact, or eight-family objective replay manifest has been created.
   Phase 0 v2 also lacks the record matcher needed to establish a transformer's
   `quarantine_decision: clear` output.
-- `.git` is an empty read-only directory rather than a Git repository, so no
-  commit, remote, push, or pull request is represented as completed.
+- The earlier restored-workspace claim that `.git` was an empty read-only
+  directory no longer applies; this directory is now a writable Git worktree.
 
 ## Integrity interpretation
 

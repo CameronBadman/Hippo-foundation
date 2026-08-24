@@ -75,7 +75,12 @@ def test_rfc8785_canonicalization_is_order_independent() -> None:
 
 
 def test_active_schema_integer_domains_fit_rfc8785_safe_range() -> None:
-    for relative in ("schemas/phase0/v2", "schemas/phase1/v1", "schemas/phase2/v1"):
+    for relative in (
+        "schemas/phase0/v2",
+        "schemas/phase1/v1",
+        "schemas/phase2/v1",
+        "schemas/phase2/v2",
+    ):
         for schema_path in sorted((ROOT / relative).glob("*.schema.json")):
             _assert_integer_domains_are_canonical_safe(
                 json.loads(schema_path.read_text(encoding="utf-8")),
@@ -96,7 +101,11 @@ def test_graph_node_contract_accepts_provenanced_record_and_rejects_extra() -> N
         "observation_time": "2026-08-16T00:00:00Z",
         "lifecycle_state": "candidate",
         "provenance_refs": [
-            {"namespace": "wikidata.entity", "value": "Q42", "source_version": "20260720"}
+            {
+                "namespace": "wikidata.entity",
+                "value": "Q42",
+                "source_version": "20260720",
+            }
         ],
         "risk_policy_id": "risk-v1",
         "risk_class": "ordinary",
@@ -107,9 +116,9 @@ def test_graph_node_contract_accepts_provenanced_record_and_rejects_extra() -> N
                 "version": 1,
                 "at": "2026-08-16T00:00:00Z",
                 "actor": {"namespace": "tool", "value": "fixture"},
-                "reason": "contract test"
+                "reason": "contract test",
             }
-        ]
+        ],
     }
     validate_instance(record, "graph.schema.json")
     invalid = {**record, "unregistered_field": True}

@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "record_kind": "process_reservation_adapter_spec",
+  "adapter_id": "phase2-process-reservation-fixture-adapter-v1",
+  "behavior": "copy_exact_public_process_identifiers",
+  "training_authorized": false
+}

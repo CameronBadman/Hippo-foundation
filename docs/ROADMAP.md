@@ -16,11 +16,12 @@ families.
 
 Phase 0 v3 and Phase 1 v2 implement fail-closed governance and deterministic
 data-preparation controls, but both gates remain blocked. Phase 2A now provides
-a reproducible 32-example procedural open-world candidate slice, two agreeing
-oracles, and a clean training/development dependency audit. It is bound only to
-a local reservation quarantine fixture and pending first-party rights records.
-There is no trainer, ML runtime dependency, authorized training corpus, model
-checkpoint, or performance result.
+a reproducible 32-example procedural open-world candidate slice. Phase 2B adds
+64 immutable process-state candidates, two transition oracles, exact patch
+rollback, and a clean four-corpus training/development dependency audit. Both
+families are bound only to a local reservation quarantine fixture and pending
+first-party rights records. There is no trainer, ML runtime dependency,
+authorized training corpus, model checkpoint, or performance result.
 
 ## Programme
 
@@ -36,21 +37,25 @@ cross-role overlap is zero, and all artifacts declare
 does not establish full evaluation-quarantine coverage, rights approval, data
 admission, or training readiness.
 
-### 2. Prove staged-write semantics locally
+### 2. Prove staged-write semantics locally — implemented
 
-Implement the Phase 2B plan in `NEXT_MILESTONE.md`: add a separate process-state
-and write-policy generator covering `attach`,
+The Phase 2B slice in `PHASE_2B_RUNBOOK.md` adds a separate process-state and
+write-policy generator covering `attach`,
 `update`, `deprecate`, `new_node`, `duplicate`, `conflict`, `stage`, and
 `ignore`. Split by operation family, grammar, world, composition, and seed
-family before generation. Verify state transitions with an independently
-implemented oracle and never let predicted writes mutate later targets.
+family occurs before generation. Declarative and copy-on-write oracles must
+agree, and replay proves every patch inverse against a fresh state copy.
 
-Exit when every action has mechanically checked positive, negative, conflict,
-and unknown cases with no split-family overlap.
+The checked fixtures contain two direct and two near-miss scenarios associated
+with every action. All 64 transitions agree, every patch rolls back exactly,
+restricted shortcut diagnostics remain below their ceiling, and the mixed
+Phase 2 audit reports no cross-role identity or split-family overlap. This
+completes the local semantic milestone; it does not authorize training or
+canonical writes.
 
-### 3. Complete the external evidence firewall
+### 3. Complete the external evidence firewall — next
 
-In parallel with the local generators:
+Follow the bounded plan in `NEXT_MILESTONE.md`:
 
 - replace the current evaluation declarations with explicit development,
   diagnostic, and valid confirmatory roles;

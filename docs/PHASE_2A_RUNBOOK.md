@@ -145,5 +145,6 @@ only as leakage and shortcut guards for this fixture.
 - No trainer, model, threshold, predictive metric, or training authorization
   exists.
 
-The next local milestone is the staged-write process-state slice in
+The staged-write process-state slice is now implemented and documented in
+`PHASE_2B_RUNBOOK.md`. The next milestone is the external evidence firewall in
 `NEXT_MILESTONE.md`.

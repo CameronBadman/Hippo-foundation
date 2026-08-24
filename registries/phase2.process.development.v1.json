@@ -1,0 +1,48 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "process_generator_spec",
+  "spec_id": "hf-process-development-spec-v1",
+  "created_at": "2026-08-24T00:00:00Z",
+  "source_id": "hf-process-state-development-v1",
+  "role": "development",
+  "generator_id": "hf-process-state-v1",
+  "algorithm_id": "immutable-staged-write-generator-v1",
+  "template_set_id": "process-transition-neutral-v1",
+  "seed": 2026082402,
+  "example_count": 32,
+  "dependency_families": {
+    "operation": "hf-process-development:opfam",
+    "grammar": "hf-process-development:gramfam",
+    "world": "hf-process-development:worldfam",
+    "relation_composition": "hf-process-development:compfam",
+    "entity_family": "hf-process-development:entityfam",
+    "seed_family": "hf-process-development:seedfam"
+  },
+  "rights_binding_id": "hf-process-state-development-rights-v1",
+  "quarantine_policy_id": "phase0-v2-exact-and-near-match",
+  "bounds": {
+    "max_candidates": 8,
+    "max_patch_operations": 8,
+    "max_nodes": 256,
+    "max_edges": 512
+  },
+  "risk_policy": {
+    "policy_id": "write-conservative-v1",
+    "direct_write_max_risk": "medium",
+    "error_costs": {
+      "unsupported_write": 100,
+      "cross_scope_write": 100,
+      "false_deprecation": 100,
+      "false_identity_merge": 80,
+      "cycle_violation": 80,
+      "missed_valid_write": 20,
+      "unnecessary_ignore": 10,
+      "unnecessary_stage": 5
+    }
+  },
+  "shortcut_policy": {
+    "method": "leave-one-snapshot-out-v1",
+    "maximum_restricted_accuracy": 0.5
+  },
+  "training_authorized": false
+}

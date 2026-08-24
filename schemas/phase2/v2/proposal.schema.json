@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase2/v2/proposal.schema.json",
+  "title": "Phase 2 v2 proposed observation",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "record_kind", "proposal_id", "subject", "predicate", "object", "signal", "scope_id", "valid_time", "observation_time", "evidence", "risk_class", "relevance", "policy_status"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"}, "record_kind": {"const": "proposed_observation"}, "proposal_id": {"$ref": "#/$defs/id"},
+    "subject": {"$ref": "#/$defs/subject"}, "predicate": {"$ref": "#/$defs/id"}, "object": {"$ref": "#/$defs/object"},
+    "signal": {"enum": ["assertion", "correction", "invalidation"]}, "scope_id": {"$ref": "#/$defs/id"}, "valid_time": {"$ref": "#/$defs/time"},
+    "observation_time": {"type": "string", "format": "date-time"}, "evidence": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/evidence"}},
+    "risk_class": {"enum": ["low", "medium", "high"]}, "relevance": {"enum": ["relevant", "irrelevant"]}, "policy_status": {"enum": ["allowed", "prohibited"]}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_.:-]+$"},
+    "time": {"type": "object", "additionalProperties": false, "required": ["start", "end"], "properties": {"start": {"oneOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]}, "end": {"oneOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]}}},
+    "subject": {"type": "object", "additionalProperties": false, "required": ["entity_type", "label", "identity_key", "node_id"], "properties": {"entity_type": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1}, "identity_key": {"type": "string", "minLength": 1}, "node_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}}},
+    "object": {"oneOf": [{"type": "object", "additionalProperties": false, "required": ["kind", "node_id"], "properties": {"kind": {"const": "node"}, "node_id": {"$ref": "#/$defs/id"}}}, {"type": "object", "additionalProperties": false, "required": ["kind", "value"], "properties": {"kind": {"const": "value"}, "value": {"type": "string", "minLength": 1}}}]},
+    "evidence": {"type": "object", "additionalProperties": false, "required": ["evidence_id", "source_id", "stance", "status", "observed_at"], "properties": {"evidence_id": {"$ref": "#/$defs/id"}, "source_id": {"$ref": "#/$defs/id"}, "stance": {"enum": ["supports", "contradicts", "contextualizes"]}, "status": {"enum": ["verified", "unverified", "rejected"]}, "observed_at": {"type": "string", "format": "date-time"}}}
+  }
+}

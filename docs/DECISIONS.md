@@ -85,7 +85,17 @@ no train, fit, optimize, or model command, and its gate always emits
 `training_authorized: false`. A separately reviewed authorization boundary is
 required before any future training work.
 
-### 2026-08-18: Phase 2 procedural data remains preparation only
+### 2026-08-24: Phase 2B process data remains preparation only
+
+Phase 2B freezes additive process-state and write-policy contracts and creates
+role-disjoint training/development candidates for eight staged-write actions.
+Declarative and copy-on-write oracles must agree; every detached patch must
+replay and roll back on a disposable copy. Patch application is not a canonical
+write surface. Rights remain pending, the reservation index is not the complete
+Phase 0 union, every artifact declares `training_authorized: false`, and the
+CLI still exposes no train, fit, optimize, model, commit, or apply command.
+
+### 2026-08-18: Phase 2A procedural data remains preparation only
 
 Phase 2A freezes signed open-world policy examples and generates role-disjoint
 training/development candidates with agenda and proof-tree verification. Its

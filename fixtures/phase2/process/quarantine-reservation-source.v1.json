@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "record_kind": "process_reservation_source",
+  "identifiers": [
+    {"namespace": "generator.operation", "value": "hf-process-reserved:opfam:o0000", "source_version": null},
+    {"namespace": "generator.grammar", "value": "hf-process-reserved:gramfam:g0000", "source_version": null},
+    {"namespace": "generator.world", "value": "hf-process-reserved:worldfam:w000000", "source_version": null},
+    {"namespace": "generator.relation_composition", "value": "hf-process-reserved:compfam:c0000", "source_version": null},
+    {"namespace": "generator.entity_family", "value": "hf-process-reserved:entityfam:e0000", "source_version": null},
+    {"namespace": "generator.seed_family", "value": "hf-process-reserved:seedfam:s0000", "source_version": null},
+    {"namespace": "process.snapshot", "value": "snapshot:reserved:000000", "source_version": null},
+    {"namespace": "process.entity", "value": "node:reserved:000000", "source_version": null},
+    {"namespace": "process.proposal", "value": "proposal:reserved:000000", "source_version": null}
+  ]
+}
