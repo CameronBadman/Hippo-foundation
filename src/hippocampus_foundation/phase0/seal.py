@@ -10,9 +10,10 @@ import re
 import stat
 import subprocess
 import tempfile
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .canonical import canonical_bytes, canonical_sha256, sha256_bytes
 from .errors import SealError, ValidationError
@@ -26,7 +27,7 @@ SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _path_without_symlinks(path: Path, description: str) -> Path:
@@ -41,7 +42,9 @@ def _path_without_symlinks(path: Path, description: str) -> Path:
         except FileNotFoundError:
             continue
         except OSError as exc:
-            raise SealError(f"cannot inspect {description} path {current}: {exc}") from exc
+            raise SealError(
+                f"cannot inspect {description} path {current}: {exc}"
+            ) from exc
         if stat.S_ISLNK(metadata.st_mode):
             raise SealError(f"{description} path contains a symlink: {current}")
     return absolute
@@ -77,7 +80,9 @@ def resolve_public_key_fingerprint(recipient: str) -> str:
     ]
     result = subprocess.run(command, check=False, capture_output=True, text=True)
     if result.returncode != 0:
-        raise SealError(f"cannot resolve GPG recipient {recipient!r}: {result.stderr.strip()}")
+        raise SealError(
+            f"cannot resolve GPG recipient {recipient!r}: {result.stderr.strip()}"
+        )
     keys: list[dict[str, Any]] = []
     current: dict[str, Any] | None = None
     expecting_primary_fingerprint = False
@@ -146,7 +151,9 @@ def encrypt_canonical_bundle(
             str(temporary_path),
             "--encrypt",
         ]
-        result = subprocess.run(command, input=plaintext, check=False, capture_output=True)
+        result = subprocess.run(
+            command, input=plaintext, check=False, capture_output=True
+        )
         if result.returncode != 0:
             raise SealError(
                 f"GPG encryption failed: {result.stderr.decode('utf-8', errors='replace').strip()}"
@@ -221,6 +228,7 @@ def make_access_event(
     actor: str,
     previous_hash: str | None,
     details: dict[str, Any] | None = None,
+    at: str | None = None,
 ) -> dict[str, Any]:
     detail_values = details or {}
     _validate_access_details(detail_values)
@@ -229,7 +237,7 @@ def make_access_event(
         "seal_id": seal_id,
         "action": action,
         "actor": actor,
-        "at": utc_now(),
+        "at": at or utc_now(),
         "previous_hash": previous_hash,
         "details": detail_values,
     }
@@ -289,6 +297,7 @@ def append_access_event(
     action: str,
     actor: str,
     details: dict[str, Any] | None = None,
+    at: str | None = None,
 ) -> dict[str, Any]:
     """Lock, verify, and append one canonical event to a private JSONL log."""
 
@@ -299,6 +308,7 @@ def append_access_event(
         actor=actor,
         previous_hash=None,
         details=details,
+        at=at,
     )
     log_path = _path_without_symlinks(log_path, "access log")
     log_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -339,6 +349,7 @@ def append_access_event(
                 actor=actor,
                 previous_hash=previous,
                 details=details,
+                at=at,
             )
             handle.seek(0, os.SEEK_END)
             handle.write(canonical_bytes(event).decode("utf-8") + "\n")

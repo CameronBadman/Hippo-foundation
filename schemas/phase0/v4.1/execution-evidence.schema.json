@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.1/execution-evidence.schema.json",
+  "title": "Phase 0 v4.1 execution evidence",
+  "oneOf": [
+    { "$ref": "#/$defs/registryLineageReceipt" },
+    { "$ref": "#/$defs/materializationManifest" },
+    { "$ref": "#/$defs/materializationReceipt" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "identifier": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+\\-]{0,255}$" },
+    "registryLineageReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "record_kind",
+        "registry_kind",
+        "root_sha256",
+        "tip_sha256",
+        "registry_count",
+        "transition_count",
+        "registry_ids",
+        "registry_sha256s",
+        "generated_at_first",
+        "generated_at_last",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.1.0" },
+        "record_kind": { "const": "registry_lineage_receipt" },
+        "registry_kind": { "enum": ["sources", "evaluations"] },
+        "root_sha256": { "$ref": "#/$defs/digest" },
+        "tip_sha256": { "$ref": "#/$defs/digest" },
+        "registry_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "transition_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "registry_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/identifier" } },
+        "registry_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "generated_at_first": { "$ref": "#/$defs/timestamp" },
+        "generated_at_last": { "$ref": "#/$defs/timestamp" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "archiveMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["member_path", "role", "primary_unit_id", "byte_count", "sha256"],
+      "properties": {
+        "member_path": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["primary", "support"] },
+        "primary_unit_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/identifier" },
+            { "type": "null" }
+          ]
+        },
+        "byte_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "recordBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "record_sha256",
+        "primary_unit_ids",
+        "expected_dependency_sha256s",
+        "resolved_dependency_sha256s",
+        "unresolved_dependency_count",
+        "selector_count"
+      ],
+      "properties": {
+        "record_id": { "$ref": "#/$defs/identifier" },
+        "record_sha256": { "$ref": "#/$defs/digest" },
+        "primary_unit_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/identifier" } },
+        "expected_dependency_sha256s": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "resolved_dependency_sha256s": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "unresolved_dependency_count": { "const": 0 },
+        "selector_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 }
+      }
+    },
+    "materializationManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "record_kind",
+        "manifest_id",
+        "dataset_id",
+        "usage_role",
+        "evaluation_registry_sha256",
+        "dataset_entry_sha256",
+        "archive_sha256",
+        "archive_format",
+        "archive_members",
+        "adapter_id",
+        "adapter_sha256",
+        "oracle_id",
+        "oracle_sha256",
+        "envelope_sha256",
+        "inventory_sha256",
+        "commitment_nonce",
+        "record_bindings",
+        "materialized_at",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.1.0" },
+        "record_kind": { "const": "evaluation_materialization_manifest" },
+        "manifest_id": { "$ref": "#/$defs/identifier" },
+        "dataset_id": { "$ref": "#/$defs/identifier" },
+        "usage_role": { "enum": ["development", "diagnostic", "confirmatory", "retired"] },
+        "evaluation_registry_sha256": { "$ref": "#/$defs/digest" },
+        "dataset_entry_sha256": { "$ref": "#/$defs/digest" },
+        "archive_sha256": { "$ref": "#/$defs/digest" },
+        "archive_format": { "enum": ["zip", "tar", "raw"] },
+        "archive_members": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/archiveMember" } },
+        "adapter_id": { "$ref": "#/$defs/identifier" },
+        "adapter_sha256": { "$ref": "#/$defs/digest" },
+        "oracle_id": { "$ref": "#/$defs/identifier" },
+        "oracle_sha256": { "$ref": "#/$defs/digest" },
+        "envelope_sha256": { "$ref": "#/$defs/digest" },
+        "inventory_sha256": { "$ref": "#/$defs/digest" },
+        "commitment_nonce": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "record_bindings": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/recordBinding" } },
+        "materialized_at": { "$ref": "#/$defs/timestamp" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "materializationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "record_kind",
+        "receipt_id",
+        "dataset_id",
+        "usage_role",
+        "evaluation_registry_sha256",
+        "dataset_entry_sha256",
+        "archive_sha256",
+        "adapter_id",
+        "adapter_sha256",
+        "oracle_id",
+        "oracle_sha256",
+        "envelope_sha256",
+        "inventory_sha256",
+        "manifest_sha256",
+        "records_root_sha256",
+        "dependencies_root_sha256",
+        "archive_member_count",
+        "primary_unit_count",
+        "support_member_count",
+        "output_record_count",
+        "dependency_binding_count",
+        "complete_primary_unit_coverage",
+        "all_archive_members_accounted",
+        "all_outputs_bound",
+        "materialized_at",
+        "contains_evaluation_content",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.1.0" },
+        "record_kind": { "const": "evaluation_materialization_receipt" },
+        "receipt_id": { "$ref": "#/$defs/identifier" },
+        "dataset_id": { "$ref": "#/$defs/identifier" },
+        "usage_role": { "enum": ["development", "diagnostic", "confirmatory", "retired"] },
+        "evaluation_registry_sha256": { "$ref": "#/$defs/digest" },
+        "dataset_entry_sha256": { "$ref": "#/$defs/digest" },
+        "archive_sha256": { "$ref": "#/$defs/digest" },
+        "adapter_id": { "$ref": "#/$defs/identifier" },
+        "adapter_sha256": { "$ref": "#/$defs/digest" },
+        "oracle_id": { "$ref": "#/$defs/identifier" },
+        "oracle_sha256": { "$ref": "#/$defs/digest" },
+        "envelope_sha256": { "$ref": "#/$defs/digest" },
+        "inventory_sha256": { "$ref": "#/$defs/digest" },
+        "manifest_sha256": { "$ref": "#/$defs/digest" },
+        "records_root_sha256": { "$ref": "#/$defs/digest" },
+        "dependencies_root_sha256": { "$ref": "#/$defs/digest" },
+        "archive_member_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "primary_unit_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "support_member_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "output_record_count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "dependency_binding_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "complete_primary_unit_coverage": { "const": true },
+        "all_archive_members_accounted": { "const": true },
+        "all_outputs_bound": { "const": true },
+        "materialized_at": { "$ref": "#/$defs/timestamp" },
+        "contains_evaluation_content": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}

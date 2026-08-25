@@ -1,0 +1,306 @@
+{
+  "generated_at": "2026-08-25T00:01:00Z",
+  "previous_registry_sha256": "sha256:c724de9fea9e13d365503f8cdaeaa25016fc906cebf6bb05b6884a2dae69e3ec",
+  "publisher_evidence_requirements": [
+    {
+      "artifact_id": "wikidata-20260720-all-json-bz2",
+      "evidence_id": "wikidata-20260720-all-json-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "wikidata@20260720-json",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260720/wikidata-20260720-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-redirect-sql-gz",
+      "evidence_id": "enwiki-20260801-redirect-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-linktarget-sql-gz",
+      "evidence_id": "enwiki-20260801-linktarget-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-page-sql-gz",
+      "evidence_id": "enwiki-20260801-page-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-categorylinks-sql-gz",
+      "evidence_id": "enwiki-20260801-categorylinks-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-pagelinks-sql-gz",
+      "evidence_id": "enwiki-20260801-pagelinks-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    },
+    {
+      "artifact_id": "enwiki-20260801-pages-articles-xml-bz2",
+      "evidence_id": "enwiki-20260801-pages-articles-checksum-v4",
+      "max_age_hours": 72,
+      "source_id": "enwiki@20260801",
+      "statement_format": "gnu_checksum_manifest_v1",
+      "statement_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    }
+  ],
+  "registry_id": "hippocampus-foundation-sources-v4-publisher-pinned",
+  "registry_kind": "sources",
+  "schema_version": "4.0.0",
+  "sources": [
+    {
+      "admission_status": "pending",
+      "artifacts": [
+        {
+          "artifact_id": "wikidata-20260720-all-json-bz2",
+          "availability": "acquisition_target",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "2acc94e09ef1c2c39bf996eb6f23c43c491f8d0d",
+              "verified": true
+            }
+          ],
+          "compression": "bzip2",
+          "expected_bytes": 102354154676,
+          "filename": "raw/wikidata/2026-07-20/wikidata-20260720-all.json.bz2",
+          "integrity_status": "unverified",
+          "inventory_kind": "wikidata_json",
+          "locator_id": "drive_lake",
+          "media_type": "application/json",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "entities",
+            "statements",
+            "sitelinks",
+            "qualifiers",
+            "references"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260720/wikidata-20260720-all.json.bz2"
+        }
+      ],
+      "licence_review_id": "wikidata-20260720-rights-v2",
+      "publisher": "Wikimedia Foundation",
+      "quarantine_required": true,
+      "role": "foundation_candidate",
+      "snapshot_at": "2026-07-20T00:00:00Z",
+      "source_id": "wikidata@20260720-json",
+      "version": "20260720"
+    },
+    {
+      "admission_status": "pending",
+      "artifacts": [
+        {
+          "artifact_id": "enwiki-20260801-redirect-sql-gz",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "448446698ab5edbe756ca92c39b217790e4bfb56",
+              "verified": false
+            }
+          ],
+          "compression": "gzip",
+          "expected_bytes": 185009639,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-redirect.sql.gz",
+          "integrity_status": "unverified",
+          "inventory_kind": "mediawiki_sql",
+          "locator_id": "drive_lake",
+          "media_type": "application/sql",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "rows",
+            "insert_statements"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-redirect.sql.gz"
+        },
+        {
+          "artifact_id": "enwiki-20260801-linktarget-sql-gz",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "430cd0ac6adbad6360d90732f9b15372b45e2acb",
+              "verified": false
+            }
+          ],
+          "compression": "gzip",
+          "expected_bytes": 1419859095,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-linktarget.sql.gz",
+          "integrity_status": "unverified",
+          "inventory_kind": "mediawiki_sql",
+          "locator_id": "drive_lake",
+          "media_type": "application/sql",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "rows",
+            "insert_statements"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-linktarget.sql.gz"
+        },
+        {
+          "artifact_id": "enwiki-20260801-page-sql-gz",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "da4f34b75de78746c32538a70ec0010654328acf",
+              "verified": false
+            }
+          ],
+          "compression": "gzip",
+          "expected_bytes": 2407863833,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-page.sql.gz",
+          "integrity_status": "unverified",
+          "inventory_kind": "mediawiki_sql",
+          "locator_id": "drive_lake",
+          "media_type": "application/sql",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "rows",
+            "insert_statements"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-page.sql.gz"
+        },
+        {
+          "artifact_id": "enwiki-20260801-categorylinks-sql-gz",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "7b4f943073f71c930a16d4b70f873e59bfbd7461",
+              "verified": false
+            }
+          ],
+          "compression": "gzip",
+          "expected_bytes": 2507076915,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-categorylinks.sql.gz",
+          "integrity_status": "unverified",
+          "inventory_kind": "mediawiki_sql",
+          "locator_id": "drive_lake",
+          "media_type": "application/sql",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "rows",
+            "insert_statements"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-categorylinks.sql.gz"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pagelinks-sql-gz",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "2980639f6422fd8979d30b42265582785299c0f8",
+              "verified": false
+            }
+          ],
+          "compression": "gzip",
+          "expected_bytes": 7018640517,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-pagelinks.sql.gz",
+          "integrity_status": "unverified",
+          "inventory_kind": "mediawiki_sql",
+          "locator_id": "drive_lake",
+          "media_type": "application/sql",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "rows",
+            "insert_statements"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-pagelinks.sql.gz"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pages-articles-xml-bz2",
+          "availability": "preexisting",
+          "checksums": [
+            {
+              "algorithm": "sha1",
+              "origin": "publisher",
+              "value": "41654af3b2cb8eddc0433293de2964ac4598397b",
+              "verified": false
+            }
+          ],
+          "compression": "bzip2",
+          "expected_bytes": 25554567998,
+          "filename": "raw/wikipedia-en/2026-08-01/enwiki-20260801-pages-articles.xml.bz2",
+          "integrity_status": "unverified",
+          "inventory_kind": "wikipedia_xml",
+          "locator_id": "drive_lake",
+          "media_type": "application/xml",
+          "raw_policy": "immutable",
+          "required_nonzero_counters": [
+            "documents",
+            "document_versions"
+          ],
+          "required_zero_counters": [
+            "parse_errors",
+            "rejected_records"
+          ],
+          "source_url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-pages-articles.xml.bz2"
+        }
+      ],
+      "licence_review_id": "enwiki-20260801-rights-v2",
+      "publisher": "Wikimedia Foundation",
+      "quarantine_required": true,
+      "role": "foundation_candidate",
+      "snapshot_at": "2026-08-01T00:00:00Z",
+      "source_id": "enwiki@20260801",
+      "version": "20260801"
+    }
+  ],
+  "storage_requirements": [
+    {
+      "locator_id": "drive_lake",
+      "provider": "google_drive_shared_drive",
+      "provider_resource_id": null,
+      "required_root": "/content/drive/Shareddrives/Data/graph-memory-data-lake",
+      "root_resource_id": null
+    }
+  ]
+}

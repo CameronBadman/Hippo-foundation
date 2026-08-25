@@ -29,12 +29,14 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "registry",
         "storage",
         "source",
+        "evaluation",
         "quarantine",
         "seal",
         "licence",
         "gate",
         "gate-v3",
         "gate-v4",
+        "gate-v4.1",
         "gate-v1",
     }
     assert not ({"train", "fit", "optimize", "model"} & set(top_level_choices))
@@ -112,9 +114,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     }.issubset(acquire_v4_options)
     gate_v4_parser = top_level_choices["gate-v4"]
     gate_v4_options = {
-        option
-        for action in gate_v4_parser._actions
-        for option in action.option_strings
+        option for action in gate_v4_parser._actions for option in action.option_strings
     }
     assert {
         "--sources",
@@ -137,6 +137,56 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
         gate_v4_options
     )
+
+    acquire_v4_1_parser = source_choices["acquire-v4.1"]
+    acquire_v4_1_options = {
+        option
+        for action in acquire_v4_1_parser._actions
+        for option in action.option_strings
+    }
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        acquire_v4_1_options
+    )
+    assert {
+        "--source-registry",
+        "--evaluation-registry",
+        "--drive-observation",
+        "--storage-attestation",
+        "--publisher",
+        "--source-audit",
+        "--licence-assessment",
+        "--materialization",
+        "--seal-v4",
+        "--anchor-v4",
+        "--contribution",
+        "--quarantine",
+        "--inventory",
+        "--admission",
+        "--artifact-id",
+        "--evaluated-at",
+    }.issubset(acquire_v4_1_options)
+
+    gate_v4_1_parser = top_level_choices["gate-v4.1"]
+    gate_v4_1_options = {
+        option
+        for action in gate_v4_1_parser._actions
+        for option in action.option_strings
+    }
+    assert acquire_v4_1_options - {"--artifact-id", "--minimum-free-bytes"} <= (
+        gate_v4_1_options | {"-h", "--help"}
+    )
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        gate_v4_1_options
+    )
+
+    evaluation_parser = top_level_choices["evaluation"]
+    evaluation_choices = next(
+        action.choices
+        for action in evaluation_parser._actions
+        if getattr(action, "choices", None)
+    )
+    assert set(evaluation_choices) == {"materialize-v4.1"}
+    assert not ({"train", "fit", "optimize", "model"} & set(evaluation_choices))
 
     phase1_parser = build_phase1_parser()
     phase1_choices = next(
