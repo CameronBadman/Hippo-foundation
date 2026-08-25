@@ -1,126 +1,150 @@
-# Next milestone: execute the Phase 0 v4 evidence firewall
+# Next milestone: execute the Phase 0 v4.1 evidence firewall
 
 ## Outcome
 
-Produce a fresh, blocker-free Phase 0 v4 report that authorizes only foundation
-transformation. `training_authorized` must remain `false`. The checked real-state
-report is currently and correctly blocked; only synthetic fixtures exercise the
-ready path.
+Produce a fresh, blocker-free Phase 0 v4.1 report that authorizes only the
+registered foundation transformation. `training_authorized` must remain
+`false`. The checked real-state report is correctly blocked; only synthetic
+fixtures exercise the ready path.
 
 ## Implemented boundary
 
 The repository now contains:
 
-- eight frozen Phase 0 v4 schemas and exact schema locks;
-- predecessor-bound source and evaluation registries;
-- explicit development, diagnostic, confirmatory, and retired roles with
-  append-only exposure history;
-- full Drive-observation binding, retained publisher-statement receipts, exact
-  source audits, inventories, and admission receipts;
-- nonce-hardened private evaluation envelopes, public dependency-complete
-  contributions, ciphertext receipts, hash-chained access logs, and detached
-  GPG anchor verification;
-- a reproducible complete quarantine union and tri-state pre-feature matcher;
-- a direct structured gate with separate acquisition and transformation flags;
-  and
-- versioned CLI routes and synthetic fail-closed tests.
+- all eight frozen Phase 0 v4 schemas with unchanged locks and behavior;
+- two separately locked v4.1 schemas for execution evidence and the gate;
+- trusted-root, gap-free source and evaluation lineage verification;
+- a byte-preserving publisher-URL successor of the checked source root;
+- private materialization manifests and redacted receipts derived by rehashing
+  archives, adapters, and separate oracles and accounting for every unit,
+  output, and dependency;
+- pinned-entry rights and materialization requirements before confirmatory
+  sealing, plus canonical anchor-payload construction;
+- an evidence-reproduced final evaluation successor that keeps
+  non-confirmatory entries pinned and moves only confirmatory entries to
+  sealed custody;
+- capture-rehashing catalogue rebinds that create only pending assessments;
+- `gate-v4.1` and `source acquire-v4.1`, both consuming complete registry
+  chains; and
+- adversarial tests for alternate roots, skipped or reordered transitions,
+  timestamp rollback, asset/key/seal/dependency mutation, unsafe or incomplete
+  archives, public leakage, rights/custody misbinding, consumed logs, stale
+  anchors, arbitrary blocker clearing, and missing evidence families.
 
-No Drive authorization, rights approval, publisher capture, held-out item read,
-source download, graph transformation, embedding, training, or evaluation was
-performed while implementing those controls.
+The two official Wikimedia manifests were fetched into ignored research
+storage and all seven registered SHA-1 rows matched. The public record in
+`audit/publisher-manifest-research.v4.1.json` is explicitly research-only: the
+transport was HTTPS and no detached publisher signature was verified. Final
+statement bytes and receipts must be fetched after Drive binding.
 
-## External execution plan
+No Drive authorization, human approval, held-out evaluation access, sealing,
+large source acquisition, transformation, embedding, training, or evaluation
+was performed while implementing this boundary.
 
-### 1. Pin publisher statement locations
+## External execution order
 
-Verify the official checksum-manifest location for every registered source
-artifact and create a successor of `registries/sources.v4.pending.json`. Do not
-guess a URL or reuse a locally computed checksum as publisher evidence. Retain
-the exact statement bytes and generate one fresh v4 receipt per artifact.
+### 1. Reconfirm publisher locations
+
+Validate the trusted source root and checked publisher successor as one ordered
+lineage. Recheck both official URLs immediately before execution; do not replace
+the registered publisher SHA-1 with a locally computed digest.
 
 ### 2. Bind exact storage identity
 
 In one disposable CPU runtime, create exact `drive.readonly` user ADC using the
-user-supplied approved desktop OAuth client, confirm that ADC and the read-only
+user-supplied approved desktop OAuth client. Confirm that ADC and the read-only
 mount use the same account, run the metadata-only identity probe, and bind the
-observation within 15 minutes with `storage bind-drive-v4`. Stable Drive and
-folder IDs must be observed, not inferred.
+observation within 15 minutes. Stable Drive and folder IDs must be observed,
+not inferred. No approved client is currently available.
 
-### 3. Refresh exact rights packets
+### 3. Capture fresh publisher receipts
 
-The v4 evaluation entries have new subject hashes because their roles and
-custody fields changed. Reassemble their existing allowlisted evidence into new
-digest-bound bundles, then obtain accountable human decisions. Existing v2
-evaluation assessments cannot authorize v4 entries. Source entries remain
-byte-identical, but every source assessment must still be unexpired and approve
-the complete declared use. Code must not manufacture an approval.
+After Drive binding, fetch and retain the exact Wikidata and enwiki manifest
+bytes again. Create one receipt per registered artifact against the Drive-bound
+source registry. Complete source audit and final access evidence must remain
+inside their 72-hour freshness windows.
 
-### 4. Pin evaluation assets outside development
+### 4. Pin every evaluation entry
 
-For SocialIQA development and EvidenceBench diagnostics, pin only the assets
-needed for their declared non-confirmatory use. For the five confirmation
-candidates, the custodian must pin archives/adapters or implement and pin the
-private first-party generators. Freeze the highest dependency units before any
-source transformation. Item-level confirmatory content must not enter this
-development workspace.
+For development and diagnostic roles, pin only the assets needed for their
+declared non-confirmatory use. For the five confirmatory candidates, the
+custodian must pin archives/adapters or implement and pin the private
+first-party generators. Pin byte-distinct oracle artifacts, custodian keys,
+seal IDs, and highest dependency units before any materialization. Validate the
+complete root-to-pinned lineage.
 
-### 5. Seal and authenticate custody
+### 5. Rebind rights evidence and obtain accountable decisions
 
-Each private envelope must contain a fresh unpredictable 256-bit commitment
-nonce and complete dependency selectors. Derive its public contribution, seal
-the same envelope to the offline custodian key, begin a private hash-chained
-access log with `seal_created`, and obtain a detached GPG signature over the
-anchor payload from the registry-pinned signing key. A copied local head hash
-or self-asserted signature is not an independent anchor.
+Run `licence catalogue-rebind` from the verified capture root into a distinct
+private output root, against the Drive-bound sources and pinned evaluation
+entries. The generated assessments remain pending. An accountable human must
+resolve or reject each finding and approve the complete declared use before
+materialization or sealing. Existing assessments bound to another entry hash
+cannot authorize the pinned entry.
 
-### 6. Compile and disclose-review the quarantine union
+### 6. Materialize evaluations under custody
 
-Compile exactly one contribution for every evaluation entry. Review the public
-identifier, hash, and shingle selectors for unnecessary disclosure: they are
-one-way but not zero-knowledge and can reveal membership for guessed text. Test
-exact, normalized, related-family, near-match, malformed, ambiguous, and
-mutation cases before relying on a `clear` result.
+For all seven entries, rehash and account for the exact archive, adapter,
+oracle, envelope, records, primary units, and dependencies. Keep manifests and
+envelopes private. Public receipts may expose only counts and digests. A
+distinct oracle file/digest is a mechanical anti-alias check, not proof of
+independent methodology; the custodian must review methodological independence
+separately.
 
-### 7. Audit, acquire, re-audit, inventory, and admit
+### 7. Seal and authenticate confirmatory custody
 
-Audit every registered pre-existing byte through the bound identity. Only a v4
-acquisition report with `foundation_acquisition_authorized: true` may start the
-registered Wikidata download; the CLI accepts no URL, destination, size, or
-checksum override. Re-audit after acquisition, produce exact structural
-inventories, and issue one admission receipt per foundation source.
+Seal the five confirmatory envelopes to their pinned keys, create the initial
+materialization-bound `seal_created` events, construct canonical anchor bytes,
+and obtain detached offline signatures. Verify full log coverage, signature and
+key bindings, freshness, and the absence of any consumption event.
 
-### 8. Evaluate the direct v4 gate
+### 8. Finalize the evaluation registry once
 
-Run `gate-v4` with both registry predecessors and every retained evidence
-artifact. A missing, stale, contradictory, exposed, future-dated, or mismatched
-dependency must produce a structured blocker. Preserve the resulting report and
-independently rehash every referenced artifact.
+Run `registry evaluations-finalize-v4.1` only after all rights,
+materializations, seals, logs, and anchors exist. It must reproduce a single
+pinned-to-final successor, preserve unrelated fields, clear only
+evidence-backed blockers, leave non-confirmatory custody pinned, and timestamp
+the registry after every supplied evidence event.
+
+### 9. Build quarantine and audit source bytes
+
+Compile exactly one contribution for every evaluation entry and review the
+public selector set for unnecessary disclosure. Audit every registered
+pre-existing source artifact through the bound storage identity with fresh
+publisher receipts.
+
+### 10. Acquire, re-audit, inventory, and admit
+
+Only a v4.1 acquisition report with
+`foundation_acquisition_authorized: true` may start the registered roughly
+102 GB Wikidata download. The acquisition CLI accepts no URL, destination,
+expected-size, or checksum override. Re-audit after acquisition, produce exact
+structural inventories, and issue one admission receipt per foundation source.
+
+### 11. Evaluate the final v4.1 gate
+
+Pass every source registry from root to Drive-bound tip and every evaluation
+registry from root through pinned to final, plus every retained evidence
+artifact. A missing, stale, contradictory, exposed, future-dated, misbound, or
+incomplete family must produce a structured blocker. Preserve and independently
+rehash the resulting report and every referenced artifact.
 
 ## Verification checkpoints
 
-- Historical v2/v3 and all Phase 1/2 regressions remain green.
-- Role laundering, predecessor rewrites, custody rollback, missing closure,
-  stale anchors, consumed seals, forged wrappers, unsafe integers, and
-  source-byte mismatches fail closed.
-- A synthetic complete evidence graph reaches transformation readiness while
-  training stays false; removing each evidence family independently blocks it.
-- The real-state report remains blocked until external evidence actually
-  exists.
-- No final test answer, result, threshold, or evaluator internal is used for
-  feature design, data selection, or admission.
-
-## Subsequent plan
-
-After a real v4 transformation report is ready, define a separately versioned
-raw-source-to-graph fixture contract. Implement only a tiny synthetic adapter
-first, require a `clear` quarantine receipt before every feature, reopen every
-output named by a manifest, and keep Phase 1 v3 additive to the frozen Phase 1
-contracts. A later and separate authorization boundary is required before any
-model training.
+- Frozen v2/v3/v4 schema digests and legacy behavior remain unchanged.
+- A clean full test run, format/lint check, compile check, package build, and
+  clean wheel-install smoke test pass.
+- The synthetic complete graph reaches transformation readiness while training
+  stays false; removing either trusted root or materialization blocks it.
+- The checked real-state report reproduces exactly from committed inputs.
+- No final answer, label, score, evaluator internal, threshold, or held-out
+  content is used for feature design, source selection, admission, or blocker
+  removal.
 
 ## Pause points
 
 Stop for user-supplied authority at exact-scope OAuth, accountable rights
-decisions, custodian-held confirmatory material, detached signing, and any real
-source acquisition. Missing authority is a blocker, not permission to weaken or
-simulate the evidence.
+decisions, custodian-held evaluation material, offline signing, and real source
+acquisition. Missing authority is a blocker, not permission to weaken or
+simulate evidence. A later and separate authorization boundary is required
+before any training.

@@ -14,10 +14,11 @@ families.
 
 ## Current checkpoint
 
-Phase 0 v4 and Phase 1 v2 implement fail-closed governance and deterministic
+Phase 0 v4.1 and Phase 1 v2 implement fail-closed governance and deterministic
 data-preparation controls, but both checked real-state gates remain blocked.
-Phase 0 v4 has frozen contracts, corrected evaluation roles, a direct evidence
-gate, authenticated custody anchors, and a tri-state pre-feature matcher. Phase
+Phase 0 v4.1 preserves the frozen v4 contracts and adds trusted registry roots,
+materialization evidence, acyclic custody finalization, a direct evidence gate,
+authenticated custody anchors, and a tri-state pre-feature matcher. Phase
 2A now provides
 a reproducible 32-example procedural open-world candidate slice. Phase 2B adds
 64 immutable process-state candidates, two transition oracles, exact patch
@@ -69,7 +70,7 @@ Follow the bounded plan in `NEXT_MILESTONE.md`:
 - compile the complete public quarantine union before any source
   transformation.
 
-Exit only with a fresh Phase 0 v4 report where foundation transformation is
+Exit only with a fresh Phase 0 v4.1 report where foundation transformation is
 ready and training remains unauthorized.
 
 ### 4. Define and build the real graph-data path
@@ -89,8 +90,8 @@ mechanically impossible without a ready Phase 0 gate.
 
 ### 5. Complete Phase 1 data preparation
 
-Add a Phase 1 v3 input gate that binds the exact Phase 0 v4 report and
-per-record clear receipts; do not convert or relabel v4 evidence for the frozen
+Add a Phase 1 v3 input gate that binds the exact Phase 0 v4.1 report and
+per-record clear receipts; do not convert or relabel v4.1 evidence for the frozen
 Phase 1 v2 consumer.
 
 Generate and independently audit all eight graph-mechanics objective families,

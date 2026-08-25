@@ -1,20 +1,72 @@
-# Phase 0 v4, Phase 1 v2, Phase 2A, and Phase 2B verification record
+# Phase 0 v4.1, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
 Verification date: 2026-08-25
 
+## Phase 0 v4.1 execution-hardening verification
+
+- The final complete regression run passed all 181 tests in 335.27 seconds.
+  An earlier complete run failed one exact CLI-inventory assertion while 180
+  tests passed in 333.37 seconds: the implementation had added governance-only
+  `evaluation` and `gate-v4.1` routes without updating the negative-capability
+  allowlist. The allowlist now enumerates those routes and separately proves
+  that `source acquire-v4.1` exposes no caller URL, destination, expected-size,
+  or checksum override. A focused v4.1/licence suite passed all 12 tests.
+- The eight frozen v4 schema locks remain unchanged. The separately locked
+  v4.1 execution-evidence schema is
+  `sha256:0706dafb046972193c225d5651d3ddac6f4407c6d35362900c20abd8065170f1`;
+  the v4.1 gate schema is
+  `sha256:678818fd646f00dc25df404e7db78ffbb279f4663c1eaec659ea8dc59ba740d0`.
+  Clean-wheel validation reproduced both locks and retained
+  `training_authorized: false`.
+- `git diff --check`, `uv lock --check`, Python bytecode compilation, Ruff
+  0.16.4 lint, and Ruff format checks pass for all ten changed Python files.
+  A repository-wide Ruff check was also run and is not clean: it reports 161
+  findings in untouched files, and 39 untouched files would be reformatted.
+  Those unrelated findings were not automatically rewritten or represented as
+  passing.
+- `uv build --out-dir /tmp/hf-phase0-v4-1-dist-20260825` produced the source
+  distribution and wheel. Direct wheel inspection found the three v4.1 modules
+  and both v4.1 schemas. An offline install into a new temporary environment,
+  invoked from `/tmp`, imported the package from that environment's
+  `site-packages`; all three installed CLI help surfaces and
+  `hf-phase0 registry validate-v4.1` passed.
+- The publisher-pinned source registry regenerates byte-for-byte from the
+  checked source root. Its trusted-root lineage ends at
+  `sha256:33146eda631e72bb38bfa5bb8ddb43733d2beb83d3fe3b30a3626a9edfc13e19`.
+  Ignored research copies of both Wikimedia manifests still reproduce the
+  SHA-256 values recorded in `audit/publisher-manifest-research.v4.1.json`, and
+  the evidence test matches all seven registered SHA-1 rows. These HTTPS copies
+  are explicitly non-authorizing; no detached publisher signature was
+  verified.
+- Regenerating the checked real-state report through `gate-v4.1` returned the
+  expected blocked exit status 2 and produced bytes identical to
+  `audit/phase0-gate.v4.1.blocked.json`. Registry lineage is ready, but OAuth and
+  Drive identity, fresh publisher receipts, pinned evaluation assets, rights,
+  materialization, custody, quarantine, source audit/bytes, inventories, and
+  admission remain blocked. Acquisition, transformation, and training remain
+  false.
+- The synthetic complete graph uses the real checked registry roots but
+  synthetic assets, rights decisions, signatures, and source observations. It
+  verifies the control path only and is not evidence about any real dataset or
+  external authority. No Drive authorization, human approval, held-out-data
+  access, sealing, large source acquisition, transformation, model execution,
+  threshold selection, or training occurred in this stage.
+
 ## Current checks and restoration context
 
-- Current 2026-08-25 run: `.venv/bin/pytest -q` passed all 171 tests in
+- Preserved Phase 0 v4 run from earlier on 2026-08-25:
+  `.venv/bin/pytest -q` passed all 171 then-existing tests in
   329.00 seconds. This includes the complete pre-existing regression suite,
   v4 role and lineage invariants, external-evidence binding, adversarial
   contribution/receipt tampering, private-error redaction, tri-state
   pre-feature quarantine, a synthetic blocker-free path, and a real isolated
   GPG detached-signature verification.
-- Current static and interface checks: `git diff --check`, Python bytecode
+- Preserved Phase 0 v4 static and interface checks: `git diff --check`, Python bytecode
   compilation, `uv lock --check`, and all three installed CLI help surfaces
   passed. The v4 CLI validated both predecessor-bound registries and
   `audit/phase0-gate.v4.initial.json` against all eight locked schemas.
-- Current packaging check: `uv build --out-dir /tmp/hf-phase0-v4-dist` produced
+- Preserved Phase 0 v4 packaging check:
+  `uv build --out-dir /tmp/hf-phase0-v4-dist` produced
   an sdist and wheel. Direct wheel inspection found the v4 implementation and
   all eight v4 schemas; loading the extracted wheel from outside the repository
   located its packaged schema directory and reproduced all eight locks.

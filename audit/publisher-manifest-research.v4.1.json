@@ -1,0 +1,63 @@
+{
+  "all_registered_rows_matched": true,
+  "authorization_evidence": false,
+  "checked_at": "2026-08-25T02:51:40Z",
+  "manifests": [
+    {
+      "byte_count": 449,
+      "manifest_sha256": "sha256:1d46f0ada283801de16a7a865207926f30ee940adf6328ff60da645636cc2c43",
+      "rows": [
+        {
+          "artifact_id": "wikidata-20260720-all-json-bz2",
+          "filename": "wikidata-20260720-all.json.bz2",
+          "registered_sha1": "2acc94e09ef1c2c39bf996eb6f23c43c491f8d0d"
+        }
+      ],
+      "url": "https://dumps.wikimedia.org/wikidatawiki/entities/20260720/wikidata-20260720-sha1sums.txt"
+    },
+    {
+      "byte_count": 243860,
+      "manifest_sha256": "sha256:96f53060f2cbb20329222be57bada28679855038900b0ac382a12edc6bdcd838",
+      "rows": [
+        {
+          "artifact_id": "enwiki-20260801-redirect-sql-gz",
+          "filename": "enwiki-20260801-redirect.sql.gz",
+          "registered_sha1": "448446698ab5edbe756ca92c39b217790e4bfb56"
+        },
+        {
+          "artifact_id": "enwiki-20260801-linktarget-sql-gz",
+          "filename": "enwiki-20260801-linktarget.sql.gz",
+          "registered_sha1": "430cd0ac6adbad6360d90732f9b15372b45e2acb"
+        },
+        {
+          "artifact_id": "enwiki-20260801-page-sql-gz",
+          "filename": "enwiki-20260801-page.sql.gz",
+          "registered_sha1": "da4f34b75de78746c32538a70ec0010654328acf"
+        },
+        {
+          "artifact_id": "enwiki-20260801-categorylinks-sql-gz",
+          "filename": "enwiki-20260801-categorylinks.sql.gz",
+          "registered_sha1": "7b4f943073f71c930a16d4b70f873e59bfbd7461"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pagelinks-sql-gz",
+          "filename": "enwiki-20260801-pagelinks.sql.gz",
+          "registered_sha1": "2980639f6422fd8979d30b42265582785299c0f8"
+        },
+        {
+          "artifact_id": "enwiki-20260801-pages-articles-xml-bz2",
+          "filename": "enwiki-20260801-pages-articles.xml.bz2",
+          "registered_sha1": "41654af3b2cb8eddc0433293de2964ac4598397b"
+        }
+      ],
+      "url": "https://dumps.wikimedia.org/enwiki/20260801/enwiki-20260801-sha1sums.txt"
+    }
+  ],
+  "publisher_detached_signature_verified": false,
+  "record_kind": "publisher_manifest_research_check",
+  "registered_artifact_count": 7,
+  "research_only": true,
+  "schema_version": "1.0.0",
+  "training_authorized": false,
+  "transport": "https"
+}

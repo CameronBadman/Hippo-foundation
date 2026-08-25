@@ -1,18 +1,273 @@
-# Phase 0 v4 clean-room runbook
+# Phase 0 v4.1 clean-room runbook
 
 Phase 0 establishes frozen contracts, storage identity, provenance, licensing,
 evaluation quarantine, immutable raw-byte inventory, source admission, and a
 mechanical readiness gate. It does not transform a graph, generate model
 examples, run an encoder, fit a model, tune a threshold, or authorize training.
 
-The active authorization boundary is the direct `gate-v4`, licensing/v1
-assessment bundles, signed custody anchors, and v4 admission receipts. It
-validates the frozen v2/v3 contracts for historical integrity but never imports
-their blocker list or treats either historical gate as readiness evidence.
-Unsuffixed commands and commands ending in `-v1` or `-v3` reproduce older
-contracts only; they do not satisfy v4.
+The active authorization boundary is `gate-v4.1`. It consumes complete source
+and evaluation registry lineages anchored to the checked-in roots, independently
+materialized evaluation receipts, licensing/v1 assessment bundles bound to the
+penultimate pinned evaluation entries, signed custody anchors, and v4 admission
+receipts. It validates the frozen v2/v3/v4 contracts for historical integrity
+but never imports their blocker lists or treats their gates as readiness
+evidence. `gate-v4` and all unsuffixed or older-suffix commands remain available
+for reproducibility only; they must not authorize real acquisition or
+transformation.
 
-## Active v4 command path
+## Active v4.1 command path
+
+The order below is part of the evidence contract. Do not move rights review or
+sealing after the final evaluation-registry transition, and do not treat a
+research manifest copy as a fresh publisher receipt.
+
+### 1. Validate the roots and publisher-URL successor
+
+The trusted roots are:
+
+- sources:
+  `sha256:c724de9fea9e13d365503f8cdaeaa25016fc906cebf6bb05b6884a2dae69e3ec`;
+- evaluations:
+  `sha256:6c52a922377d7ae017ae24ecca0f2dc7d239b562a954ac310b6325fe21cd97cb`.
+
+The checked successor
+`registries/sources.v4.publisher-pinned.json` pins the Wikidata 20260720
+manifest URL once and the enwiki 20260801 manifest URL for all six enwiki
+artifacts. It preserves every source entry and existing `verified` flag.
+
+```bash
+uv run hf-phase0 registry lineage-v4.1 \
+  --registry registries/sources.v4.pending.json \
+  --registry registries/sources.v4.publisher-pinned.json
+```
+
+To reproduce it into a new path, use `registry publisher-pin-v4.1`; never edit
+the checked registry in place. The ignored research copies recorded in
+`audit/publisher-manifest-research.v4.1.json` matched all seven registered SHA-1
+rows over HTTPS. They are not authorization evidence, and no detached publisher
+signature was verified.
+
+### 2. Bind exact Drive identity
+
+Obtain the exact-scope, same-account Drive observation using the protected
+workflow later in this document, then bind it within 15 minutes:
+
+```bash
+uv run hf-phase0 storage bind-drive-v4 \
+  --registry registries/sources.v4.publisher-pinned.json \
+  --observation artifacts/drive-observation.v1.json \
+  --registry-id hippocampus-foundation-sources-v4-drive-bound \
+  --registry-output artifacts/sources.v4.drive-bound.json \
+  --attestation-output artifacts/storage-attestation.v4.json \
+  --verifier DRIVE-CUSTODIAN-ID \
+  --bound-at OBSERVATION-BIND-TIME
+```
+
+No approved OAuth client or exact-scope observation is currently available.
+That is an external-authority boundary, not permission to infer IDs from a
+mount path.
+
+### 3. Fetch fresh publisher statements after Drive binding
+
+Fetch both manifests again after binding, retain their exact bytes privately,
+and create one receipt for every registered artifact. Receipts expire after 72
+hours and must bind the Drive-bound source-registry tip:
+
+```bash
+uv run hf-phase0 source publisher-receipt-v4 \
+  --registry artifacts/sources.v4.drive-bound.json \
+  --evidence-id REGISTERED-EVIDENCE-ID \
+  --statement private/publisher/STATEMENT.txt \
+  --resolved-url EXACT-REGISTERED-MANIFEST-URL \
+  --retrieved-at RETRIEVED-AT \
+  --verified-at VERIFIED-AT \
+  --verifier PUBLISHER-EVIDENCE-REVIEWER \
+  --output private/publisher/ARTIFACT.receipt.v4.json
+```
+
+The Wikimedia statements supply SHA-1 values over HTTPS. Locally computed
+hashes and the earlier research copies cannot substitute for these receipts.
+
+### 4. Pin evaluation assets, keys, and dependency units
+
+Create one v4 successor of `registries/evaluations.v4.json` in which every
+entry is `pinned`, every archive/adapter binding is concrete, every confirmatory
+key fingerprint is exact, and the highest dependency units are frozen. Validate
+the complete ordered chain:
+
+```bash
+uv run hf-phase0 registry lineage-v4.1 \
+  --registry registries/evaluations.v4.json \
+  --registry artifacts/evaluations.v4.pinned.json
+```
+
+This stage requires real private assets, adapters or generators, independent
+oracles, and custodian keys. None was manufactured while implementing v4.1.
+
+### 5. Rebind retained rights captures and obtain human decisions
+
+Rehash the existing verified captures from one private root into a distinct new
+root. `catalogue-rebind` requires a fully pinned evaluation registry, creates
+new entry-bound bundles, and writes pending assessments only:
+
+```bash
+uv run hf-phase0 licence catalogue-rebind \
+  --catalogue licensing/catalog.v1.json \
+  --sources artifacts/sources.v4.drive-bound.json \
+  --evaluations artifacts/evaluations.v4.pinned.json \
+  --encoder-spec registries/encoder.gte-modernbert.v1.json \
+  --verified-capture-root private/licensing \
+  --output-root private/licensing-v4.1 \
+  --audit-index artifacts/licensing-v4.1.rebind-index.json \
+  --assembled-at ASSEMBLED-AT
+```
+
+An accountable reviewer must separately resolve or reject every blocking
+finding. Code must not change `decision: pending` into an approval. Evaluation
+reviews must follow registry pinning and precede materialization.
+
+### 6. Materialize every evaluation independently
+
+The custodian runs `evaluation materialize-v4.1` once per pinned entry. The
+command rehashes the archive, adapter, and byte-distinct oracle; rejects unsafe,
+duplicate, absent, or unaccounted archive members; proves complete primary-unit
+coverage; and binds every output and dependency. The private manifest remains
+under custodian control; the public receipt contains counts and digests only.
+
+```bash
+uv run hf-phase0 evaluation materialize-v4.1 \
+  --evaluations artifacts/evaluations.v4.pinned.json \
+  --dataset-id DATASET-ID \
+  --archive private/evaluations/DATASET.archive \
+  --adapter private/evaluations/DATASET.adapter \
+  --oracle private/evaluations/DATASET.oracle \
+  --envelope private/envelopes/DATASET.v4.json \
+  --inventory private/evaluations/DATASET.inventory.v4.1.json \
+  --manifest-id DATASET.materialization.v4.1 \
+  --materialized-at MATERIALIZED-AT \
+  --manifest-output private/materialization/DATASET.manifest.v4.1.json \
+  --receipt-output artifacts/materialization/DATASET.receipt.v4.1.json
+```
+
+The archive and evaluation envelope are held-out material. They must not enter
+the development workspace or be inspected to tune features, thresholds, or
+prompts.
+
+### 7. Seal confirmatory envelopes and anchor custody
+
+For each confirmatory entry, `seal create-v4.1` requires the pinned registry,
+approved pinned-entry rights evidence, and the reproducible materialization. It
+encrypts the same envelope and starts the private log with a `seal_created`
+event bound to the materialization-receipt digest.
+
+```bash
+uv run hf-phase0 seal create-v4.1 \
+  --evaluations artifacts/evaluations.v4.pinned.json \
+  --materialization MANIFEST=RECEIPT=ARCHIVE=ADAPTER=ORACLE=ENVELOPE \
+  --licence-assessment private/licensing-v4.1/REVIEW/assessment.final.json \
+  --licence-bundle private/licensing-v4.1/REVIEW/bundle.json \
+  --recipient OFFLINE-CUSTODIAN-KEY-FINGERPRINT \
+  --custodian OFFLINE-CUSTODIAN-ID \
+  --created-at CREATED-AT \
+  --output vault/DATASET.v4.gpg \
+  --receipt private/receipts/DATASET.v4.json \
+  --contribution private/contributions/DATASET.v4.json \
+  --access-log private/access/DATASET.jsonl
+```
+
+Construct exact RFC 8785 bytes before offline signing:
+
+```bash
+uv run hf-phase0 seal anchor-payload-v4 \
+  --seal-receipt private/receipts/DATASET.v4.json \
+  --access-log private/access/DATASET.jsonl \
+  --sequence 1 \
+  --anchored-at ANCHORED-AT \
+  --valid-until VALID-UNTIL \
+  --authority-id INDEPENDENT-AUTHORITY-ID \
+  --signing-key-fingerprint OFFLINE-CUSTODIAN-KEY-FINGERPRINT \
+  --output private/anchors/DATASET.v4.canonical.json
+```
+
+Sign that file outside the development environment. The finalizer verifies the
+detached signature, pinned key, full log, freshness window, and absence of any
+confirmatory-consumption event.
+
+### 8. Create the sealed evaluation successor
+
+Only after reviews, materializations, seals, logs, and anchors exist may the
+final transition be created:
+
+```bash
+uv run hf-phase0 registry evaluations-finalize-v4.1 \
+  --evaluations artifacts/evaluations.v4.pinned.json \
+  --materialization MANIFEST=RECEIPT=ARCHIVE=ADAPTER=ORACLE=ENVELOPE \
+  --licence-assessment ASSESSMENT=BUNDLE \
+  --seal-v4 CIPHERTEXT=RECEIPT \
+  --anchor-v4 ANCHOR=SIGNATURE=PUBLIC_KEY=ACCESS_LOG \
+  --registry-id hippocampus-foundation-evaluations-v4-final \
+  --generated-at FINALIZED-AT \
+  --output artifacts/evaluations.v4.final.json
+```
+
+Repeat each evidence option for its complete expected set. Confirmatory entries
+move from `pinned` to `sealed`; non-confirmatory entries stay pinned. The tool
+removes only evidence-backed blockers, preserves every other field, and requires
+the final timestamp to follow all supplied evidence.
+
+### 9. Quarantine, audit, acquire, inventory, admit, and gate
+
+Compile all seven contributions against the final registry, then perform the
+registered source audit. Only a complete `source acquire-v4.1` evidence graph
+whose report sets `foundation_acquisition_authorized: true` may start the
+roughly 102 GB Wikidata acquisition. The command accepts no caller override for
+URL, destination, expected size, or checksum. After acquisition, re-audit all
+bytes, build each structural inventory, and create one admission receipt per
+foundation source.
+
+The final gate repeats every registry in order:
+
+```bash
+uv run hf-phase0 gate-v4.1 \
+  --source-registry registries/sources.v4.pending.json \
+  --source-registry registries/sources.v4.publisher-pinned.json \
+  --source-registry artifacts/sources.v4.drive-bound.json \
+  --evaluation-registry registries/evaluations.v4.json \
+  --evaluation-registry artifacts/evaluations.v4.pinned.json \
+  --evaluation-registry artifacts/evaluations.v4.final.json \
+  --drive-observation artifacts/drive-observation.v1.json \
+  --storage-attestation artifacts/storage-attestation.v4.json \
+  --publisher STATEMENT=RECEIPT \
+  --source-audit artifacts/source-audit.v4.json \
+  --licence-assessment ASSESSMENT=BUNDLE \
+  --materialization MANIFEST=RECEIPT=ARCHIVE=ADAPTER=ORACLE=ENVELOPE \
+  --seal-v4 CIPHERTEXT=RECEIPT \
+  --anchor-v4 ANCHOR=SIGNATURE=PUBLIC_KEY=ACCESS_LOG \
+  --contribution private/contributions/DATASET.v4.json \
+  --quarantine artifacts/public-quarantine-index.v4.json \
+  --inventory artifacts/inventory.ARTIFACT.v4.json \
+  --admission artifacts/admission.SOURCE.v4.json \
+  --evaluated-at EVALUATED-AT \
+  --output artifacts/phase0-gate.v4.1.json
+```
+
+Exit status 2 is blocked. Exit status 0 authorizes only the named acquisition or
+transformation action. Every v4.1 report has `training_authorized: false`.
+
+### Current reproducible boundary
+
+`audit/phase0-gate.v4.1.blocked.json` is generated from the trusted roots and
+publisher successor. It correctly reports missing OAuth/Drive identity, fresh
+publisher receipts, pinned evaluation assets, rights approvals,
+materializations, custody anchors, quarantine, source audit/bytes, inventories,
+and admissions. No Drive authorization, held-out-data access, human approval,
+sealing, source acquisition, transformation, or training was performed in this
+stage.
+
+## Frozen v4 reference workflow
+
+The following section documents the legacy v4 command path. It is retained for
+reproducibility and must not be used for real authorization.
 
 Validate the frozen contracts and exact migrations:
 
@@ -182,6 +437,10 @@ destination, size, or checksum. Re-audit after any download. No Phase 0 command
 authorizes training.
 
 ## Frozen v3 reference workflow
+
+All remaining sections reproduce v3 or earlier operational history. They are
+retained to explain existing artifacts and are not part of the active v4.1
+authorization path above.
 
 ## Control order
 

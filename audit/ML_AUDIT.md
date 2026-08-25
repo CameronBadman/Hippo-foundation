@@ -407,3 +407,84 @@ cross-product with apparently decisive structural signals, and distinguish
 snapshot, proposal, evidence, and lifecycle timestamps before asserting future
 leakage or temporal validity. Both are recorded globally and enforced by
 regressions here. No training or evaluation was performed.
+
+## Phase 0 v4.1 execution-hardening audit (2026-08-25)
+
+This section supersedes the earlier operational statements in this file that
+name `gate-v4` or `audit/phase0-gate.v4.initial.json` as the current
+authorization boundary. Those artifacts remain historical. The active boundary
+is `gate-v4.1`, and the current checked report is
+`audit/phase0-gate.v4.1.blocked.json`.
+
+Three material v4 flaws were reproduced from code and adversarial fixtures:
+
+1. V4 validated only the caller-supplied predecessor-to-successor transition.
+   It did not compare the first registry in that pair with a checked-in trusted
+   root, so a self-consistent alternate lineage could be supplied. V4.1 fixes
+   the source root at
+   `sha256:c724de9fea9e13d365503f8cdaeaa25016fc906cebf6bb05b6884a2dae69e3ec`
+   and the evaluation root at
+   `sha256:6c52a922377d7ae017ae24ecca0f2dc7d239b562a954ac310b6325fe21cd97cb`,
+   then recomputes every ordered transition with unique IDs/hashes and strictly
+   increasing timestamps.
+2. V4 could validate an evaluation envelope and its derived public
+   contribution without independently reopening the registered archive,
+   adapter, or oracle and without proving that every archive member, primary
+   unit, output record, and dependency was accounted for. V4.1 materialization
+   rehashes those artifacts and rejects unsafe paths, links, devices,
+   encryption, duplicate or unaccounted members, missing primary-unit coverage,
+   orphan outputs, unresolved dependencies, adapter/oracle aliasing, and public
+   receipt fields that could disclose private evaluation structure or payload.
+3. V4 operationally bound rights and seal evidence to the registry entry that
+   was also expected to assert sealed custody and cleared blockers. That left no
+   mechanically enforced acyclic order for pinning, review, materialization,
+   sealing, anchoring, and final registry publication. V4.1 binds evaluation
+   rights, materialization, seals, initial access events, and anchors to the
+   penultimate fully pinned registry. It then reproduces exactly one successor,
+   moving only confirmatory entries to `sealed`, leaving non-confirmatory
+   entries pinned, and clearing only blocker families backed by supplied
+   evidence.
+
+The leading explanations were challenged with mutations rather than only happy
+paths. Tests reject alternate roots, missing/skipped/reordered transitions,
+timestamp rollback, changes to pinned assets, keys, seal IDs, or dependency
+units, unsafe/duplicate/unaccounted archives, incomplete or orphaned output
+coverage, mutated archives/adapters/oracles, public-field leakage, late rights
+review, stale anchors, consumed confirmatory logs, premature finalization, and
+unsupported blocker removal. A synthetic complete graph rooted in the real
+checked registries reaches foundation transformation readiness while retaining
+`training_authorized: false`; removing either trusted root or materialization
+evidence blocks it. This is a control-path fixture, not evidence that any real
+dataset, licence, custody process, or source byte is ready.
+
+The source publisher successor preserves every source entry and existing
+`verified` flag while pinning the exact Wikidata 20260720 manifest URL and the
+enwiki 20260801 manifest URL for all six enwiki artifacts. Fresh research
+copies fetched over HTTPS had SHA-256
+`1d46f0ada283801de16a7a865207926f30ee940adf6328ff60da645636cc2c43`
+(449-byte Wikidata statement) and
+`96f53060f2cbb20329222be57bada28679855038900b0ac382a12edc6bdcd838`
+(243,860-byte enwiki statement). All seven registered SHA-1 rows matched. No
+detached publisher signature was verified, so
+`audit/publisher-manifest-research.v4.1.json` marks these observations as
+research-only and non-authorizing. Final statements and receipts must be
+fetched after Drive binding and remain inside the 72-hour evidence window.
+
+The mechanically reproduced real-state v4.1 report has trusted source and
+evaluation roots plus the publisher successor, but remains blocked on exact
+OAuth/Drive identity, fresh publisher receipts, a fully pinned evaluation
+successor, accountable rights approvals, materialization, confirmatory seals
+and signed anchors, the complete quarantine union, source audit and bytes,
+structural inventories, and admissions. Acquisition, transformation, and
+training are false. No held-out evaluation record, answer, label, evaluator
+internal, large source byte, or private custodian key was accessed during this
+work. No Drive mutation, human approval, sealing, source acquisition,
+transformation, embedding, model run, threshold selection, or training was
+performed.
+
+The materialization oracle check establishes a distinct ID and digest from the
+adapter; it does not establish independent authorship or methodological
+correctness. Human custody review and separate implementation provenance remain
+necessary. Likewise, a passing synthetic graph and full unit suite can disprove
+specific implementation failures but cannot establish the truth of external
+rights, storage, publisher, or custody claims.

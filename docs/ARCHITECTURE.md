@@ -14,8 +14,8 @@ model family.
 
 ## Data authorization boundary
 
-Phase 0 v4 sits before every raw-source transformer. It is a direct evidence
-firewall rather than a wrapper around the historical v2/v3 gates. A source may
+Phase 0 v4.1 sits before every raw-source transformer. It is a trusted-root
+evidence firewall rather than a wrapper around the historical v2/v3/v4 gates. A source may
 enter foundation transformation only when all of the following bind to the
 same versioned registry entries and bytes:
 
@@ -24,6 +24,8 @@ same versioned registry entries and bytes:
   artifact;
 - an exact source audit and structural inventory;
 - accountable, unexpired rights assessments over the current subject hashes;
+- a complete root-to-pinned-to-final evaluation lineage and independently
+  recomputed materialization receipt for every role;
 - explicit development, diagnostic, confirmatory, or retired evaluation roles;
 - dependency-complete public quarantine contributions derived from privately
   nonce-hardened envelopes;
@@ -36,7 +38,7 @@ neighbourhoods, negatives, or samples. Its outcomes are `excluded`,
 `undetermined`, and `clear`; only `clear` permits feature construction. A ready
 Phase 0 report can authorize acquisition or transformation, but its schema
 always fixes `training_authorized` to `false`. No raw-source-to-graph consumer
-is implemented yet, so the v4 transformation gate is not currently consumed by
+is implemented yet, so the v4.1 transformation gate is not currently consumed by
 Phase 1.
 
 ## Graph contract

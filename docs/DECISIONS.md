@@ -79,6 +79,17 @@ separate, and training is always unauthorized. Phase 1 v2 does not consume v4;
 that integration must be additive rather than a conversion of the frozen v2
 gate schema.
 
+### 2026-08-25: Phase 0 v4.1 supersedes v4 for execution authorization
+
+The eight v4 schemas and legacy commands remain frozen, but `gate-v4` is no
+longer an operational authorization boundary. V4.1 anchors every registry
+lineage to the checked-in root, replaces self-asserted evaluation completeness
+with independently recomputed materialization evidence, and breaks the
+rights/seal custody cycle by binding rights, materialization, seals, logs, and
+anchors to the penultimate pinned registry before producing one final
+successor. Only `gate-v4.1` and `source acquire-v4.1` may support real Phase 0
+execution. Training remains unconditionally unauthorized.
+
 ### 2026-08-25: evaluation roles cannot be laundered
 
 SocialIQA v1.4 validation is development-only and the exposed EvidenceBench

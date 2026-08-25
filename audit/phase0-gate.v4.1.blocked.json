@@ -1,0 +1,304 @@
+{
+  "admission_ready": false,
+  "blockers": [
+    {
+      "code": "access_anchor_set_mismatch",
+      "subject_id": "confirmatory",
+      "subject_kind": "seal"
+    },
+    {
+      "code": "access_log_set_mismatch",
+      "subject_id": "confirmatory",
+      "subject_kind": "seal"
+    },
+    {
+      "code": "admission_not_ready",
+      "subject_id": "all",
+      "subject_kind": "admission"
+    },
+    {
+      "code": "admission_set_mismatch",
+      "subject_id": "all",
+      "subject_kind": "admission"
+    },
+    {
+      "code": "confirmatory_custody_invalid",
+      "subject_id": "contractnli",
+      "subject_kind": "evaluation"
+    },
+    {
+      "code": "confirmatory_custody_invalid",
+      "subject_id": "eventstoryline-v1.5",
+      "subject_kind": "evaluation"
+    },
+    {
+      "code": "confirmatory_custody_invalid",
+      "subject_id": "hf-logic-owa-v1",
+      "subject_kind": "evaluation"
+    },
+    {
+      "code": "confirmatory_custody_invalid",
+      "subject_id": "hf-process-state-v1",
+      "subject_kind": "evaluation"
+    },
+    {
+      "code": "confirmatory_custody_invalid",
+      "subject_id": "vitaminc",
+      "subject_kind": "evaluation"
+    },
+    {
+      "code": "confirmatory_custody_not_ready",
+      "subject_id": "all",
+      "subject_kind": "seal"
+    },
+    {
+      "code": "drive_observation_missing",
+      "subject_id": "drive_lake",
+      "subject_kind": "storage"
+    },
+    {
+      "code": "evaluation_materialization_not_ready",
+      "subject_id": "all",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "evaluation_pinned_registry_missing",
+      "subject_id": "evaluations",
+      "subject_kind": "registry"
+    },
+    {
+      "code": "evaluation_registry_not_ready",
+      "subject_id": "evaluations",
+      "subject_kind": "registry"
+    },
+    {
+      "code": "foundation_bytes_not_ready",
+      "subject_id": "all",
+      "subject_kind": "source"
+    },
+    {
+      "code": "inventory_set_mismatch",
+      "subject_id": "all",
+      "subject_kind": "inventory"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "contractnli",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "enwiki@20260801",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "eventstoryline-v1.5",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "evidencebench-original-test",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "hf-logic-owa-v1",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "hf-process-state-v1",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "socialiqa-v1.4-validation",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "vitaminc",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_missing",
+      "subject_id": "wikidata@20260720-json",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licence_evidence_set_mismatch",
+      "subject_id": "all",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licensing_evidence_not_verified",
+      "subject_id": "all",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "licensing_not_ready",
+      "subject_id": "all",
+      "subject_kind": "rights"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "contractnli",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "eventstoryline-v1.5",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "evidencebench-original-test",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "hf-logic-owa-v1",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "hf-process-state-v1",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "socialiqa-v1.4-validation",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_missing",
+      "subject_id": "vitaminc",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "materialization_set_mismatch",
+      "subject_id": "all",
+      "subject_kind": "materialization"
+    },
+    {
+      "code": "oauth_drive_identity_evidence_missing",
+      "subject_id": "drive_lake",
+      "subject_kind": "storage"
+    },
+    {
+      "code": "publisher_evidence_incomplete",
+      "subject_id": "all",
+      "subject_kind": "artifact"
+    },
+    {
+      "code": "quarantine_index_missing",
+      "subject_id": "union",
+      "subject_kind": "quarantine"
+    },
+    {
+      "code": "quarantine_matcher_not_ready",
+      "subject_id": "pre-feature-quarantine-v4",
+      "subject_kind": "quarantine"
+    },
+    {
+      "code": "quarantine_not_ready",
+      "subject_id": "union",
+      "subject_kind": "quarantine"
+    },
+    {
+      "code": "seal_set_mismatch",
+      "subject_id": "confirmatory",
+      "subject_kind": "seal"
+    },
+    {
+      "code": "source_audit_missing",
+      "subject_id": "all",
+      "subject_kind": "source"
+    },
+    {
+      "code": "source_audit_not_ready",
+      "subject_id": "all",
+      "subject_kind": "source"
+    },
+    {
+      "code": "storage_attestation_missing",
+      "subject_id": "drive_lake",
+      "subject_kind": "storage"
+    },
+    {
+      "code": "structural_inventory_not_ready",
+      "subject_id": "all",
+      "subject_kind": "inventory"
+    }
+  ],
+  "confirmatory_custody_ready": false,
+  "contracts_frozen": true,
+  "evaluated_at": "2026-08-25T02:00:00Z",
+  "evaluation_materialization_ready": false,
+  "evaluation_registry_ready": false,
+  "evaluation_roles_ready": true,
+  "evidence_bindings": [
+    {
+      "kind": "evaluation_registry_tip",
+      "sha256": "sha256:6c52a922377d7ae017ae24ecca0f2dc7d239b562a954ac310b6325fe21cd97cb",
+      "subject_id": "hippocampus-foundation-evaluations-v4"
+    },
+    {
+      "kind": "registry_lineage",
+      "sha256": "sha256:b753b95788100b8dc7a5e345426952afcf21f520919906de8562040e2ae62a16",
+      "subject_id": "evaluations"
+    },
+    {
+      "kind": "registry_lineage",
+      "sha256": "sha256:869a008d4d88c2f2117974d408601e452e8cf6c461b76b85b8b26300baa09a8f",
+      "subject_id": "sources"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:3d02dfcbc0cfcf240728003d85c0294f099c12cb7da04bcd64a1c9a51c589bd1",
+      "subject_id": "licensing_v1"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:81e4ed52680bd1734e8aa5c3988b8000296fc683d46540d3fec5a9c72a0c58bd",
+      "subject_id": "phase0_v2"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:f28d8449e6c289b1784ebb8de81716c4156db2ae201dd249cca64bbb724fd7a7",
+      "subject_id": "phase0_v3"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:7bb147c342a80aa384403c09d85bf6e7a86585c29d4712e3d0e7a13a663eee9b",
+      "subject_id": "phase0_v4"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:c1a6418a2ee0ddfd867e355671946365e4e3d7dca43c87d939085054b88c0548",
+      "subject_id": "phase0_v4_1"
+    },
+    {
+      "kind": "schema_lock",
+      "sha256": "sha256:300cd4fcc47f70c1f50f536b057bc6e03e344e30257b337fe9f0429c472a9631",
+      "subject_id": "storage_v1"
+    }
+  ],
+  "foundation_acquisition_authorized": false,
+  "foundation_bytes_ready": false,
+  "foundation_transform_ready": false,
+  "gate_id": "phase0-external-evidence-firewall-v4.1",
+  "licensing_evidence_verified": false,
+  "licensing_ready": false,
+  "publisher_evidence_ready": false,
+  "quarantine_matcher_ready": false,
+  "quarantine_ready": false,
+  "registry_lineage_ready": true,
+  "schema_version": "4.1.0",
+  "source_audit_ready": false,
+  "source_registry_ready": true,
+  "storage_identity_ready": false,
+  "structural_inventory_ready": false,
+  "training_authorized": false
+}

@@ -10,9 +10,9 @@ authorize training.
 ## Entry conditions
 
 Phase 1 v2 is frozen and still accepts only its historical Phase 0 v3 gate
-schema. The active Phase 0 boundary is now v4, so no current Phase 1 command may
-consume a v4 report by relabelling or conversion. Implement an additive Phase 1
-v3 consumer after a real v4 transformation report exists.
+schema. The active Phase 0 boundary is now v4.1, so no current Phase 1 command may
+consume a v4.1 report by relabelling or conversion. Implement an additive Phase
+1 v3 consumer after a real v4.1 transformation report exists.
 
 Do not run a data-producing Phase 1 command until all of these are true:
 

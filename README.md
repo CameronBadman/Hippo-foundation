@@ -11,17 +11,18 @@ older Hippocampus implementation.
 
 ## Status
 
-Phase 0 v4 clean-room controls and Phase 1 v2 deterministic data-preparation
-controls are implemented locally. Phase 0 v4 is an additive, direct external-
-evidence firewall: it binds the exact Drive observation, retained publisher
-checksum statements, accountable rights packets, explicit evaluation roles,
-authenticated custody anchors, the complete quarantine union, source-byte
-audits, inventories, and admission receipts. Phase 1 freezes graph/objective
-contracts, a deterministic
-40,000-node sampler, complete neighbour-overflow accounting, development
+Phase 0 v4.1 clean-room controls and Phase 1 v2 deterministic data-preparation
+controls are implemented locally. Phase 0 v4.1 is an additive, trusted-root
+external-evidence firewall: it binds complete registry lineages, independently
+materialized evaluation receipts, the exact Drive observation, retained
+publisher checksum statements, accountable rights packets, explicit evaluation
+roles, authenticated custody anchors, the complete quarantine union,
+source-byte audits, inventories, and admission receipts. Phase 1 freezes
+graph/objective contracts, a deterministic 40,000-node sampler, complete
+neighbour-overflow accounting, development
 objective replay, and separate encoder identity/licensing readiness. The
 frozen Phase 0 v2/v3 and Phase 1 v1 contracts remain available for historical
-reproducibility; v4 does not delegate readiness to either historical gate.
+reproducibility; v4.1 does not delegate readiness to any historical gate.
 
 Phase 2A and Phase 2B are also implemented locally. The preparation-only Phase
 2 CLI generates and verifies 16 open-world candidates and 32 staged-write
@@ -34,7 +35,7 @@ contract and leakage-control fixtures, not admitted corpora: they are bound
 only to a local reservation quarantine index, their rights records remain
 pending, and no predictive performance was measured.
 
-The checked real-state Phase 0 v4 and Phase 1 v2 gates are blocked. Phase 0 v4
+The checked real-state Phase 0 v4.1 and Phase 1 v2 gates are blocked. Phase 0 v4
 corrects evaluation roles: SocialIQA validation is development-only, the
 previously exposed EvidenceBench partition is diagnostic-only, and five other
 datasets remain confirmatory candidates. Forty-three allowlisted legal/provenance
@@ -50,9 +51,10 @@ cannot proceed without protected exact-scope user ADC created with an approved
 desktop OAuth client file, and none was supplied to this work. The separately
 connected Drive integration has no accessible shared drive named `Data`, so it
 was not used as a substitute. Phase 0 also lacks
-verified publisher statements and source bytes, version-current rights packets,
-sealed evaluation envelopes with GPG-signed independently anchored access logs,
-the complete Phase 0 v4 quarantine union, structural inventories,
+fresh publisher receipts and verified source bytes, a pinned evaluation
+successor, pinned-entry rights approvals, materialization receipts, sealed
+evaluation envelopes with GPG-signed independently anchored access logs, the
+complete Phase 0 v4 quarantine union, structural inventories,
 and admission receipts. Phase 1 consequently
 lacks a ready Phase 0 gate and its sample, graph, and objective manifests.
 
@@ -140,7 +142,8 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Execute the implemented external-evidence firewall without opening
+1. Validate the checked publisher-URL successor, then execute the implemented
+   v4.1 external-evidence firewall without opening
    item-level confirmatory data in the development environment.
 2. Attempt the repaired native `colab drivemount --read-only` flow first. With
    an approved protected desktop OAuth client, create exact-scope ADC in the
@@ -148,19 +151,22 @@ configurations into this project.
    shared-Drive/root-folder IDs into a new registry plus fresh storage
    attestation. Use the gated rclone fallback only if native mounting fails.
    Do not grant a Drive scope broader than `drive.readonly`.
-3. Have an accountable human review the prepared evidence packets. Resolve or
-   reject every blocking finding; do not convert a pending scaffold into an
-   approval mechanically.
-4. Capture and bind the remaining publisher checksum evidence.
-5. Pin adapters or confirmatory generators, derive dependency-closed evaluation
-   envelopes,
-   seal them to the custodian's offline public key, externally anchor each
-   per-seal access-log head, and compile their public quarantine union.
-6. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
+3. Fetch fresh publisher statements after Drive binding and create one receipt
+   per registered artifact.
+4. Pin all evaluation assets, adapters or generators, independent-oracle
+   artifacts, dependency units, and custodian keys in one successor registry.
+5. Rebind the retained rights captures to the pinned entries, then have an
+   accountable human resolve or reject every blocking finding; do not convert a
+   pending scaffold into an approval mechanically.
+6. Materialize every evaluation, seal confirmatory envelopes to the custodian's
+   offline public key, externally anchor each materialization-bound access log,
+   create the evidence-backed final registry successor, and compile the public
+   quarantine union.
+7. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
    only if the Phase 0 acquisition gate becomes ready, then re-audit and build
    structural inventories and admission receipts.
-7. After a ready v4 transformation report exists, add the separately versioned
+8. After a ready v4.1 transformation report exists, add the separately versioned
    raw-source consumer and Phase 1 v3 input gate. Then run data preparation on
-   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4,
+   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.1,
    and no Phase 1 readiness report authorizes training.
 # Hippo-foundation
