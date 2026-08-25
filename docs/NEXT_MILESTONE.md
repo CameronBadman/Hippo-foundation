@@ -41,6 +41,52 @@ No Drive authorization, human approval, held-out evaluation access, sealing,
 large source acquisition, transformation, embedding, training, or evaluation
 was performed while implementing this boundary.
 
+## Better Colab prerequisite and resume plan (2026-08-25)
+
+Phase 0 is paused before Drive binding while Better Colab is repaired in two
+independently releasable changes. A live compatibility `colab auth` flow did
+create valid user ADC in the runtime filesystem, but the later guarded command
+attached to a different kernel because the automation path did not reuse or
+persist the session's kernel and Jupyter session IDs. The tracked kernel then
+fell back to compute metadata until the credential path was selected there.
+This is a reproduced Better Colab kernel-affinity defect, not evidence that
+Colab OAuth itself failed.
+
+The credential produced by classic Colab auth is nevertheless unsuitable for
+this gate: its observed Drive grant was broader than the one allowed
+`https://www.googleapis.com/auth/drive.readonly` scope. The project must not
+reinterpret a successful broad-scope login as exact-scope evidence, and it must
+not copy Better Colab's host control-plane token into the runtime.
+
+The dependency plan is:
+
+1. **Release A — automation kernel affinity.** Make every automation command
+   reuse stored kernel/session IDs, persist IDs discovered by reconnect, and
+   retain them on success and failure. Lock this with regression, integration,
+   package, and clean-wheel tests. This release is useful independently and
+   must not alter OAuth scopes or credential selection.
+2. **Release B — exact Drive read-only provider.** Add an explicit
+   `drive-auth` command family and the compatibility route
+   `colab auth --drive-read-only`. Obtain consent through a separately verified
+   public OAuth application requesting the exact Drive read-only scope, perform
+   token exchange inside the assigned runtime, keep credentials only in the
+   runtime's protected volatile storage, bind them to the tracked kernel, and
+   expose only redacted status. Development OAuth configuration may test the
+   mechanism but cannot authorize Phase 0. Production release remains blocked
+   until Google completes the required app verification and any applicable
+   security assessment.
+
+After both releases are installed, resume with one fresh disposable CPU
+assignment. Authorize through the production provider, prove that ADC and the
+read-only mount belong to the same dedicated Google Reader identity, run the
+fixed-hash metadata-only identity probe in that same durable kernel, and bind
+the observation within 15 minutes. Then fetch the two registered publisher
+statements anew and create all seven receipts within the 72-hour window. Only
+after that checkpoint may the evaluation-rights/materialization/custody DAG
+continue. The roughly 102 GB source acquisition still requires a ready v4.1
+acquisition report and separate explicit authorization; training remains
+unauthorized.
+
 ## External execution order
 
 ### 1. Reconfirm publisher locations
@@ -51,11 +97,13 @@ the registered publisher SHA-1 with a locally computed digest.
 
 ### 2. Bind exact storage identity
 
-In one disposable CPU runtime, create exact `drive.readonly` user ADC using the
-user-supplied approved desktop OAuth client. Confirm that ADC and the read-only
-mount use the same account, run the metadata-only identity probe, and bind the
-observation within 15 minutes. Stable Drive and folder IDs must be observed,
-not inferred. No approved client is currently available.
+After both Better Colab releases above are installed, use one disposable CPU
+runtime to create exact `drive.readonly` user ADC through the production,
+verified provider. Confirm that ADC and the read-only mount use the same
+dedicated Google Reader identity, run the metadata-only identity probe in the
+same durable kernel, and bind the observation within 15 minutes. Stable Drive
+and folder IDs must be observed, not inferred. A development/test OAuth client
+is non-authorizing; production provider approval is not currently available.
 
 ### 3. Capture fresh publisher receipts
 

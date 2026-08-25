@@ -488,3 +488,50 @@ correctness. Human custody review and separate implementation provenance remain
 necessary. Likewise, a passing synthetic graph and full unit suite can disprove
 specific implementation failures but cannot establish the truth of external
 rights, storage, publisher, or custody claims.
+
+## Better Colab exact-scope OAuth prerequisite (2026-08-25)
+
+The installed Better Colab build and its upstream checkout were compared before
+attributing the failed identity probe to an obsolete local CLI. Both identified
+the same current development revision (`0.1.dev97+g0491cc985`, commit
+`0491cc985ccc53251d1f290e2347c4ad673356cc`). This rules out the proposed
+"old installed version" explanation for the reproduced behavior, but does not
+establish that later upstream revisions will retain it.
+
+Code-path inspection and a live disposable-runtime experiment independently
+identified a kernel-affinity defect. Normal execution supplies stored kernel
+and Jupyter session IDs and callbacks that persist newly discovered IDs.
+Compatibility automation constructed its runtime without either IDs or those
+callbacks. In the experiment, classic `colab auth` created refreshable user ADC
+in shared runtime storage, while the later guarded command ran in another
+kernel and selected compute metadata instead. Explicitly selecting the ADC path
+inside the tracked kernel made credential refresh succeed. This establishes a
+Better Colab automation/reconnect bug; it does not establish an upstream Colab
+OAuth defect.
+
+The successful credential was then rejected for Phase 0 on an independent
+ground: its granted Drive permissions were broader than the gate's sole allowed
+Drive scope, `https://www.googleapis.com/auth/drive.readonly`. Classic Colab
+auth has no exact Drive-scope selector, and Better Colab's host control-plane
+credential is a different authority that must not be copied into workload
+storage. Therefore repairing kernel reuse is necessary but insufficient.
+
+Implementation is split at that boundary. Release A will only make automation
+reuse and persist the durable kernel/session identity, with failure-path and
+live integration coverage. Release B will add an explicit exact-read-only Drive
+provider to the core and compatibility CLIs. Development configuration can
+exercise the protocol, but no production credential, Phase 0 binding, or
+authorization may be claimed until the public OAuth application has completed
+Google verification and any applicable security assessment. No token, consent
+code, verifier, client secret, Drive object ID, or held-out content was recorded
+in this audit.
+
+Once both releases and the external provider approval exist, the next bounded
+execution is a fresh disposable CPU assignment: authorize the dedicated Google
+Reader identity, prove same-account ADC and read-only mount state in one durable
+kernel, run the fixed-hash metadata-only probe, bind within 15 minutes, then
+capture fresh publisher statements and seven receipts within 72 hours. Rights
+review, evaluation materialization, sealing/anchoring, registry finalization,
+quarantine, source audit, acquisition, inventory, admission, and the final gate
+remain ordered after that checkpoint. Large acquisition still requires
+separate explicit authority, and `training_authorized` remains false.
