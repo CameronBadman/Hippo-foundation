@@ -41,11 +41,12 @@ No Drive authorization, human approval, held-out evaluation access, sealing,
 large source acquisition, transformation, embedding, training, or evaluation
 was performed while implementing this boundary.
 
-## Better Colab prerequisite and resume plan (2026-08-25)
+## Better Colab prerequisite and resume plan (updated 2026-08-28)
 
-Phase 0 is paused before Drive binding while Better Colab is repaired in two
-independently releasable changes. A live compatibility `colab auth` flow did
-create valid user ADC in the runtime filesystem, but the later guarded command
+Phase 0 remains paused before Drive binding, but both planned Better Colab
+changes are implemented, committed, built, clean-installed, and installed as
+`0.1.dev101+g0a6aadc17`. A live compatibility `colab auth` flow had
+created valid user ADC in the runtime filesystem, but the later guarded command
 attached to a different kernel because the automation path did not reuse or
 persist the session's kernel and Jupyter session IDs. The tracked kernel then
 fell back to compute metadata until the credential path was selected there.
@@ -58,14 +59,19 @@ this gate: its observed Drive grant was broader than the one allowed
 reinterpret a successful broad-scope login as exact-scope evidence, and it must
 not copy Better Colab's host control-plane token into the runtime.
 
-The dependency plan is:
+The completed dependency work is:
 
-1. **Release A — automation kernel affinity.** Make every automation command
-   reuse stored kernel/session IDs, persist IDs discovered by reconnect, and
-   retain them on success and failure. Lock this with regression, integration,
-   package, and clean-wheel tests. This release is useful independently and
-   must not alter OAuth scopes or credential selection.
-2. **Release B — exact Drive read-only provider.** Add an explicit
+1. **Release A — automation kernel affinity (completed).** Every automation
+   command now reuses stored kernel/session IDs, persists IDs discovered by
+   reconnect, and retains them on success and failure. Regression,
+   failure-path, package, and clean-wheel checks pass. A fresh live runtime
+   acceptance was not performed
+   because no execution-ready assignment and non-interactive control-plane
+   credential were available. This release is useful independently and does
+   not alter OAuth scopes or credential selection. Implementation and design
+   commits are `3ebcf0b` and `1be475a`.
+2. **Release B — exact Drive read-only provider (completed to the external
+   boundary).** The core exposes an explicit
    `drive-auth` command family and the compatibility route
    `colab auth --drive-read-only`. Obtain consent through a separately verified
    public OAuth application requesting the exact Drive read-only scope, perform
@@ -73,19 +79,30 @@ The dependency plan is:
    runtime's protected volatile storage, bind them to the tracked kernel, and
    expose only redacted status. Development OAuth configuration may test the
    mechanism but cannot authorize Phase 0. Production release remains blocked
-   until Google completes the required app verification and any applicable
-   security assessment.
+   until Google completes restricted-scope verification and the required
+   annual security assessment for the exact client bytes. Implementation and
+   boundary-documentation commits are `6bb93e0` and `0a6aadc`.
 
-After both releases are installed, resume with one fresh disposable CPU
-assignment. Authorize through the production provider, prove that ADC and the
-read-only mount belong to the same dedicated Google Reader identity, run the
-fixed-hash metadata-only identity probe in that same durable kernel, and bind
-the observation within 15 minutes. Then fetch the two registered publisher
-statements anew and create all seven receipts within the 72-hour window. Only
-after that checkpoint may the evaluation-rights/materialization/custody DAG
-continue. The roughly 102 GB source acquisition still requires a ready v4.1
-acquisition report and separate explicit authorization; training remains
-unauthorized.
+The optional live-development provider harness was not run: it needs a
+protected desktop client and irreducible human consent, and its result would
+still be non-authorizing. The no-allocation blocked harness did run and pass.
+
+The installed provider now fails before session lookup, controller start, or
+OAuth with `PRODUCTION_OAUTH_UNAVAILABLE`, because no approved client resource
+or compiled fingerprint exists. This is the intended boundary. A user-supplied
+`--oauth-config` is always development-only and reports
+`production_authorized: false`; it must not be promoted into gate evidence.
+
+After external production approval and a reviewed activation commit, resume
+with one fresh disposable CPU assignment. Authorize through the production
+provider, prove that ADC and the read-only mount belong to the same dedicated
+Google Reader identity, run the fixed-hash metadata-only identity probe in that
+same durable kernel, and bind the observation within 15 minutes. Then fetch the
+two registered publisher statements anew and create all seven receipts within
+the 72-hour window. Only after that checkpoint may the evaluation-rights/
+materialization/custody DAG continue. The roughly 102 GB source acquisition
+still requires a ready v4.1 acquisition report and separate explicit
+authorization; training remains unauthorized.
 
 ## External execution order
 
@@ -97,13 +114,14 @@ the registered publisher SHA-1 with a locally computed digest.
 
 ### 2. Bind exact storage identity
 
-After both Better Colab releases above are installed, use one disposable CPU
-runtime to create exact `drive.readonly` user ADC through the production,
-verified provider. Confirm that ADC and the read-only mount use the same
-dedicated Google Reader identity, run the metadata-only identity probe in the
-same durable kernel, and bind the observation within 15 minutes. Stable Drive
-and folder IDs must be observed, not inferred. A development/test OAuth client
-is non-authorizing; production provider approval is not currently available.
+After Google approves the exact production client and a reviewed release pins
+its bundled bytes and SHA-256, use one disposable CPU runtime to create exact
+`drive.readonly` user ADC through that provider. Confirm that ADC and the
+read-only mount use the same dedicated Google Reader identity, run the
+metadata-only identity probe in the same durable kernel, and bind the
+observation within 15 minutes. Stable Drive and folder IDs must be observed,
+not inferred. A development/test OAuth client is non-authorizing; production
+provider approval is not currently available.
 
 ### 3. Capture fresh publisher receipts
 

@@ -535,3 +535,72 @@ review, evaluation materialization, sealing/anchoring, registry finalization,
 quarantine, source audit, acquisition, inventory, admission, and the final gate
 remain ordered after that checkpoint. Large acquisition still requires
 separate explicit authority, and `training_authorized` remains false.
+
+## Better Colab releases staged to external authority (2026-08-28)
+
+The preceding future-tense implementation paragraph is now superseded. Release
+A was committed as `3ebcf0b` (kernel/session affinity) and `1be475a`
+(design record). Release B was committed as `6bb93e0` (exact Drive read-only
+provider) and `0a6aadc` (boundary documentation and integration harness). The
+exact core and compatibility wheels both identify as
+`0.1.dev101+g0a6aadc17`; they were installed together in a fresh Python 3.12
+environment, their package metadata matched, and the same wheels replaced the
+previously installed global `better-colab` and `colab` tools. Both global entry
+points now report that version. The user-owned unrelated untracked directories
+in the Better Colab checkout were not staged or modified.
+
+Release B separates four authorities that must not be conflated: Colab
+control-plane authentication, classic VM authentication, DriveFS propagation,
+and exact-scope workload ADC. Its authorization URL uses state-bound PKCE and
+requests only `https://www.googleapis.com/auth/drive.readonly`. The
+authorization-code and refresh-token exchanges occur inside the exclusively
+leased assigned kernel. Both token responses must explicitly report `Bearer`
+and exactly that one granted
+scope; missing or combined grants fail before a credential is written. The
+runtime stores only authorized-user refresh material in owner-only volatile
+storage, binds the environment in that kernel, clears transient token-bearing
+namespace references, and emits only typed non-secret status. Revocation
+deletes locally only after HTTP 200; explicit clear never claims revocation.
+
+Adversarial tests reproduced and then closed several independent fail-open
+paths: expected metadata previously masked a different observed fingerprint
+and provider mode; a remote result without an explicit success marker was
+accepted; absent token-response scope evidence was treated as exact; runtime
+constructor details could escape sanitization; replacement kernel IDs could be
+paired transiently with stale Jupyter session IDs; a session removed during
+probe escaped as an assertion; and token dictionaries remained reachable in
+the notebook namespace after otherwise redacted operations. Tests now reject
+fingerprint/mode mismatches, absent or broader grants, unsafe client files,
+duplicate stdin handoffs, remote canaries, unready or raced sessions, mixed
+identity pairs, unproven revocation, and secret namespace retention.
+
+The final Better Colab verification comprised 541 passing tests plus 5 passing
+subtests, repository-wide Ruff, source/test compilation with redirected
+bytecode, core and compatibility sdist/wheel builds, matching clean-wheel
+installation, CLI/version/capability smoke tests, and the no-allocation
+integration harness. The harness and the globally installed provider both
+returned exit 3 with `PRODUCTION_OAUTH_UNAVAILABLE` before session lookup or
+controller start. No verified production client resource or fingerprint is
+present. A caller-provided client is mechanically labelled development and
+cannot set `production_authorized`.
+
+Google's current [Drive scope table](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
+classifies `drive.readonly` as restricted, and its
+[verification requirements](https://support.google.com/cloud/answer/13464321?hl=en)
+require an annual security assessment for restricted scopes. Therefore
+ordinary user authentication is not the next step. An accountable external
+owner must establish the dedicated public OAuth application, complete
+restricted-scope verification and assessment, and deliver the exact approved
+desktop-client bytes. A later reviewed activation commit must package those
+bytes and pin their SHA-256; the provider already fails closed on missing or
+mismatched bundle bytes. Only then may a human approve a fresh production
+consent in one disposable CPU runtime.
+
+No production or development Drive consent, token exchange, Drive access,
+Drive mutation, runtime allocation, publisher fetch, held-out evaluation
+access, rights decision, materialization, sealing, acquisition,
+transformation, training, or evaluation was performed during these releases.
+The existing checked Phase 0 v4.1 report remains blocked. The next in-project
+execution after external activation remains the same-account ADC/read-only
+mount identity proof and 15-minute binding, followed by fresh publisher
+receipts inside 72 hours. `training_authorized` remains false.
