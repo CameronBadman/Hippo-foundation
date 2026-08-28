@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from collections.abc import Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from hippocampus_foundation.phase0.canonical import canonical_sha256
 
@@ -19,7 +20,7 @@ from .io import file_identity, file_identity_following_registered_symlink
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def render_text(title: str, body: str) -> str:
@@ -78,13 +79,15 @@ def _verify_bakeoff(report: dict[str, Any], spec: dict[str, Any]) -> None:
         != declared["sample_pages"]
     ):
         raise Phase1IntegrityError("encoder bake-off sample size mismatch")
-    metadata = report.get("provenance", {}).get("model_metadata", {}).get(
-        "gte-modernbert", {}
+    metadata = (
+        report.get("provenance", {}).get("model_metadata", {}).get("gte-modernbert", {})
     )
     if metadata.get("model_revision") != spec["revision"]:
         raise Phase1IntegrityError("encoder bake-off revision mismatch")
     if metadata.get("training_mode") is not False or metadata.get("frozen") is not True:
-        raise Phase1IntegrityError("encoder bake-off was not recorded as frozen inference")
+        raise Phase1IntegrityError(
+            "encoder bake-off was not recorded as frozen inference"
+        )
 
 
 def _verify_snapshot_layout(snapshot: Path, expected_paths: Sequence[str]) -> set[str]:
@@ -154,7 +157,12 @@ def _verify_snapshot_layout(snapshot: Path, expected_paths: Sequence[str]) -> se
     unexpected_files = sorted(observed_files - expected_files)
     missing_directories = sorted(expected_directories - observed_directories)
     unexpected_directories = sorted(observed_directories - expected_directories)
-    if missing_files or unexpected_files or missing_directories or unexpected_directories:
+    if (
+        missing_files
+        or unexpected_files
+        or missing_directories
+        or unexpected_directories
+    ):
         raise Phase1IntegrityError(
             "encoder snapshot asset set mismatch: "
             f"missing_files={missing_files}, unexpected_files={unexpected_files}, "
@@ -174,9 +182,7 @@ def verify_encoder_assets(
 ) -> dict[str, Any]:
     validate_encoder_spec(spec)
     expected_paths = [item["path"] for item in spec["assets"]]
-    observed_paths = _verify_snapshot_layout(
-        snapshot, expected_paths
-    )
+    observed_paths = _verify_snapshot_layout(snapshot, expected_paths)
     report_identity = file_identity(bakeoff_report)
     if report_identity["sha256"] != spec["bakeoff_report_sha256"]:
         raise Phase1IntegrityError("encoder bake-off report digest mismatch")
@@ -184,7 +190,9 @@ def verify_encoder_assets(
         with bakeoff_report.open("r", encoding="utf-8") as handle:
             report = json.load(handle)
     except (OSError, json.JSONDecodeError) as exc:
-        raise Phase1IntegrityError(f"cannot read encoder bake-off report: {exc}") from exc
+        raise Phase1IntegrityError(
+            f"cannot read encoder bake-off report: {exc}"
+        ) from exc
     if not isinstance(report, dict):
         raise Phase1IntegrityError("encoder bake-off report is not an object")
     _verify_bakeoff(report, spec)
@@ -260,7 +268,9 @@ def encode_frozen(
         raise Phase1ValidationError("batch_size must be positive")
     try:
         import torch  # type: ignore[import-not-found]
-        from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
+        from sentence_transformers import (
+            SentenceTransformer,  # type: ignore[import-not-found]
+        )
     except ImportError as exc:
         raise Phase1ValidationError(
             "frozen inference requires torch and sentence-transformers in the execution environment"

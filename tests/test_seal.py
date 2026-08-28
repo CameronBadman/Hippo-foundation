@@ -123,16 +123,12 @@ def test_external_access_log_anchor_detects_suffix_truncation(tmp_path: Path) ->
         action="verify",
         actor="auditor",
     )
-    read_access_events(
-        log, expected_head=second["event_hash"], expected_count=2
-    )
+    read_access_events(log, expected_head=second["event_hash"], expected_count=2)
 
     first_line = log.read_text(encoding="utf-8").splitlines()[0]
     log.write_text(first_line + "\n", encoding="utf-8")
     with pytest.raises(SealError, match="count mismatch"):
-        read_access_events(
-            log, expected_head=second["event_hash"], expected_count=2
-        )
+        read_access_events(log, expected_head=second["event_hash"], expected_count=2)
     with pytest.raises(SealError, match="head mismatch"):
         read_access_events(log, expected_head=second["event_hash"])
     read_access_events(log, expected_head=first["event_hash"], expected_count=1)

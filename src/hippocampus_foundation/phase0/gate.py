@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime, timedelta
-from typing import Any, Iterable
+from typing import Any
 
 from .canonical import canonical_sha256
 from .validation import (
+    schema_digests,
     validate_evaluation_registry,
     validate_instance,
-    schema_digests,
     validate_schema_set,
     validate_source_audit,
     validate_source_registry,
@@ -159,19 +160,28 @@ def evaluate_gate(
                     blockers.add("source_audit_duplicate_artifacts")
                 unexpected_pairs = audited.keys() - expected_pairs
                 for source_id, artifact_id in sorted(unexpected_pairs):
-                    blockers.add(f"source_audit_unregistered_artifact:{source_id}:{artifact_id}")
+                    blockers.add(
+                        f"source_audit_unregistered_artifact:{source_id}:{artifact_id}"
+                    )
                 missing_foundation = foundation_pairs - audited.keys()
                 for source_id, artifact_id in sorted(missing_foundation):
-                    blockers.add(f"foundation_artifact_not_audited:{source_id}:{artifact_id}")
+                    blockers.add(
+                        f"foundation_artifact_not_audited:{source_id}:{artifact_id}"
+                    )
                 failed_foundation = {
                     pair
                     for pair in foundation_pairs & audited.keys()
                     if audited[pair] != "verified"
                 }
                 for source_id, artifact_id in sorted(failed_foundation):
-                    blockers.add(f"foundation_artifact_not_verified:{source_id}:{artifact_id}")
+                    blockers.add(
+                        f"foundation_artifact_not_verified:{source_id}:{artifact_id}"
+                    )
                 source_integrity_ready = bool(foundation_pairs) and not (
-                    duplicate_count or unexpected_pairs or missing_foundation or failed_foundation
+                    duplicate_count
+                    or unexpected_pairs
+                    or missing_foundation
+                    or failed_foundation
                 )
                 missing_existing = existing_pairs - audited.keys()
                 failed_existing = {
@@ -180,11 +190,18 @@ def evaluate_gate(
                     if audited[pair] != "verified"
                 }
                 for source_id, artifact_id in sorted(missing_existing):
-                    blockers.add(f"existing_lake_artifact_not_audited:{source_id}:{artifact_id}")
+                    blockers.add(
+                        f"existing_lake_artifact_not_audited:{source_id}:{artifact_id}"
+                    )
                 for source_id, artifact_id in sorted(failed_existing):
-                    blockers.add(f"existing_lake_artifact_not_verified:{source_id}:{artifact_id}")
+                    blockers.add(
+                        f"existing_lake_artifact_not_verified:{source_id}:{artifact_id}"
+                    )
                 existing_lake_audit_ready = bool(existing_pairs) and not (
-                    duplicate_count or unexpected_pairs or missing_existing or failed_existing
+                    duplicate_count
+                    or unexpected_pairs
+                    or missing_existing
+                    or failed_existing
                 )
                 source_integrity_ready = source_integrity_ready and audit_fresh
                 existing_lake_audit_ready = existing_lake_audit_ready and audit_fresh
@@ -294,22 +311,31 @@ def evaluate_gate(
                 coverage_valid = False
             if (
                 len(quarantine_index["identifiers"])
-                > sum(item["closure_identifier_count"] for item in coverage_by_seal.values())
+                > sum(
+                    item["closure_identifier_count"]
+                    for item in coverage_by_seal.values()
+                )
                 or len(quarantine_index["raw_hashes"])
                 > sum(item["raw_hash_count"] for item in coverage_by_seal.values())
                 or len(quarantine_index["normalized_hashes"])
-                > sum(item["normalized_hash_count"] for item in coverage_by_seal.values())
+                > sum(
+                    item["normalized_hash_count"] for item in coverage_by_seal.values()
+                )
                 or len(quarantine_index["fingerprints"])
                 != sum(item["fingerprint_count"] for item in coverage_by_seal.values())
             ):
                 blockers.add("quarantine_coverage_count_mismatch")
                 coverage_valid = False
-            quarantine_ready = bool(
-                quarantine_index["identifiers"]
-                or quarantine_index["raw_hashes"]
-                or quarantine_index["normalized_hashes"]
-                or quarantine_index["fingerprints"]
-            ) and bool(quarantine_seal_ids) and coverage_valid
+            quarantine_ready = (
+                bool(
+                    quarantine_index["identifiers"]
+                    or quarantine_index["raw_hashes"]
+                    or quarantine_index["normalized_hashes"]
+                    or quarantine_index["fingerprints"]
+                )
+                and bool(quarantine_seal_ids)
+                and coverage_valid
+            )
             evidence.add(f"quarantine_index:{canonical_sha256(quarantine_index)}")
         except Exception as exc:
             blockers.add(f"quarantine_index_invalid:{type(exc).__name__}")

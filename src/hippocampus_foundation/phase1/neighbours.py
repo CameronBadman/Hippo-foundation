@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Any, Iterable
+from collections.abc import Iterable
+from datetime import UTC, datetime
+from typing import Any
 
 from .contracts import validate_artifact_manifest, validate_graph_record
 from .errors import Phase1ValidationError
-
 
 ALGORITHM_ID = "one-hop-diverse-cap-v1"
 SELECTION_SEED = 20_260_817
@@ -26,7 +26,7 @@ _RANK_ORDER = {"preferred": 0, "normal": 1, "deprecated": 2}
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _hash(*parts: str) -> str:
@@ -136,10 +136,14 @@ def cap_neighbours(
     for record in values:
         validate_graph_record(record)
         if record["record_kind"] != "neighbour_candidate":
-            raise Phase1ValidationError("neighbour cap input contains another record kind")
+            raise Phase1ValidationError(
+                "neighbour cap input contains another record kind"
+            )
         candidate_id = record["candidate_id"]
         if candidate_id in candidate_ids:
-            raise Phase1ValidationError(f"duplicate neighbour candidate_id: {candidate_id}")
+            raise Phase1ValidationError(
+                f"duplicate neighbour candidate_id: {candidate_id}"
+            )
         candidate_ids.add(candidate_id)
         _category(record)
 
@@ -148,7 +152,9 @@ def cap_neighbours(
     retained_ids = {
         item["candidate_id"] for item in values if item["source_kind"] == "wikipedia"
     }
-    wikidata_by_property: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    wikidata_by_property: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(
+        list
+    )
     for record in values:
         if record["source_kind"] == "wikidata":
             wikidata_by_property[
@@ -188,7 +194,9 @@ def cap_neighbours(
             for item in excluded_category
         )
 
-    selected.sort(key=lambda item: (item["center_node_id"], _category(item), item["candidate_id"]))
+    selected.sort(
+        key=lambda item: (item["center_node_id"], _category(item), item["candidate_id"])
+    )
     overflow.sort(
         key=lambda item: (
             item["candidate"]["center_node_id"],

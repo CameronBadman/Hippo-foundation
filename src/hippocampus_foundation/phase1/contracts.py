@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
@@ -12,7 +13,6 @@ from jsonschema.exceptions import SchemaError
 from hippocampus_foundation.phase0.canonical import canonical_sha256, load_json
 
 from .errors import Phase1ValidationError
-
 
 OBJECTIVE_FAMILIES = frozenset(
     {
@@ -56,10 +56,14 @@ FROZEN_ENCODER_SPEC_SHA256 = (
 
 
 def schema_root_v1() -> Path:
-    package_candidate = Path(__file__).resolve().parents[1] / "schemas" / "phase1" / "v1"
+    package_candidate = (
+        Path(__file__).resolve().parents[1] / "schemas" / "phase1" / "v1"
+    )
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[3] / "schemas" / "phase1" / "v1"
+    repository_candidate = (
+        Path(__file__).resolve().parents[3] / "schemas" / "phase1" / "v1"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise Phase1ValidationError("cannot locate Phase 1 v1 schemas")
@@ -73,7 +77,9 @@ def load_schema_v1(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise Phase1ValidationError(f"invalid JSON Schema {path}: {exc.message}") from exc
+        raise Phase1ValidationError(
+            f"invalid JSON Schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -145,14 +151,22 @@ def validate_graph_record(record: dict[str, Any]) -> None:
             )
     elif kind == "neighbour_candidate":
         if record["value_kind"] == "literal":
-            if record["direction"] != "outgoing" or record["neighbour_node_id"] is not None:
+            if (
+                record["direction"] != "outgoing"
+                or record["neighbour_node_id"] is not None
+            ):
                 raise Phase1ValidationError(
                     "literal neighbours must be outgoing and have no neighbour_node_id"
                 )
         elif record["neighbour_node_id"] is None:
             raise Phase1ValidationError("entity neighbours require neighbour_node_id")
-        if record["source_kind"] == "wikipedia" and record["value_kind"] != "entity_ref":
-            raise Phase1ValidationError("Wikipedia neighbours must be entity references")
+        if (
+            record["source_kind"] == "wikipedia"
+            and record["value_kind"] != "entity_ref"
+        ):
+            raise Phase1ValidationError(
+                "Wikipedia neighbours must be entity references"
+            )
     elif kind == "neighbour_overflow":
         validate_graph_record(record["candidate"])
 
@@ -162,7 +176,9 @@ def validate_objective_example(example: dict[str, Any]) -> None:
     candidates = example["candidates"]
     candidate_ids = [item["candidate_id"] for item in candidates]
     if duplicate := _duplicates(candidate_ids):
-        raise Phase1ValidationError(f"duplicate objective candidate IDs: {sorted(duplicate)}")
+        raise Phase1ValidationError(
+            f"duplicate objective candidate IDs: {sorted(duplicate)}"
+        )
     targets = [item for item in candidates if item["is_target"]]
     if len(targets) != 1:
         raise Phase1ValidationError("objective must have exactly one target candidate")
@@ -185,7 +201,9 @@ def validate_encoder_spec(spec: dict[str, Any], *, require_frozen: bool = True) 
         raise Phase1ValidationError("expected encoder_spec")
     paths = [item["path"] for item in spec["assets"]]
     if duplicate := _duplicates(paths):
-        raise Phase1ValidationError(f"duplicate encoder asset paths: {sorted(duplicate)}")
+        raise Phase1ValidationError(
+            f"duplicate encoder asset paths: {sorted(duplicate)}"
+        )
     if set(paths) != ENCODER_ASSET_PATHS:
         raise Phase1ValidationError(
             "encoder runtime asset set mismatch; "
@@ -226,7 +244,9 @@ def validate_artifact_manifest(value: dict[str, Any]) -> None:
         if set(value["family_counts"]) != OBJECTIVE_FAMILIES:
             raise Phase1ValidationError("objective manifest family set mismatch")
         if sum(value["family_counts"].values()) != value["example_count"]:
-            raise Phase1ValidationError("objective family counts do not sum to examples")
+            raise Phase1ValidationError(
+                "objective family counts do not sum to examples"
+            )
 
 
 def validate_gate_report(value: dict[str, Any]) -> None:

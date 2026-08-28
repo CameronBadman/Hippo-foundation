@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -18,7 +18,7 @@ from hippocampus_foundation.phase0.errors import IntegrityError, ValidationError
 
 
 def timestamp(value: datetime) -> str:
-    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 def evidence_bundle(tmp_path: Path, *, findings: list[dict] | None = None):
@@ -133,7 +133,7 @@ def test_approved_assessment_requires_scope_freshness_and_resolved_findings(
         "summary": "Third-party rights require evidence-backed resolution.",
     }
     subject, bundle, verified = evidence_bundle(tmp_path, findings=[finding])
-    now = datetime(2026, 8, 17, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 1, tzinfo=UTC)
     assessment = approved_assessment(bundle, now)
     with pytest.raises(ValidationError, match="remain unresolved"):
         verify_assessment(
@@ -178,10 +178,12 @@ def test_approved_assessment_requires_scope_freshness_and_resolved_findings(
 
 def test_training_cannot_be_smuggled_into_approval(tmp_path: Path) -> None:
     subject, bundle, verified = evidence_bundle(tmp_path)
-    now = datetime(2026, 8, 17, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 1, tzinfo=UTC)
     assessment = approved_assessment(bundle, now)
     assessment["allowed_uses"].append("train")
-    with pytest.raises(ValidationError, match="allows and excludes|explicitly excluded"):
+    with pytest.raises(
+        ValidationError, match="allows and excludes|explicitly excluded"
+    ):
         verify_assessment(
             assessment,
             verified,
@@ -200,7 +202,7 @@ def test_bundle_and_review_timestamps_follow_evidence_lineage(tmp_path: Path) ->
         verify_evidence_bundle(bundle, tmp_path)
 
     _, clean_bundle, clean_verified = evidence_bundle(tmp_path)
-    reviewed_at = datetime(2026, 8, 17, tzinfo=timezone.utc)
+    reviewed_at = datetime(2026, 8, 17, tzinfo=UTC)
     assessment = approved_assessment(clean_bundle, reviewed_at)
     with pytest.raises(ValidationError, match="predates its evidence bundle"):
         verify_assessment(

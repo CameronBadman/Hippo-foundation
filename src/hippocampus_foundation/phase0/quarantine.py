@@ -6,8 +6,9 @@ import hashlib
 import re
 import unicodedata
 from collections import defaultdict, deque
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 from .canonical import sha256_bytes
@@ -78,7 +79,9 @@ def normalize_identifier(
         if not re.fullmatch(r"[QPL][1-9][0-9]*", value):
             raise ValidationError(f"invalid Wikidata identifier: {value!r}")
     elif namespace == "doi":
-        value = re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", "", value, flags=re.I)
+        value = re.sub(
+            r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", "", value, flags=re.I
+        )
         value = value.lower()
         if not value.startswith("10.") or "/" not in value:
             raise ValidationError(f"invalid DOI: {value!r}")
@@ -92,7 +95,10 @@ def normalize_identifier(
             raise ValidationError(f"invalid URL identifier: {value!r}")
         hostname = parts.hostname.lower()
         port = parts.port
-        if port and not ((parts.scheme.lower() == "http" and port == 80) or (parts.scheme.lower() == "https" and port == 443)):
+        if port and not (
+            (parts.scheme.lower() == "http" and port == 80)
+            or (parts.scheme.lower() == "https" and port == 443)
+        ):
             hostname = f"{hostname}:{port}"
         path = parts.path.rstrip("/") or "/"
         value = urlunsplit((parts.scheme.lower(), hostname, path, parts.query, ""))
@@ -121,17 +127,13 @@ def _shingles(text: str) -> tuple[str, set[str]]:
             if compact[index : index + 5]
         }
     return "word5", {
-        " ".join(words[index : index + 5])
-        for index in range(len(words) - 4)
+        " ".join(words[index : index + 5]) for index in range(len(words) - 4)
     }
 
 
 def _hash_shingles(shingles: Iterable[str]) -> list[str]:
     return sorted(
-        {
-            hashlib.sha256(value.encode("utf-8")).hexdigest()[:32]
-            for value in shingles
-        }
+        {hashlib.sha256(value.encode("utf-8")).hexdigest()[:32] for value in shingles}
     )
 
 
@@ -141,7 +143,7 @@ def _minhash(shingle_hashes: Iterable[str]) -> list[int]:
         values = [hashlib.sha256(b"").hexdigest()[:32]]
     signature: list[int] = []
     for permutation in range(MINHASH_PERMUTATIONS):
-        salt = f"{MINHASH_SEED}:{permutation}:".encode("utf-8")
+        salt = f"{MINHASH_SEED}:{permutation}:".encode()
         signature.append(
             min(
                 # RFC 8785 canonical JSON uses the interoperable IEEE-754
@@ -187,7 +189,9 @@ def _reject_forbidden_fields(value: Any, path: str = "$") -> None:
     if isinstance(value, dict):
         for key, child in value.items():
             if key.lower() in FORBIDDEN_PUBLIC_FIELDS:
-                raise QuarantineError(f"label-bearing field forbidden in public index: {path}/{key}")
+                raise QuarantineError(
+                    f"label-bearing field forbidden in public index: {path}/{key}"
+                )
             _reject_forbidden_fields(child, f"{path}/{key}")
     elif isinstance(value, list):
         for index, child in enumerate(value):
@@ -236,10 +240,16 @@ def compile_public_index(
         ):
             raise QuarantineError(f"invalid quarantine seal_id: {seal_id!r}")
         if seal_id in seen_seals:
-            raise QuarantineError(f"duplicate seal_id in quarantine specification: {seal_id}")
+            raise QuarantineError(
+                f"duplicate seal_id in quarantine specification: {seal_id}"
+            )
         seen_seals.add(seal_id)
         record_count = bundle["sealed_record_count"]
-        if not isinstance(record_count, int) or isinstance(record_count, bool) or record_count < 1:
+        if (
+            not isinstance(record_count, int)
+            or isinstance(record_count, bool)
+            or record_count < 1
+        ):
             raise QuarantineError(f"sealed_record_count is unresolved for {seal_id}")
         seeds = list(bundle.get("seeds", []))
         relationships = list(bundle.get("relationships", []))
@@ -293,14 +303,21 @@ def match_record(descriptor: dict[str, Any], index: dict[str, Any]) -> dict[str,
     required = {"identifiers", "raw_sha256", "normalized_sha256", "fingerprint"}
     missing = sorted(required - descriptor.keys())
     if missing:
-        return {"decision": "undetermined", "reasons": [f"missing:{name}" for name in missing]}
+        return {
+            "decision": "undetermined",
+            "reasons": [f"missing:{name}" for name in missing],
+        }
 
     indexed_ids = {
-        normalize_identifier(item["namespace"], item["value"], item.get("source_version"))
+        normalize_identifier(
+            item["namespace"], item["value"], item.get("source_version")
+        )
         for item in index["identifiers"]
     }
     record_ids = {
-        normalize_identifier(item["namespace"], item["value"], item.get("source_version"))
+        normalize_identifier(
+            item["namespace"], item["value"], item.get("source_version")
+        )
         for item in descriptor["identifiers"]
     }
     if indexed_ids & record_ids:
@@ -319,7 +336,9 @@ def match_record(descriptor: dict[str, Any], index: dict[str, Any]) -> dict[str,
         # contamination false negative.
         minhash_similarity(candidate["minhash"], reference["minhash"])
         threshold = 0.9 if candidate["kind"] == "character5" else 0.85
-        exact = jaccard_similarity(candidate["shingle_hashes"], reference["shingle_hashes"])
+        exact = jaccard_similarity(
+            candidate["shingle_hashes"], reference["shingle_hashes"]
+        )
         if exact >= threshold:
             reasons.add(f"near_duplicate:{reference['fingerprint_id']}")
     if reasons:

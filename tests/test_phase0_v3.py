@@ -13,7 +13,6 @@ from hippocampus_foundation.phase0.v3 import (
     validate_schema_lock_v3,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

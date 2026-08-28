@@ -7,8 +7,8 @@ from hypothesis import strategies as st
 from hippocampus_foundation.phase0 import quarantine
 from hippocampus_foundation.phase0.errors import QuarantineError, ValidationError
 from hippocampus_foundation.phase0.quarantine import (
-    Identifier,
     MAX_SAFE_JSON_INTEGER,
+    Identifier,
     compile_public_index,
     dependency_closure,
     fingerprint_text,
@@ -33,7 +33,10 @@ def bundle(*, fingerprints: list[dict]) -> dict:
 
 def test_identifier_normalization_is_namespace_specific() -> None:
     assert normalize_identifier("WIKIDATA.ENTITY", " q42 ").value == "Q42"
-    assert normalize_identifier("doi", "https://doi.org/10.1000/ABC").value == "10.1000/abc"
+    assert (
+        normalize_identifier("doi", "https://doi.org/10.1000/ABC").value
+        == "10.1000/abc"
+    )
     assert normalize_identifier("pmid", "00042").value == "42"
     with pytest.raises(ValidationError):
         normalize_identifier("wikidata.entity", "not-an-entity")
@@ -44,7 +47,9 @@ def test_text_normalization_is_idempotent(value: str) -> None:
     assert normalize_text(normalize_text(value)) == normalize_text(value)
 
 
-def test_incident_statement_closure_is_directed_and_cannot_explode_to_siblings() -> None:
+def test_incident_statement_closure_is_directed_and_cannot_explode_to_siblings() -> (
+    None
+):
     entity = Identifier("wikidata.entity", "Q1", "20260720")
     first = Identifier("wikidata.statement", "Q1$A", "20260720")
     sibling = Identifier("wikidata.statement", "Q1$B", "20260720")
@@ -67,7 +72,9 @@ def test_family_closure_is_symmetric_and_transitive() -> None:
     assert dependency_closure([revision], relations) == {page, revision, redirect}
 
 
-def test_fingerprint_is_deterministic_and_near_duplicate_matching_is_exactly_checked() -> None:
+def test_fingerprint_is_deterministic_and_near_duplicate_matching_is_exactly_checked() -> (
+    None
+):
     text = " ".join(f"word{index}" for index in range(80))
     reference = fingerprint_text(text, "reference")
     candidate = fingerprint_text(text + " ", "candidate")

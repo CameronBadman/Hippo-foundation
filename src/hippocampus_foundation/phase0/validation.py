@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Iterable
+from collections.abc import Iterable
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
@@ -135,9 +136,7 @@ def validate_source_registry(registry: Any) -> None:
 def validate_source_audit(audit: Any) -> None:
     validate_instance(audit, "source-audit.schema.json")
     try:
-        started_at = datetime.fromisoformat(
-            audit["started_at"].replace("Z", "+00:00")
-        )
+        started_at = datetime.fromisoformat(audit["started_at"].replace("Z", "+00:00"))
         completed_at = datetime.fromisoformat(
             audit["completed_at"].replace("Z", "+00:00")
         )
@@ -151,9 +150,7 @@ def validate_source_audit(audit: Any) -> None:
     if audit["artifact_count"] != len(artifacts):
         raise ValidationError("source audit artifact_count does not match its records")
     measured_total = sum(
-        item["measured"]["bytes"]
-        for item in artifacts
-        if item["measured"] is not None
+        item["measured"]["bytes"] for item in artifacts if item["measured"] is not None
     )
     if audit["total_bytes"] != measured_total:
         raise ValidationError("source audit total_bytes does not match its records")
@@ -209,6 +206,10 @@ def validate_evaluation_registry(registry: Any) -> None:
             if not dataset["seal_id"]:
                 raise ValidationError(f"{dataset_id} is sealed without a seal_id")
             if dataset["licence_status"] != "approved":
-                raise ValidationError(f"{dataset_id} is sealed without licence approval")
+                raise ValidationError(
+                    f"{dataset_id} is sealed without licence approval"
+                )
             if dataset["blockers"]:
-                raise ValidationError(f"{dataset_id} is sealed with unresolved blockers")
+                raise ValidationError(
+                    f"{dataset_id} is sealed with unresolved blockers"
+                )

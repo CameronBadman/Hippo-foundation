@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from hippocampus_foundation.licensing import VerifiedBundle, verify_assessment
 
@@ -33,7 +34,7 @@ def _parse_time(value: str, field: str) -> datetime:
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _artifact_lookup(
@@ -290,9 +291,11 @@ def validate_structural_inventory_v4(
         raise ValidationError("structural inventory artifact digest mismatch")
     if inventory["artifact_bytes"] != measured["bytes"]:
         raise ValidationError("structural inventory byte count mismatch")
-    if not inventory["complete"] or inventory["parse_errors"] or inventory[
-        "rejected_records"
-    ]:
+    if (
+        not inventory["complete"]
+        or inventory["parse_errors"]
+        or inventory["rejected_records"]
+    ):
         raise ValidationError("structural inventory is incomplete or invalid")
     for name in artifact["required_nonzero_counters"]:
         if inventory["counters"].get(name, 0) <= 0:
@@ -307,7 +310,9 @@ def validate_structural_inventory_v4(
             raise ValidationError(f"required inventory counter is not zero: {name}")
 
 
-def _audit_rows_for_source(audit: dict[str, Any], source_id: str) -> list[dict[str, Any]]:
+def _audit_rows_for_source(
+    audit: dict[str, Any], source_id: str
+) -> list[dict[str, Any]]:
     return sorted(
         [row for row in audit["artifacts"] if row["source_id"] == source_id],
         key=lambda row: row["artifact_id"],
@@ -383,7 +388,10 @@ def assess_admission_v4(
         raise ValidationError("source audit omits a source publisher receipt")
     inventory_values = list(inventories)
     by_artifact = {item.get("artifact_id"): item for item in inventory_values}
-    if len(by_artifact) != len(inventory_values) or set(by_artifact) != expected_artifacts:
+    if (
+        len(by_artifact) != len(inventory_values)
+        or set(by_artifact) != expected_artifacts
+    ):
         raise GateBlocked("admission requires exactly one inventory per artifact")
     for artifact_id, inventory in by_artifact.items():
         validate_structural_inventory_v4(
@@ -408,9 +416,7 @@ def assess_admission_v4(
         "source_entry_sha256": canonical_sha256(source),
         "evaluation_registry_sha256": canonical_sha256(evaluation_registry),
         "storage_attestation_sha256": canonical_sha256(storage_attestation),
-        "drive_observation_sha256": storage_attestation[
-            "drive_observation_sha256"
-        ],
+        "drive_observation_sha256": storage_attestation["drive_observation_sha256"],
         "publisher_receipt_sha256s": expected_publisher_hashes,
         "source_audit_sha256": canonical_sha256(source_audit),
         "audited_artifacts_sha256": canonical_sha256(rows),

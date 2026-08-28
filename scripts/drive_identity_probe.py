@@ -16,10 +16,10 @@ import os
 import stat
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
-
+from typing import Any
 
 DRIVE_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.readonly"
 DRIVE_FULL_SCOPE = "https://www.googleapis.com/auth/drive"
@@ -52,7 +52,7 @@ class ProbeError(RuntimeError):
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _execute(request: Any) -> dict[str, Any]:
@@ -81,7 +81,10 @@ def _fully_paginate(
         try:
             while True:
                 response = _execute(request_for_page(page_token))
-                if reject_incomplete_search and response.get("incompleteSearch") is True:
+                if (
+                    reject_incomplete_search
+                    and response.get("incompleteSearch") is True
+                ):
                     raise ProbeError("Drive API reported incompleteSearch=true")
                 page_values = response.get(result_key, [])
                 if not isinstance(page_values, list) or any(
@@ -104,7 +107,9 @@ def _fully_paginate(
 
 def _require_unique_drive(values: list[dict[str, Any]]) -> dict[str, Any]:
     if len(values) != 1:
-        raise ProbeError(f"expected exactly one shared drive named Data; observed {len(values)}")
+        raise ProbeError(
+            f"expected exactly one shared drive named Data; observed {len(values)}"
+        )
     drive = values[0]
     if drive.get("name") != SHARED_DRIVE_NAME or not isinstance(drive.get("id"), str):
         raise ProbeError("shared drive identity fields are invalid")
@@ -115,7 +120,9 @@ def _require_unique_drive(values: list[dict[str, Any]]) -> dict[str, Any]:
     return drive
 
 
-def _require_unique_folder(values: list[dict[str, Any]], drive_id: str) -> dict[str, Any]:
+def _require_unique_folder(
+    values: list[dict[str, Any]], drive_id: str
+) -> dict[str, Any]:
     if len(values) != 1:
         raise ProbeError(
             f"expected exactly one direct graph-memory-data-lake folder; observed {len(values)}"
@@ -135,7 +142,9 @@ def _require_unique_folder(values: list[dict[str, Any]], drive_id: str) -> dict[
         raise ProbeError("lake root is a shortcut rather than a folder")
     if folder.get("capabilities", {}).get("canListChildren") is not True:
         raise ProbeError("lake folder cannot list children")
-    if not isinstance(folder.get("id"), str) or not isinstance(folder.get("version"), str):
+    if not isinstance(folder.get("id"), str) or not isinstance(
+        folder.get("version"), str
+    ):
         raise ProbeError("lake folder lacks a stable string ID/version")
     return folder
 
@@ -187,7 +196,9 @@ def _require_live_drive_mount(*, fallback_devname: str | None = None) -> None:
         raise ProbeError("expected mounted lake root is not a directory")
 
     try:
-        mount_lines = Path("/proc/self/mountinfo").read_text(encoding="utf-8").splitlines()
+        mount_lines = (
+            Path("/proc/self/mountinfo").read_text(encoding="utf-8").splitlines()
+        )
     except OSError as exc:
         raise ProbeError("cannot inspect live mount metadata") from exc
     mount_matches: list[tuple[str, str, set[str]]] = []
@@ -271,7 +282,9 @@ def _credential_scopes(
     if not isinstance(token, str) or not token:
         raise ProbeError("credentials do not expose a current access token")
     scopes = tokeninfo_fetcher(token)
-    if not isinstance(scopes, set) or any(not isinstance(value, str) for value in scopes):
+    if not isinstance(scopes, set) or any(
+        not isinstance(value, str) for value in scopes
+    ):
         raise ProbeError("Google token-info scopes are malformed")
     return scopes
 
@@ -399,11 +412,16 @@ def probe(
     permission_id = about.get("user", {}).get("permissionId")
     if not isinstance(permission_id, str) or not permission_id:
         raise ProbeError("Drive API did not return a principal permission ID")
-    permission_hash = "sha256:" + hashlib.sha256(
-        b"hf-drive-principal-v1\x00" + permission_id.encode("utf-8")
-    ).hexdigest()
+    permission_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            b"hf-drive-principal-v1\x00" + permission_id.encode("utf-8")
+        ).hexdigest()
+    )
 
-    drive_fields = "nextPageToken,drives(id,name,hidden,createdTime,capabilities(canListChildren))"
+    drive_fields = (
+        "nextPageToken,drives(id,name,hidden,createdTime,capabilities(canListChildren))"
+    )
     drives = _fully_paginate(
         lambda token: service.drives().list(
             q="name = 'Data'",
@@ -539,12 +557,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.adc_file is None:
             credentials, _ = google.auth.default(scopes=[DRIVE_READONLY_SCOPE])
         else:
-            binding = _load_fallback_binding(
-                args.adc_file, args.fallback_state_file
-            )
-            _validate_fallback_runtime(
-                args.adc_file, args.fallback_state_file, binding
-            )
+            binding = _load_fallback_binding(args.adc_file, args.fallback_state_file)
+            _validate_fallback_runtime(args.adc_file, args.fallback_state_file, binding)
             credentials, _ = google.auth.load_credentials_from_file(
                 str(args.adc_file), scopes=[DRIVE_READONLY_SCOPE]
             )
@@ -571,7 +585,9 @@ def main(argv: list[str] | None = None) -> int:
             "error_type": type(exc).__name__,
             "error": safe_error,
         }
-        print(json.dumps(result, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+        print(
+            json.dumps(result, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+        )
         return 1
     print(json.dumps(result, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
     return 0

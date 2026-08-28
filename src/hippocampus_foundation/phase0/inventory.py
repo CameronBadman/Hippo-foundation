@@ -11,19 +11,20 @@ import os
 import stat
 import xml.etree.ElementTree as ET
 from collections import Counter
+from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, BinaryIO, Iterator, TextIO
+from typing import Any, BinaryIO, TextIO
 
-from .errors import IntegrityError, ValidationError
 from .canonical import canonical_sha256
+from .errors import IntegrityError, ValidationError
 
 HASH_CHUNK_BYTES = 8 * 1024 * 1024
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _assert_regular_no_symlinks(root: Path, target: Path) -> Path:
@@ -34,12 +35,12 @@ def _assert_regular_no_symlinks(root: Path, target: Path) -> Path:
         try:
             metadata = current.lstat()
         except OSError as exc:
-            raise IntegrityError(f"cannot inspect storage root {current}: {exc}") from exc
+            raise IntegrityError(
+                f"cannot inspect storage root {current}: {exc}"
+            ) from exc
         if stat.S_ISLNK(metadata.st_mode):
             raise IntegrityError(f"storage-root symlink is forbidden: {current}")
-    candidate = Path(
-        os.path.abspath(target if target.is_absolute() else root / target)
-    )
+    candidate = Path(os.path.abspath(target if target.is_absolute() else root / target))
     try:
         relative = candidate.relative_to(root)
     except ValueError as exc:
@@ -199,7 +200,9 @@ def audit_source_registry(
             continue
         artifact = artifacts_by_pair[(result["source_id"], result["artifact_id"])]
         try:
-            path = resolve_artifact(storage_map, artifact["locator_id"], artifact["filename"])
+            path = resolve_artifact(
+                storage_map, artifact["locator_id"], artifact["filename"]
+            )
             metadata = path.stat()
             measured = result["measured"]
             observed_identity = (
@@ -256,10 +259,14 @@ def open_decompressed_binary(path: Path) -> Iterator[BinaryIO]:
 def open_decompressed_text(path: Path) -> Iterator[TextIO]:
     suffix = path.suffix.lower()
     if suffix == ".gz":
-        with gzip.open(path, "rt", encoding="utf-8", errors="strict", newline="") as handle:
+        with gzip.open(
+            path, "rt", encoding="utf-8", errors="strict", newline=""
+        ) as handle:
             yield handle
     elif suffix == ".bz2":
-        with bz2.open(path, "rt", encoding="utf-8", errors="strict", newline="") as handle:
+        with bz2.open(
+            path, "rt", encoding="utf-8", errors="strict", newline=""
+        ) as handle:
             yield handle
     else:
         with path.open("r", encoding="utf-8", errors="strict", newline="") as handle:
@@ -271,7 +278,11 @@ def count_wikipedia_xml(path: Path) -> dict[str, Any]:
     namespace_marker: str | None = None
     with open_decompressed_binary(path) as handle:
         for event, element in ET.iterparse(handle, events=("start", "end")):
-            if namespace_marker is None and event == "start" and element.tag.startswith("{"):
+            if (
+                namespace_marker is None
+                and event == "start"
+                and element.tag.startswith("{")
+            ):
                 namespace_marker = element.tag.split("}", 1)[0] + "}"
             if event != "end":
                 continue
@@ -360,7 +371,9 @@ def count_wikidata_json(path: Path) -> dict[str, Any]:
                     f"invalid Wikidata JSON at line {line_number}: {exc.msg}"
                 ) from exc
             if not isinstance(entity, dict):
-                raise IntegrityError(f"Wikidata entity is not an object at line {line_number}")
+                raise IntegrityError(
+                    f"Wikidata entity is not an object at line {line_number}"
+                )
             counts["entities"] += 1
             entity_type = str(entity.get("type", "unknown"))
             counts[f"entity_type.{entity_type}"] += 1
@@ -373,7 +386,9 @@ def count_wikidata_json(path: Path) -> dict[str, Any]:
                     mainsnak = statement.get("mainsnak") or {}
                     counts[f"datatype.{mainsnak.get('datatype', 'unknown')}"] += 1
                     qualifiers = statement.get("qualifiers") or {}
-                    counts["qualifiers"] += sum(len(values) for values in qualifiers.values())
+                    counts["qualifiers"] += sum(
+                        len(values) for values in qualifiers.values()
+                    )
                     counts["references"] += len(statement.get("references") or [])
     return {"kind": "wikidata_json", **dict(sorted(counts.items()))}
 
@@ -382,7 +397,7 @@ def count_conceptnet(path: Path) -> dict[str, Any]:
     counts: Counter[str] = Counter()
     with open_decompressed_text(path) as handle:
         reader = csv.reader(handle, delimiter="\t")
-        for row_number, row in enumerate(reader, start=1):
+        for _row_number, row in enumerate(reader, start=1):
             if len(row) < 4:
                 counts["rejected_records"] += 1
                 continue

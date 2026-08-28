@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from hippocampus_foundation.licensing import (
     VerifiedBundle,
-    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
-    validate_v1 as validate_licensing_v1,
     verify_assessment,
+)
+from hippocampus_foundation.licensing import (
+    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
+)
+from hippocampus_foundation.licensing import (
+    validate_v1 as validate_licensing_v1,
 )
 from hippocampus_foundation.storage_identity import (
     validate_schema_lock_v1 as validate_storage_schema_lock_v1,
@@ -21,8 +26,8 @@ from .errors import GateBlocked, ValidationError
 from .evaluation_firewall import (
     VerifiedSealReceipt,
     compile_quarantine_index_v4,
-    validate_quarantine_contribution_v4,
     validate_evaluation_registry_v4,
+    validate_quarantine_contribution_v4,
     validate_source_registry_v4,
     verify_seal_receipt_v4,
 )
@@ -49,7 +54,6 @@ from .v4_contracts import (
     validate_schema_lock_v4,
     validate_v4,
 )
-
 
 SOURCE_AUDIT_MAX_AGE_V4 = timedelta(hours=72)
 SHA256_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -201,9 +205,10 @@ def evaluate_gate_v4(
         validate_evaluation_registry_v4(
             evaluation_registry, evaluation_registry_predecessor
         )
-        if _parse_time(
-            evaluation_registry["generated_at"], "evaluation generated_at"
-        ) > now:
+        if (
+            _parse_time(evaluation_registry["generated_at"], "evaluation generated_at")
+            > now
+        ):
             raise ValidationError("evaluation registry is from the future")
         evaluation_roles_ready = True
         _evidence(
@@ -364,7 +369,10 @@ def evaluate_gate_v4(
                         raise ValidationError("source audit locator binding mismatch")
                     measured = row["measured"]
                     if row["status"] == "verified":
-                        if measured is None or measured["bytes"] != artifact["expected_bytes"]:
+                        if (
+                            measured is None
+                            or measured["bytes"] != artifact["expected_bytes"]
+                        ):
                             raise ValidationError("source audit byte count mismatch")
                         for checksum in artifact["checksums"]:
                             if measured[checksum["algorithm"]] != checksum["value"]:
@@ -443,7 +451,12 @@ def evaluate_gate_v4(
         licensing_evidence_verified = False
         licensing_ready = False
         _block(blockers, "licence_evidence_set_mismatch", "rights", "all")
-    for review_id, (kind, subject_id, binding, required_uses) in expected_reviews.items():
+    for review_id, (
+        kind,
+        subject_id,
+        binding,
+        required_uses,
+    ) in expected_reviews.items():
         assessment = assessments_by_id.get(review_id)
         bundle = bundles.get(review_id)
         if assessment is None or bundle is None:
@@ -525,9 +538,7 @@ def evaluate_gate_v4(
     if set(seal_by_dataset) != set(confirmatory_datasets):
         confirmatory_custody_ready = False
         _block(blockers, "seal_set_mismatch", "seal", "confirmatory")
-    expected_seal_ids = {
-        item["seal_id"] for item in confirmatory_datasets.values()
-    }
+    expected_seal_ids = {item["seal_id"] for item in confirmatory_datasets.values()}
     if set(access_events) != expected_seal_ids:
         confirmatory_custody_ready = False
         _block(blockers, "access_log_set_mismatch", "seal", "confirmatory")
@@ -557,7 +568,9 @@ def evaluate_gate_v4(
             if not SHA256_DIGEST.fullmatch(
                 anchor.signature_sha256
             ) or not SHA256_DIGEST.fullmatch(anchor.public_key_sha256):
-                raise ValidationError("verified anchor wrapper artifact digest is invalid")
+                raise ValidationError(
+                    "verified anchor wrapper artifact digest is invalid"
+                )
             validate_v4(anchor.anchor, "access-anchor.schema.json")
             if anchor.anchor["seal_receipt_sha256"] != verified_seal.sha256:
                 raise ValidationError("anchor seal receipt binding mismatch")
@@ -582,9 +595,10 @@ def evaluate_gate_v4(
                 raise ValidationError("confirmatory access anchor is stale or future")
             if valid_until <= anchored or valid_until - anchored > timedelta(hours=72):
                 raise ValidationError("confirmatory access anchor window is invalid")
-            if _parse_time(
-                verified_seal.receipt["created_at"], "seal created_at"
-            ) > now:
+            if (
+                _parse_time(verified_seal.receipt["created_at"], "seal created_at")
+                > now
+            ):
                 raise ValidationError("confirmatory seal is from the future")
             _evidence(evidence, "seal_receipt", dataset_id, verified_seal.sha256)
             _evidence(evidence, "access_anchor", dataset_id, anchor.sha256)
@@ -607,9 +621,7 @@ def evaluate_gate_v4(
         _block(blockers, "confirmatory_custody_not_ready", "seal", "all")
 
     quarantine_ready = False
-    expected_dataset_ids = {
-        item["dataset_id"] for item in evaluation_entries
-    }
+    expected_dataset_ids = {item["dataset_id"] for item in evaluation_entries}
     if quarantine_index is None:
         _block(blockers, "quarantine_index_missing", "quarantine", "union")
     elif evaluation_roles_ready:
@@ -656,7 +668,9 @@ def evaluate_gate_v4(
         _block(blockers, "quarantine_not_ready", "quarantine", "union")
     quarantine_matcher_ready = contracts_frozen and quarantine_ready
     if not quarantine_matcher_ready:
-        _block(blockers, "quarantine_matcher_not_ready", "quarantine", MATCHER_POLICY_ID_V4)
+        _block(
+            blockers, "quarantine_matcher_not_ready", "quarantine", MATCHER_POLICY_ID_V4
+        )
 
     inventory_values = list(structural_inventories)
     inventory_by_artifact: dict[str, dict[str, Any]] = {}

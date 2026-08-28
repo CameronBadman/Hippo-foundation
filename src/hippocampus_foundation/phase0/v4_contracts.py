@@ -11,7 +11,6 @@ from jsonschema.exceptions import SchemaError
 from .canonical import canonical_sha256, load_json
 from .errors import ValidationError
 
-
 SCHEMA_VERSION_V4 = "4.0.0"
 
 FROZEN_SCHEMA_DIGESTS_V4: dict[str, str] = {
@@ -27,10 +26,14 @@ FROZEN_SCHEMA_DIGESTS_V4: dict[str, str] = {
 
 
 def schema_root_v4() -> Path:
-    package_candidate = Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v4"
+    package_candidate = (
+        Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v4"
+    )
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v4"
+    repository_candidate = (
+        Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v4"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise ValidationError("cannot locate Phase 0 v4 schema directory")
@@ -44,7 +47,9 @@ def load_schema_v4(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise ValidationError(f"invalid Phase 0 v4 schema {path}: {exc.message}") from exc
+        raise ValidationError(
+            f"invalid Phase 0 v4 schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -64,9 +69,7 @@ def validate_v4(instance: Any, schema_name: str, root: Path | None = None) -> No
             leaves.append(error)
     rendered = sorted(
         {
-            (
-                "/".join(str(part) for part in error.absolute_path) or "$"
-            )
+            ("/".join(str(part) for part in error.absolute_path) or "$")
             + f": failed JSON Schema keyword {error.validator!r}"
             for error in leaves
         }

@@ -17,7 +17,6 @@ from hippocampus_foundation.phase0.v2 import (
     validate_storage_attestation_v2,
 )
 
-
 SCHEMA_VERSION = "1.0.0"
 DRIVE_OBSERVATION_MAX_AGE = timedelta(minutes=15)
 DRIVE_LOCATOR_ID = "drive_lake"
@@ -40,7 +39,9 @@ def schema_root_v1() -> Path:
     package_candidate = Path(__file__).resolve().parent / "schemas" / "storage" / "v1"
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[2] / "schemas" / "storage" / "v1"
+    repository_candidate = (
+        Path(__file__).resolve().parents[2] / "schemas" / "storage" / "v1"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise ValidationError("cannot locate storage identity v1 schema directory")
@@ -54,7 +55,9 @@ def load_schema_v1(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise ValidationError(f"invalid storage identity schema {path}: {exc.message}") from exc
+        raise ValidationError(
+            f"invalid storage identity schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -66,7 +69,9 @@ def validate_observation_v1(
 ) -> None:
     schema = load_schema_v1("drive-observation.schema.json", root)
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    errors = sorted(validator.iter_errors(observation), key=lambda item: list(item.path))
+    errors = sorted(
+        validator.iter_errors(observation), key=lambda item: list(item.path)
+    )
     if errors:
         rendered = []
         for error in errors:
@@ -139,7 +144,9 @@ def bind_drive_observation(
         registered = requirement[field]
         observed_value = observation[field]
         if registered is not None and registered != observed_value:
-            raise ValidationError(f"Drive observation conflicts with registered {field}")
+            raise ValidationError(
+                f"Drive observation conflicts with registered {field}"
+            )
 
     bound_registry = copy.deepcopy(source_registry)
     bound_requirement = next(

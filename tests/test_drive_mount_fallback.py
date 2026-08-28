@@ -4,24 +4,21 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
-from types import ModuleType
 import zipfile
+from pathlib import Path
+from types import ModuleType
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_fallback() -> ModuleType:
     path = ROOT / "scripts" / "drive_mount_fallback.py"
-    specification = importlib.util.spec_from_file_location(
-        "drive_mount_fallback", path
-    )
+    specification = importlib.util.spec_from_file_location("drive_mount_fallback", path)
     assert specification is not None and specification.loader is not None
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
@@ -295,9 +292,7 @@ def test_rclone_environment_is_memory_only_and_bound_to_one_adc(tmp_path) -> Non
     assert environment["RCLONE_CONFIG_PHASE0_DATA_SCOPE"] == "drive.readonly"
     assert environment["RCLONE_CONFIG_PHASE0_DATA_TEAM_DRIVE"] == "drive-id"
     assert environment["RCLONE_CONFIG_PHASE0_SHARED_TYPE"] == "combine"
-    assert environment["RCLONE_CONFIG_PHASE0_SHARED_UPSTREAMS"] == (
-        "Data=phase0_data:"
-    )
+    assert environment["RCLONE_CONFIG_PHASE0_SHARED_UPSTREAMS"] == ("Data=phase0_data:")
     assert environment["RCLONE_CONFIG_PHASE0_ROOT_TYPE"] == "combine"
     assert environment["RCLONE_CONFIG_PHASE0_ROOT_UPSTREAMS"] == (
         "Shareddrives=phase0_shared:"
@@ -308,7 +303,9 @@ def test_rclone_environment_is_memory_only_and_bound_to_one_adc(tmp_path) -> Non
     assert "GOOGLE_CLOUD_PROJECT" not in environment
 
 
-def test_mount_arguments_are_exactly_read_only_owner_only_and_cacheless(tmp_path) -> None:
+def test_mount_arguments_are_exactly_read_only_owner_only_and_cacheless(
+    tmp_path,
+) -> None:
     fallback = load_fallback()
     binary = tmp_path / "rclone"
     mountpoint = tmp_path / "drive"
@@ -513,12 +510,14 @@ def test_process_validation_requires_exact_arguments_and_adc_environment(
             "drive-id",
             command_reader=lambda _pid: fallback._mount_command(binary, mountpoint),
             environment_reader=lambda _pid: {
-                **fallback._rclone_environment(
-                    adc, "drive-id", base_environment={}
-                ),
+                **fallback._rclone_environment(adc, "drive-id", base_environment={}),
                 "GOOGLE_APPLICATION_CREDENTIALS": "/wrong/adc.json",
             },
-            **{key: value for key, value in hooks.items() if key != "environment_reader"},
+            **{
+                key: value
+                for key, value in hooks.items()
+                if key != "environment_reader"
+            },
         )
 
 

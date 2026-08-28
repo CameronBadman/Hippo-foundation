@@ -11,12 +11,16 @@ from jsonschema.exceptions import SchemaError
 
 from hippocampus_foundation.licensing import (
     VerifiedBundle,
-    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
     verify_assessment,
+)
+from hippocampus_foundation.licensing import (
+    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
 )
 from hippocampus_foundation.phase0.canonical import canonical_sha256, load_json
 from hippocampus_foundation.phase0.v3 import (
     require_phase0_transform_gate_v3,
+)
+from hippocampus_foundation.phase0.v3 import (
     validate_schema_lock_v3 as validate_phase0_schema_lock_v3,
 )
 
@@ -29,7 +33,6 @@ from .contracts import (
     validate_schema_lock_v1,
 )
 from .errors import Phase1ValidationError
-
 
 SCHEMA_VERSION = "2.0.0"
 EVIDENCE_MAX_AGE = timedelta(hours=72)
@@ -51,10 +54,14 @@ def _parse_time(value: str, field: str) -> datetime:
 
 
 def schema_root_v2() -> Path:
-    package_candidate = Path(__file__).resolve().parents[1] / "schemas" / "phase1" / "v2"
+    package_candidate = (
+        Path(__file__).resolve().parents[1] / "schemas" / "phase1" / "v2"
+    )
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[3] / "schemas" / "phase1" / "v2"
+    repository_candidate = (
+        Path(__file__).resolve().parents[3] / "schemas" / "phase1" / "v2"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise Phase1ValidationError("cannot locate Phase 1 v2 schema directory")
@@ -68,7 +75,9 @@ def load_schema_v2(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise Phase1ValidationError(f"invalid Phase 1 v2 schema {path}: {exc.message}") from exc
+        raise Phase1ValidationError(
+            f"invalid Phase 1 v2 schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -161,7 +170,9 @@ def evaluate_phase1_gate_v2(
     else:
         try:
             phase0_sha256 = require_phase0_transform_gate_v3(phase0_gate)
-            phase0_time = _parse_time(phase0_gate["evaluated_at"], "phase0 evaluated_at")
+            phase0_time = _parse_time(
+                phase0_gate["evaluated_at"], "phase0 evaluated_at"
+            )
             if phase0_time > now:
                 raise Phase1ValidationError("Phase 0 gate is from the future")
             if now - phase0_time > EVIDENCE_MAX_AGE:
@@ -186,14 +197,21 @@ def evaluate_phase1_gate_v2(
         try:
             validate_encoder_verification_v2(encoder_verification)
             if encoder_verification["spec_sha256"] != FROZEN_ENCODER_SPEC_SHA256:
-                raise Phase1ValidationError("encoder verification spec binding mismatch")
-            if encoder_verification["bakeoff_report_sha256"] != encoder_spec["bakeoff_report_sha256"]:
+                raise Phase1ValidationError(
+                    "encoder verification spec binding mismatch"
+                )
+            if (
+                encoder_verification["bakeoff_report_sha256"]
+                != encoder_spec["bakeoff_report_sha256"]
+            ):
                 raise Phase1ValidationError("encoder bake-off binding mismatch")
             if encoder_verification["assets"] != sorted(
                 encoder_spec["assets"], key=lambda item: item["path"]
             ):
                 raise Phase1ValidationError("encoder asset evidence mismatch")
-            verified_at = _parse_time(encoder_verification["verified_at"], "encoder verified_at")
+            verified_at = _parse_time(
+                encoder_verification["verified_at"], "encoder verified_at"
+            )
             if verified_at > now:
                 raise Phase1ValidationError("encoder verification is from the future")
             if now - verified_at > EVIDENCE_MAX_AGE:
@@ -216,7 +234,10 @@ def evaluate_phase1_gate_v2(
         blockers.add("encoder_licence_evidence_missing")
     elif encoder_spec_valid:
         try:
-            if encoder_licence_assessment["review_id"] != encoder_spec["licence_review_id"]:
+            if (
+                encoder_licence_assessment["review_id"]
+                != encoder_spec["licence_review_id"]
+            ):
                 raise Phase1ValidationError("encoder licence review ID mismatch")
             verify_assessment(
                 encoder_licence_assessment,
@@ -267,15 +288,15 @@ def evaluate_phase1_gate_v2(
         if (
             sample_manifest["requested_size"] != 40_000
             or sample_manifest["selected_size"] != 40_000
-            or sample_manifest["covered_communities"] != sample_manifest["community_count"]
+            or sample_manifest["covered_communities"]
+            != sample_manifest["community_count"]
             or sample_manifest["covered_strata"] != sample_manifest["stratum_count"]
         ):
             readiness["sample"] = False
             blockers.add("sample_contract_not_satisfied")
     if readiness["objectives"] and objective_manifest is not None:
-        if (
-            set(objective_manifest["family_counts"]) != OBJECTIVE_FAMILIES
-            or any(value < 1 for value in objective_manifest["family_counts"].values())
+        if set(objective_manifest["family_counts"]) != OBJECTIVE_FAMILIES or any(
+            value < 1 for value in objective_manifest["family_counts"].values()
         ):
             readiness["objectives"] = False
             blockers.add("objective_family_coverage_incomplete")
@@ -293,11 +314,15 @@ def evaluate_phase1_gate_v2(
             readiness = {name: False for name in readiness}
             blockers.add("quarantine_binding_mismatch")
         elif phase0_gate is None or (
-            f"quarantine_index:{next(iter(quarantine_hashes))}" not in phase0_gate["evidence"]
+            f"quarantine_index:{next(iter(quarantine_hashes))}"
+            not in phase0_gate["evidence"]
         ):
             readiness = {name: False for name in readiness}
             blockers.add("quarantine_not_admitted_by_phase0")
-        if objective_manifest["graph_snapshot_sha256"] != graph_manifest["selected_sha256"]:
+        if (
+            objective_manifest["graph_snapshot_sha256"]
+            != graph_manifest["selected_sha256"]
+        ):
             readiness["objectives"] = False
             blockers.add("objective_graph_binding_mismatch")
 

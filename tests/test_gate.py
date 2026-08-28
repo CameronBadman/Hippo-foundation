@@ -21,9 +21,9 @@ def ready_evidence() -> tuple[dict, dict, dict, list[dict], dict, set[str]]:
     evaluations = load("registries/evaluations.v1.json")
     for dataset in evaluations["datasets"]:
         dataset["resolved_version"] = "fixture-v1"
-        dataset["archive_sha256"] = "sha256:" + hashlib.sha256(
-            dataset["dataset_id"].encode()
-        ).hexdigest()
+        dataset["archive_sha256"] = (
+            "sha256:" + hashlib.sha256(dataset["dataset_id"].encode()).hexdigest()
+        )
         dataset["licence_status"] = "approved"
         dataset["status"] = "sealed"
         dataset["blockers"] = []
@@ -32,7 +32,9 @@ def ready_evidence() -> tuple[dict, dict, dict, list[dict], dict, set[str]]:
     total_bytes = 0
     for source in sources["sources"]:
         for artifact in source["artifacts"]:
-            checksums = {item["algorithm"]: item["value"] for item in artifact["checksums"]}
+            checksums = {
+                item["algorithm"]: item["value"] for item in artifact["checksums"]
+            }
             measurement = {
                 "bytes": artifact["expected_bytes"],
                 "md5": checksums.get("md5", "0" * 32),
@@ -82,9 +84,8 @@ def ready_evidence() -> tuple[dict, dict, dict, list[dict], dict, set[str]]:
                 "schema_version": "1.0.0",
                 "seal_id": seal_id,
                 "evaluation_class": "confirmatory",
-                "ciphertext_sha256": "sha256:" + hashlib.sha256(
-                    (seal_id + ":ciphertext").encode()
-                ).hexdigest(),
+                "ciphertext_sha256": "sha256:"
+                + hashlib.sha256((seal_id + ":ciphertext").encode()).hexdigest(),
                 "artifact_hashes": [dataset["archive_sha256"]],
                 "public_key_fingerprint": "A" * 40,
                 "created_at": NOW,
@@ -122,7 +123,9 @@ def ready_evidence() -> tuple[dict, dict, dict, list[dict], dict, set[str]]:
     return sources, evaluations, quarantine, receipts, source_audit, seal_ids
 
 
-def test_checked_in_state_is_mechanically_blocked_and_never_authorizes_training() -> None:
+def test_checked_in_state_is_mechanically_blocked_and_never_authorizes_training() -> (
+    None
+):
     report = evaluate_gate(
         evaluated_at=NOW,
         source_registry=load("registries/sources.v1.json"),
@@ -153,8 +156,12 @@ def test_checked_in_initial_gate_report_is_reproducible() -> None:
     assert observed == expected
 
 
-def test_complete_independent_evidence_can_open_foundation_transform_gate_only() -> None:
-    sources, evaluations, quarantine, receipts, source_audit, seal_ids = ready_evidence()
+def test_complete_independent_evidence_can_open_foundation_transform_gate_only() -> (
+    None
+):
+    sources, evaluations, quarantine, receipts, source_audit, seal_ids = (
+        ready_evidence()
+    )
     report = evaluate_gate(
         evaluated_at=NOW,
         source_registry=sources,
@@ -173,7 +180,9 @@ def test_complete_independent_evidence_can_open_foundation_transform_gate_only()
 
 
 def test_stale_source_audit_and_unverified_ciphertext_fail_closed() -> None:
-    sources, evaluations, quarantine, receipts, source_audit, seal_ids = ready_evidence()
+    sources, evaluations, quarantine, receipts, source_audit, seal_ids = (
+        ready_evidence()
+    )
     source_audit = copy.deepcopy(source_audit)
     source_audit["registry_sha256"] = "sha256:" + "0" * 64
     missing_verified = set(seal_ids)
@@ -195,7 +204,9 @@ def test_stale_source_audit_and_unverified_ciphertext_fail_closed() -> None:
 
 
 def test_quarantine_coverage_and_archive_receipt_binding_fail_closed() -> None:
-    sources, evaluations, quarantine, receipts, source_audit, seal_ids = ready_evidence()
+    sources, evaluations, quarantine, receipts, source_audit, seal_ids = (
+        ready_evidence()
+    )
     missing_coverage = copy.deepcopy(quarantine)
     missing_coverage["coverage"].pop()
     receipts[0]["artifact_hashes"] = ["sha256:" + "f" * 64]
@@ -215,7 +226,9 @@ def test_quarantine_coverage_and_archive_receipt_binding_fail_closed() -> None:
 
 
 def test_stale_source_audit_cannot_authorize_acquisition() -> None:
-    sources, evaluations, quarantine, receipts, source_audit, seal_ids = ready_evidence()
+    sources, evaluations, quarantine, receipts, source_audit, seal_ids = (
+        ready_evidence()
+    )
     source_audit["started_at"] = "2026-08-01T00:00:00Z"
     source_audit["completed_at"] = "2026-08-01T01:00:00Z"
     report = evaluate_gate(

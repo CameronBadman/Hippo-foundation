@@ -14,25 +14,24 @@ import hashlib
 import json
 import os
 import platform
-from pathlib import Path
 import shutil
 import signal
 import stat
 import subprocess
 import sys
 import time
-from typing import Any, Callable, NamedTuple
 import urllib.parse
 import urllib.request
 import zipfile
-
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any, NamedTuple
 
 DRIVE_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.readonly"
 DRIVE_FULL_SCOPE = "https://www.googleapis.com/auth/drive"
 RCLONE_VERSION = "1.75.0"
 RCLONE_ARCHIVE_URL = (
-    "https://downloads.rclone.org/v1.75.0/"
-    "rclone-v1.75.0-linux-amd64.zip"
+    "https://downloads.rclone.org/v1.75.0/rclone-v1.75.0-linux-amd64.zip"
 )
 RCLONE_ARCHIVE_SHA256 = (
     "aa2804e08f48250e71009c727124b6341cd0288465804a9a09d14663cabafbaa"
@@ -40,9 +39,7 @@ RCLONE_ARCHIVE_SHA256 = (
 RCLONE_BINARY_SHA256 = (
     "f3f9aff817f9766029e50adf9a7963c169e475b8f10c7927823568a0d9443db7"
 )
-RCLONE_LICENCE_URL = (
-    "https://raw.githubusercontent.com/rclone/rclone/v1.75.0/COPYING"
-)
+RCLONE_LICENCE_URL = "https://raw.githubusercontent.com/rclone/rclone/v1.75.0/COPYING"
 RCLONE_LICENCE_SHA256 = (
     "8cd2e9e750b90a04b7d82dbbca3930c696ae0309d7c10464f90a44f45754cd04"
 )
@@ -69,9 +66,7 @@ STATE_KEYS = frozenset(
         "resolved_resource_id",
     }
 )
-RUNTIME_FILENAMES = frozenset(
-    {"rclone", "COPYING", "rclone.zip", "rclone.zip.part"}
-)
+RUNTIME_FILENAMES = frozenset({"rclone", "COPYING", "rclone.zip", "rclone.zip.part"})
 RCLONE_ENV_PASSTHROUGH = frozenset(
     {
         "HOME",
@@ -221,7 +216,9 @@ def _validate_oauth_binding(adc_file: Path, client_id_file: Path) -> None:
         raise FallbackError("desktop_oauth_prerequisite_missing")
     client_id = installed.get("client_id")
     client_secret = installed.get("client_secret")
-    if not all(isinstance(value, str) and value for value in (client_id, client_secret)):
+    if not all(
+        isinstance(value, str) and value for value in (client_id, client_secret)
+    ):
         raise FallbackError("desktop_oauth_prerequisite_missing")
     if (
         adc.get("type") != "authorized_user"
@@ -321,8 +318,7 @@ def _require_unique_shared_drive(values: list[dict[str, Any]]) -> dict[str, Any]
 
 def _resolve_shared_drive_id(service: Any) -> str:
     fields = (
-        "nextPageToken,drives(id,name,hidden,createdTime,"
-        "capabilities(canListChildren))"
+        "nextPageToken,drives(id,name,hidden,createdTime,capabilities(canListChildren))"
     )
     token: str | None = None
     values: list[dict[str, Any]] = []
@@ -374,9 +370,7 @@ def _load_drive_context(adc_file: Path) -> tuple[Any, str]:
         if not credentials.valid:
             credentials.refresh(Request())
         _require_readonly_scope(_credential_scopes(credentials))
-        service = build(
-            "drive", "v3", credentials=credentials, cache_discovery=False
-        )
+        service = build("drive", "v3", credentials=credentials, cache_discovery=False)
         return credentials, _resolve_shared_drive_id(service)
     except FallbackError:
         raise
@@ -404,9 +398,10 @@ def _download_bounded(
     total = 0
     try:
         descriptor = os.open(destination, flags, 0o600)
-        with os.fdopen(descriptor, "wb") as output, urllib.request.urlopen(
-            request, timeout=DOWNLOAD_TIMEOUT_SEC
-        ) as response:
+        with (
+            os.fdopen(descriptor, "wb") as output,
+            urllib.request.urlopen(request, timeout=DOWNLOAD_TIMEOUT_SEC) as response,
+        ):
             while chunk := response.read(1024 * 1024):
                 total += len(chunk)
                 if total > maximum:
@@ -521,9 +516,7 @@ def _rclone_environment(
 ) -> dict[str, str]:
     source = os.environ if base_environment is None else base_environment
     environment = {
-        key: value
-        for key, value in source.items()
-        if key in RCLONE_ENV_PASSTHROUGH
+        key: value for key, value in source.items() if key in RCLONE_ENV_PASSTHROUGH
     }
     environment.update(
         {
@@ -536,9 +529,7 @@ def _rclone_environment(
             "RCLONE_CONFIG_PHASE0_SHARED_TYPE": "combine",
             "RCLONE_CONFIG_PHASE0_SHARED_UPSTREAMS": "Data=phase0_data:",
             "RCLONE_CONFIG_PHASE0_ROOT_TYPE": "combine",
-            "RCLONE_CONFIG_PHASE0_ROOT_UPSTREAMS": (
-                "Shareddrives=phase0_shared:"
-            ),
+            "RCLONE_CONFIG_PHASE0_ROOT_UPSTREAMS": ("Shareddrives=phase0_shared:"),
         }
     )
     return environment
@@ -776,17 +767,12 @@ def _require_process_identity(
     if start_time_reader(pid) != state["process_start_time_ticks"]:
         raise FallbackError("process_identity_mismatch")
     actual_hash = executable_hash_reader(pid)
-    if (
-        actual_hash != state["executable_sha256"]
-        or actual_hash != _sha256_file(binary)
-    ):
+    if actual_hash != state["executable_sha256"] or actual_hash != _sha256_file(binary):
         raise FallbackError("process_identity_mismatch")
     if command_reader(pid) != _mount_command(binary, mountpoint):
         raise FallbackError("process_arguments_mismatch")
     actual_environment = environment_reader(pid)
-    expected_environment = _rclone_environment(
-        adc_file, drive_id, base_environment={}
-    )
+    expected_environment = _rclone_environment(adc_file, drive_id, base_environment={})
     for key, expected in expected_environment.items():
         if actual_environment.get(key) != expected:
             raise FallbackError("process_environment_mismatch")
@@ -944,7 +930,9 @@ def _remove_runtime_directory(runtime_dir: Path) -> None:
         children = list(runtime_dir.iterdir())
     except OSError as exc:
         raise FallbackError("runtime_cleanup_failed") from exc
-    if any(child.name not in RUNTIME_FILENAMES or child.is_symlink() for child in children):
+    if any(
+        child.name not in RUNTIME_FILENAMES or child.is_symlink() for child in children
+    ):
         raise FallbackError("runtime_cleanup_refused")
     try:
         for child in children:
@@ -994,9 +982,7 @@ def _cleanup_failed_start(
         except FallbackError as exc:
             cleanup_error = exc
     try:
-        _terminate_owned_process(
-            process.pid, state["process_start_time_ticks"]
-        )
+        _terminate_owned_process(process.pid, state["process_start_time_ticks"])
     except FallbackError as exc:
         if cleanup_error is None:
             cleanup_error = exc
@@ -1052,9 +1038,7 @@ def start(
         if state["executable_sha256"] != RCLONE_BINARY_SHA256:
             raise FallbackError("binary_checksum_mismatch")
         _write_state(state_file, state)
-        _wait_for_active_mount(
-            process, state, binary, adc_file, drive_id
-        )
+        _wait_for_active_mount(process, state, binary, adc_file, drive_id)
         return state
     except BaseException as original_error:
         if process is not None:

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import importlib.util
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -211,9 +210,7 @@ def test_fallback_binding_requires_same_adc_digest_and_drive_id(tmp_path) -> Non
     state.chmod(0o600)
 
     loaded = probe._load_fallback_binding(adc, state)
-    probe._require_fallback_result_binding(
-        {"provider_resource_id": "drive-id"}, loaded
-    )
+    probe._require_fallback_result_binding({"provider_resource_id": "drive-id"}, loaded)
     with pytest.raises(probe.ProbeError, match="resource ID mismatch"):
         probe._require_fallback_result_binding(
             {"provider_resource_id": "other-drive"}, loaded

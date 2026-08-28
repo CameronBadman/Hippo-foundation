@@ -19,7 +19,6 @@ from .contracts import (
 )
 from .errors import Phase1GateBlocked, Phase1ValidationError
 
-
 EVIDENCE_MAX_AGE = timedelta(hours=72)
 
 
@@ -50,9 +49,7 @@ def require_phase0_transform_gate(gate: dict[str, Any]) -> str:
         "foundation_transform_ready",
     )
     if not all(gate[field] is True for field in required_controls) or gate["blockers"]:
-        raise Phase1GateBlocked(
-            "Phase 0 has not authorized foundation transformation"
-        )
+        raise Phase1GateBlocked("Phase 0 has not authorized foundation transformation")
     if gate["training_authorized"] is not False:
         raise Phase1GateBlocked("Phase 0 training invariant is violated")
     return canonical_sha256(gate)
@@ -87,7 +84,9 @@ def evaluate_phase1_gate(
     else:
         try:
             phase0_sha256 = require_phase0_transform_gate(phase0_gate)
-            phase0_time = _parse_time(phase0_gate["evaluated_at"], "phase0 evaluated_at")
+            phase0_time = _parse_time(
+                phase0_gate["evaluated_at"], "phase0 evaluated_at"
+            )
             if phase0_time > now:
                 raise Phase1ValidationError("Phase 0 gate is from the future")
             if now - phase0_time > EVIDENCE_MAX_AGE:
@@ -112,7 +111,9 @@ def evaluate_phase1_gate(
         try:
             validate_encoder_verification(encoder_verification)
             if encoder_verification["spec_sha256"] != FROZEN_ENCODER_SPEC_SHA256:
-                raise Phase1ValidationError("encoder verification spec binding mismatch")
+                raise Phase1ValidationError(
+                    "encoder verification spec binding mismatch"
+                )
             if (
                 encoder_verification["bakeoff_report_sha256"]
                 != encoder_spec["bakeoff_report_sha256"]
@@ -177,9 +178,8 @@ def evaluate_phase1_gate(
             readiness["sample"] = False
             blockers.add("sample_contract_not_satisfied")
     if readiness["objectives"] and objective_manifest is not None:
-        if (
-            set(objective_manifest["family_counts"]) != OBJECTIVE_FAMILIES
-            or any(value < 1 for value in objective_manifest["family_counts"].values())
+        if set(objective_manifest["family_counts"]) != OBJECTIVE_FAMILIES or any(
+            value < 1 for value in objective_manifest["family_counts"].values()
         ):
             readiness["objectives"] = False
             blockers.add("objective_family_coverage_incomplete")
@@ -206,7 +206,10 @@ def evaluate_phase1_gate(
             readiness["graph"] = False
             readiness["objectives"] = False
             blockers.add("quarantine_not_admitted_by_phase0")
-        if objective_manifest["graph_snapshot_sha256"] != graph_manifest["selected_sha256"]:
+        if (
+            objective_manifest["graph_snapshot_sha256"]
+            != graph_manifest["selected_sha256"]
+        ):
             readiness["objectives"] = False
             blockers.add("objective_graph_binding_mismatch")
 

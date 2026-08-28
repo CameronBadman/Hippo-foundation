@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -33,7 +33,6 @@ from hippocampus_foundation.phase1.objectives import (
 )
 from hippocampus_foundation.phase1.sampling import select_nodes
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DIGEST_A = "sha256:" + "a" * 64
 DIGEST_B = "sha256:" + "b" * 64
@@ -41,7 +40,7 @@ DIGEST_C = "sha256:" + "c" * 64
 
 
 def now(offset_seconds: int = 0) -> str:
-    value = datetime.now(timezone.utc) + timedelta(seconds=offset_seconds)
+    value = datetime.now(UTC) + timedelta(seconds=offset_seconds)
     return value.isoformat().replace("+00:00", "Z")
 
 
@@ -141,9 +140,7 @@ def test_phase1_contracts_and_frozen_encoder_spec_validate() -> None:
         "objective-example.schema.json",
     }
     spec = json.loads(
-        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(encoding="utf-8")
     )
     validate_encoder_spec(spec)
     assert canonical_sha256(spec) == FROZEN_ENCODER_SPEC_SHA256
@@ -161,9 +158,7 @@ def test_encoder_verification_rejects_any_unregistered_snapshot_entry(
     tmp_path: Path,
 ) -> None:
     spec = json.loads(
-        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(encoding="utf-8")
     )
     snapshot = tmp_path / "snapshot"
     for asset in spec["assets"]:
@@ -268,7 +263,9 @@ def test_neighbour_caps_preserve_every_exclusion_in_overflow() -> None:
     assert sum(item["center_node_id"] == "wd-property" for item in selected) == 4
     assert sum(item["center_node_id"] == "wd-category" for item in selected) == 24
     assert {item["reason"] for item in overflow} == {"property_cap", "category_cap"}
-    assert len({item["candidate"]["candidate_id"] for item in overflow}) == len(overflow)
+    assert len({item["candidate"]["candidate_id"] for item in overflow}) == len(
+        overflow
+    )
     assert LIMITS["wikidata_property"] == 4
 
 
@@ -299,9 +296,7 @@ def test_all_objective_families_replay_without_absent_edge_negatives() -> None:
 
 def test_phase1_gate_can_only_authorize_data_preparation() -> None:
     spec = json.loads(
-        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / "registries/encoder.gte-modernbert.v1.json").read_text(encoding="utf-8")
     )
     blocked = evaluate_phase1_gate(
         evaluated_at=now(2),

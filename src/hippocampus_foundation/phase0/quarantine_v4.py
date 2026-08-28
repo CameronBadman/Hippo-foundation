@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from datetime import datetime
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from .canonical import canonical_sha256, sha256_bytes
 from .errors import GateBlocked, QuarantineError, ValidationError
@@ -14,7 +15,6 @@ from .quarantine import (
     normalized_text_sha256,
 )
 from .v4_contracts import SCHEMA_VERSION_V4, validate_v4
-
 
 MATCHER_POLICY_ID_V4 = "pre-feature-quarantine-v4"
 NEAR_MATCH_THRESHOLDS_V4: Mapping[str, float] = {
@@ -137,9 +137,7 @@ def match_quarantine_record_v4(
         quarantine_index["normalized_hashes"]
     ):
         reasons.add("normalized_hash_match")
-        matches.append(
-            {"kind": "normalized_hash", "reference": normalized_sha256}
-        )
+        matches.append({"kind": "normalized_hash", "reference": normalized_sha256})
     for candidate in descriptor["fingerprints"]:
         for held_out in quarantine_index["fingerprints"]:
             if candidate["kind"] != held_out["kind"]:
@@ -151,9 +149,7 @@ def match_quarantine_record_v4(
             if similarity >= threshold:
                 kind = candidate["kind"]
                 reasons.add(f"{kind}_near_match")
-                matches.append(
-                    {"kind": kind, "reference": held_out["fingerprint_id"]}
-                )
+                matches.append({"kind": kind, "reference": held_out["fingerprint_id"]})
 
     has_exclusion = any(reason.endswith("_match") for reason in reasons)
     selector_count = sum(

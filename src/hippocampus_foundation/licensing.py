@@ -12,10 +12,11 @@ import stat
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
@@ -26,7 +27,6 @@ from hippocampus_foundation.phase0.canonical import (
     load_json,
 )
 from hippocampus_foundation.phase0.errors import IntegrityError, ValidationError
-
 
 SCHEMA_VERSION = "1.0.0"
 MAX_DOCUMENT_BYTES = 16 * 1024 * 1024
@@ -81,7 +81,7 @@ class VerifiedBundle:
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _parse_time(value: str, field: str) -> datetime:
@@ -98,7 +98,9 @@ def schema_root_v1() -> Path:
     package_candidate = Path(__file__).resolve().parent / "schemas" / "licensing" / "v1"
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[2] / "schemas" / "licensing" / "v1"
+    repository_candidate = (
+        Path(__file__).resolve().parents[2] / "schemas" / "licensing" / "v1"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise ValidationError("cannot locate licensing v1 schema directory")
@@ -112,7 +114,9 @@ def load_schema_v1(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise ValidationError(f"invalid licensing schema {path}: {exc.message}") from exc
+        raise ValidationError(
+            f"invalid licensing schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -155,7 +159,11 @@ def validate_schema_lock_v1(root: Path | None = None) -> dict[str, str]:
 
 def _safe_relative_path(value: str) -> PurePosixPath:
     path = PurePosixPath(value)
-    if path.is_absolute() or not path.parts or any(part in {"", ".", ".."} for part in path.parts):
+    if (
+        path.is_absolute()
+        or not path.parts
+        or any(part in {"", ".", ".."} for part in path.parts)
+    ):
         raise ValidationError(f"unsafe evidence snapshot path: {value!r}")
     return path
 
@@ -167,7 +175,9 @@ def _hash_regular_file_without_links(root: Path, relative: str) -> tuple[int, st
     for part in pure.parts:
         candidate = candidate / part
         if candidate.is_symlink():
-            raise IntegrityError(f"evidence snapshot path contains a symlink: {relative}")
+            raise IntegrityError(
+                f"evidence snapshot path contains a symlink: {relative}"
+            )
     try:
         resolved = candidate.resolve(strict=True)
         resolved.relative_to(root_resolved)
@@ -180,7 +190,9 @@ def _hash_regular_file_without_links(root: Path, relative: str) -> tuple[int, st
     try:
         descriptor = os.open(resolved, flags)
     except OSError as exc:
-        raise IntegrityError(f"cannot open evidence snapshot safely: {relative}: {exc}") from exc
+        raise IntegrityError(
+            f"cannot open evidence snapshot safely: {relative}: {exc}"
+        ) from exc
     digest = hashlib.sha256()
     byte_count = 0
     try:
@@ -234,13 +246,20 @@ def verify_evidence_bundle(
             )
         for field in ("original_url", "resolved_url"):
             parsed = urllib.parse.urlparse(document[field])
-            if document["source_kind"] != "local_attestation" and parsed.scheme != "https":
-                raise ValidationError(f"remote evidence URL must use HTTPS: {document[field]}")
+            if (
+                document["source_kind"] != "local_attestation"
+                and parsed.scheme != "https"
+            ):
+                raise ValidationError(
+                    f"remote evidence URL must use HTTPS: {document[field]}"
+                )
         observed_bytes, observed_sha256 = _hash_regular_file_without_links(
             snapshot_root, snapshot_path
         )
         if observed_bytes != document["byte_count"]:
-            raise IntegrityError(f"evidence snapshot byte count mismatch: {document_id}")
+            raise IntegrityError(
+                f"evidence snapshot byte count mismatch: {document_id}"
+            )
         if observed_sha256 != document["sha256"]:
             raise IntegrityError(f"evidence snapshot digest mismatch: {document_id}")
     for finding in bundle["findings"]:
@@ -327,10 +346,16 @@ def verify_assessment(
     if assessment["decision"] != "approved":
         raise ValidationError("licence assessment is not approved")
     if not bundle["documents"]:
-        raise ValidationError("approved licence assessment has no retained evidence documents")
+        raise ValidationError(
+            "approved licence assessment has no retained evidence documents"
+        )
     if assessment["commercial_context"] != "allowed":
         raise ValidationError("licence assessment does not allow commercial context")
-    if not assessment["reviewer"] or not assessment["reviewed_at"] or not assessment["valid_until"]:
+    if (
+        not assessment["reviewer"]
+        or not assessment["reviewed_at"]
+        or not assessment["valid_until"]
+    ):
         raise ValidationError("approved licence assessment lacks human review timing")
     if assessment["training_authorized"] is not False:
         raise ValidationError("licence assessment violates the no-training invariant")
@@ -340,16 +365,22 @@ def verify_assessment(
         raise ValidationError("licence assessment both allows and excludes a use")
     missing_uses = set(required_uses) - allowed
     if missing_uses:
-        raise ValidationError(f"licence assessment omits required uses: {sorted(missing_uses)}")
+        raise ValidationError(
+            f"licence assessment omits required uses: {sorted(missing_uses)}"
+        )
     if FORBIDDEN_USES - excluded or FORBIDDEN_USES & allowed:
-        raise ValidationError("training and redistribution must remain explicitly excluded")
+        raise ValidationError(
+            "training and redistribution must remain explicitly excluded"
+        )
 
     document_ids = {document["document_id"] for document in bundle["documents"]}
     disposition_by_id: dict[str, dict[str, Any]] = {}
     for disposition in assessment["finding_dispositions"]:
         finding_id = disposition["finding_id"]
         if finding_id in disposition_by_id:
-            raise ValidationError(f"duplicate licence finding disposition: {finding_id}")
+            raise ValidationError(
+                f"duplicate licence finding disposition: {finding_id}"
+            )
         disposition_by_id[finding_id] = disposition
         rationale = disposition["rationale_document_id"]
         if rationale is not None and rationale not in document_ids:
@@ -364,7 +395,9 @@ def verify_assessment(
         and disposition_by_id[finding["finding_id"]]["disposition"] != "resolved"
     ]
     if unresolved:
-        raise ValidationError(f"blocking licence findings remain unresolved: {sorted(unresolved)}")
+        raise ValidationError(
+            f"blocking licence findings remain unresolved: {sorted(unresolved)}"
+        )
 
     now = _parse_time(evaluated_at, "evaluated_at")
     reviewed_at = _parse_time(assessment["reviewed_at"], "reviewed_at")
@@ -382,7 +415,9 @@ def verify_assessment(
         else MAX_IMMUTABLE_REVIEW_AGE
     )
     if valid_until > reviewed_at + maximum_age:
-        raise ValidationError("licence assessment validity exceeds evidence freshness policy")
+        raise ValidationError(
+            "licence assessment validity exceeds evidence freshness policy"
+        )
 
 
 class _BoundedRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -406,7 +441,9 @@ class _BoundedRedirectHandler(urllib.request.HTTPRedirectHandler):
         if self.count > self.maximum:
             raise ValidationError("licence evidence redirect limit exceeded")
         if parsed.scheme != "https" or parsed.hostname not in self.allowed_hosts:
-            raise ValidationError(f"licence evidence redirect is not allowlisted: {newurl}")
+            raise ValidationError(
+                f"licence evidence redirect is not allowlisted: {newurl}"
+            )
         return super().redirect_request(request, fp, code, msg, headers, newurl)
 
 
@@ -439,15 +476,26 @@ def capture_https_document(
 ) -> dict[str, Any]:
     """Capture one allowlisted legal/provenance response without crawling."""
 
-    if output.exists() or output.is_symlink() or receipt.exists() or receipt.is_symlink():
+    if (
+        output.exists()
+        or output.is_symlink()
+        or receipt.exists()
+        or receipt.is_symlink()
+    ):
         raise IntegrityError("refusing to overwrite licence evidence output")
     parsed = urllib.parse.urlparse(url)
     hosts = frozenset(host.casefold() for host in allowed_hosts)
-    if parsed.scheme != "https" or parsed.hostname is None or parsed.hostname.casefold() not in hosts:
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname is None
+        or parsed.hostname.casefold() not in hosts
+    ):
         raise ValidationError("licence evidence URL must be HTTPS and host-allowlisted")
     path_lower = parsed.path.casefold()
     if any(path_lower.endswith(suffix) for suffix in FORBIDDEN_PATH_SUFFIXES):
-        raise ValidationError("licence evidence capture rejects dataset/archive file types")
+        raise ValidationError(
+            "licence evidence capture rejects dataset/archive file types"
+        )
 
     redirect_handler = _BoundedRedirectHandler(hosts)
     opener = urllib.request.build_opener(redirect_handler)
@@ -463,27 +511,43 @@ def capture_https_document(
         with opener.open(request, timeout=30) as response:
             status = getattr(response, "status", None)
             if status != 200:
-                raise ValidationError(f"licence evidence HTTP status is not 200: {status}")
+                raise ValidationError(
+                    f"licence evidence HTTP status is not 200: {status}"
+                )
             resolved_url = response.geturl()
             final = urllib.parse.urlparse(resolved_url)
-            if final.scheme != "https" or final.hostname is None or final.hostname.casefold() not in hosts:
-                raise ValidationError("resolved licence evidence URL is not allowlisted")
+            if (
+                final.scheme != "https"
+                or final.hostname is None
+                or final.hostname.casefold() not in hosts
+            ):
+                raise ValidationError(
+                    "resolved licence evidence URL is not allowlisted"
+                )
             content_encoding = response.headers.get("Content-Encoding")
             if content_encoding and content_encoding.casefold() != "identity":
-                raise ValidationError("licence evidence response did not honor identity encoding")
+                raise ValidationError(
+                    "licence evidence response did not honor identity encoding"
+                )
             media_type = response.headers.get_content_type().casefold()
             if expected_media_type and media_type != expected_media_type.casefold():
                 raise ValidationError(
                     f"licence evidence media type mismatch: expected {expected_media_type}, got {media_type}"
                 )
             if media_type not in ALLOWED_MEDIA_TYPES:
-                raise ValidationError(f"licence evidence media type is not allowlisted: {media_type}")
+                raise ValidationError(
+                    f"licence evidence media type is not allowlisted: {media_type}"
+                )
             content_length = response.headers.get("Content-Length")
             if content_length is not None and int(content_length) > MAX_DOCUMENT_BYTES:
-                raise ValidationError("licence evidence response exceeds the size limit")
+                raise ValidationError(
+                    "licence evidence response exceeds the size limit"
+                )
             body = response.read(MAX_DOCUMENT_BYTES + 1)
             if len(body) > MAX_DOCUMENT_BYTES:
-                raise ValidationError("licence evidence response exceeds the size limit")
+                raise ValidationError(
+                    "licence evidence response exceeds the size limit"
+                )
             metadata = {
                 "document_id": document_id,
                 "role": role,
@@ -502,9 +566,13 @@ def capture_https_document(
                 "mutable": mutable,
             }
     except urllib.error.HTTPError as exc:
-        raise ValidationError(f"licence evidence HTTP request failed: {exc.code}") from exc
+        raise ValidationError(
+            f"licence evidence HTTP request failed: {exc.code}"
+        ) from exc
     except urllib.error.URLError as exc:
-        raise ValidationError(f"licence evidence network request failed: {exc.reason}") from exc
+        raise ValidationError(
+            f"licence evidence network request failed: {exc.reason}"
+        ) from exc
 
     _write_exclusive(output, body, mode=0o600)
     try:

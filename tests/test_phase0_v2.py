@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import shutil
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -41,7 +41,7 @@ def load(relative: str) -> dict:
 
 
 def timestamp(value: datetime | None = None) -> str:
-    return (value or datetime.now(timezone.utc)).isoformat().replace("+00:00", "Z")
+    return (value or datetime.now(UTC)).isoformat().replace("+00:00", "Z")
 
 
 def identifier(value: str = "Q42") -> dict:
@@ -196,9 +196,7 @@ def ready_evaluation_evidence() -> tuple[
     )
 
 
-def ready_source_evidence(tmp_path: Path) -> tuple[
-    dict, dict, dict, dict, bytes, dict
-]:
+def ready_source_evidence(tmp_path: Path) -> tuple[dict, dict, dict, dict, bytes, dict]:
     artifact_path = tmp_path / "fixture-wikidata.json"
     artifact_path.write_text(
         '[\n{"id":"Q42","type":"item","sitelinks":{"enwiki":{}},'
@@ -321,7 +319,7 @@ def test_schema_lock_detects_byte_independent_semantic_change(tmp_path: Path) ->
 
 def test_storage_attestation_binds_ids_and_freshness(tmp_path: Path) -> None:
     registry, attestation, *_ = ready_source_evidence(tmp_path)
-    evaluated = datetime.now(timezone.utc)
+    evaluated = datetime.now(UTC)
     validate_storage_attestation_v2(
         attestation, registry, evaluated_at=timestamp(evaluated + timedelta(seconds=1))
     )
@@ -334,7 +332,9 @@ def test_storage_attestation_binds_ids_and_freshness(tmp_path: Path) -> None:
     stale = copy.deepcopy(attestation)
     stale["observed_at"] = timestamp(evaluated - timedelta(hours=73))
     with pytest.raises(ValidationError, match="stale"):
-        validate_storage_attestation_v2(stale, registry, evaluated_at=timestamp(evaluated))
+        validate_storage_attestation_v2(
+            stale, registry, evaluated_at=timestamp(evaluated)
+        )
 
 
 def test_licence_decision_is_bound_to_exact_terms() -> None:
@@ -414,7 +414,7 @@ def test_gate_separates_acquisition_transform_and_training(tmp_path: Path) -> No
     ) = ready_evaluation_evidence()
     reviews = [source_review, *evaluation_reviews]
     verified_terms[source_review["review_id"]] = sha256_bytes(terms)
-    evaluated_at = timestamp(datetime.now(timezone.utc) + timedelta(seconds=2))
+    evaluated_at = timestamp(datetime.now(UTC) + timedelta(seconds=2))
     base = dict(
         evaluated_at=evaluated_at,
         source_registry=source_registry,
@@ -460,9 +460,7 @@ def test_gate_separates_acquisition_transform_and_training(tmp_path: Path) -> No
     assert canonical_sha256(transformed).startswith("sha256:")
 
     development_registry = copy.deepcopy(evaluation_registry)
-    development_registry["datasets"][0]["partition"] = (
-        "dev.jsonl plus dev-labels.lst"
-    )
+    development_registry["datasets"][0]["partition"] = "dev.jsonl plus dev-labels.lst"
     development_arguments = {
         **base,
         "evaluation_registry": development_registry,
@@ -511,10 +509,6 @@ def test_v2_seal_cli_derives_ids_counts_and_hashes() -> None:
         action.choices for action in seal_parser._actions if action.choices
     )
     create = seal_choices["create"]
-    options = {
-        option
-        for action in create._actions
-        for option in action.option_strings
-    }
+    options = {option for action in create._actions for option in action.option_strings}
     assert {"--record-count", "--artifact-hash", "--seal-id"}.isdisjoint(options)
     assert {"--evaluations", "--contribution", "--receipt"}.issubset(options)

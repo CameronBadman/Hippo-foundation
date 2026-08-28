@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Any, Iterable
+from collections.abc import Iterable
+from datetime import UTC, datetime
+from typing import Any
 
 from .contracts import validate_artifact_manifest, validate_graph_record
 from .errors import Phase1ValidationError
-
 
 DEFAULT_SAMPLE_SIZE = 40_000
 DEFAULT_SAMPLE_SEED = 20_260_817
@@ -17,7 +17,7 @@ ALGORITHM_ID = "community-joint-strata-waterfill-v1"
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _score(seed: int, *parts: str) -> str:
@@ -58,7 +58,9 @@ def select_nodes(
             raise Phase1ValidationError("sampling input contains a non-node record")
         node_id = record["node_id"]
         if node_id in node_ids:
-            raise Phase1ValidationError(f"duplicate sample candidate node_id: {node_id}")
+            raise Phase1ValidationError(
+                f"duplicate sample candidate node_id: {node_id}"
+            )
         node_ids.add(node_id)
 
     communities: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -88,11 +90,16 @@ def select_nodes(
     for community_id in sorted(communities):
         chosen = min(
             communities[community_id],
-            key=lambda item: (_score(seed, "community", item["node_id"]), item["node_id"]),
+            key=lambda item: (
+                _score(seed, "community", item["node_id"]),
+                item["node_id"],
+            ),
         )
         selected_ids.add(chosen["node_id"])
 
-    buckets: dict[tuple[str, int, int, int, int], list[dict[str, Any]]] = defaultdict(list)
+    buckets: dict[tuple[str, int, int, int, int], list[dict[str, Any]]] = defaultdict(
+        list
+    )
     for record in values:
         buckets[stratum(record)].append(record)
     for key in buckets:
@@ -107,7 +114,9 @@ def select_nodes(
         for key in ordered_keys:
             bucket = buckets[key]
             position = positions[key]
-            while position < len(bucket) and bucket[position]["node_id"] in selected_ids:
+            while (
+                position < len(bucket) and bucket[position]["node_id"] in selected_ids
+            ):
                 position += 1
             positions[key] = position
             if position >= len(bucket):
@@ -118,7 +127,9 @@ def select_nodes(
             if len(selected_ids) == size:
                 break
         if not progress:
-            raise Phase1ValidationError("water-fill exhausted before reaching sample size")
+            raise Phase1ValidationError(
+                "water-fill exhausted before reaching sample size"
+            )
 
     selected = sorted(
         (item for item in values if item["node_id"] in selected_ids),

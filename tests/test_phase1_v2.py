@@ -19,7 +19,6 @@ from hippocampus_foundation.phase1.v2 import (
     validate_schema_lock_v2,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -64,7 +63,9 @@ def _evaluate(
     )
 
 
-def test_phase1_v2_distinguishes_encoder_identity_from_licensing(tmp_path: Path) -> None:
+def test_phase1_v2_distinguishes_encoder_identity_from_licensing(
+    tmp_path: Path,
+) -> None:
     spec = load_json(ROOT / "registries" / "encoder.gte-modernbert.v1.json")
     verification = load_json(ROOT / "audit" / "encoder-verification.v1.json")
     verification = {

@@ -7,9 +7,10 @@ the authorization boundary for new acquisition and transformation work.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta, timezone
+from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
@@ -19,7 +20,6 @@ from .errors import GateBlocked, IntegrityError, QuarantineError, ValidationErro
 from .inventory import audit_source_registry, hash_file, resolve_artifact, stream_count
 from .quarantine import normalize_identifier
 from .seal import consumes_evaluation, verify_access_chain
-
 
 SCHEMA_VERSION = "2.0.0"
 SOURCE_AUDIT_MAX_AGE = timedelta(hours=72)
@@ -56,7 +56,7 @@ _DEVELOPMENT_PARTITION = re.compile(
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _parse_time(value: str, field: str) -> datetime:
@@ -74,10 +74,14 @@ def _digest_bytes(data: bytes) -> str:
 
 
 def schema_root_v2() -> Path:
-    package_candidate = Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v2"
+    package_candidate = (
+        Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v2"
+    )
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v2"
+    repository_candidate = (
+        Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v2"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise ValidationError("cannot locate Phase 0 v2 schema directory")
@@ -307,7 +311,9 @@ def verify_licence_review_v2(
         raise ValidationError("approved licence review lacks human reviewer evidence")
     missing_uses = set(required_uses) - set(review["intended_uses"])
     if missing_uses:
-        raise ValidationError(f"licence review omits intended uses: {sorted(missing_uses)}")
+        raise ValidationError(
+            f"licence review omits intended uses: {sorted(missing_uses)}"
+        )
 
 
 def audit_source_registry_v2(
@@ -410,7 +416,8 @@ def build_structural_inventory_v2(
     audited = [
         item
         for item in source_audit["artifacts"]
-        if item["source_id"] == source["source_id"] and item["artifact_id"] == artifact_id
+        if item["source_id"] == source["source_id"]
+        and item["artifact_id"] == artifact_id
     ]
     if len(audited) != 1 or audited[0]["status"] != "verified":
         raise GateBlocked(f"artifact is not verified by the bound audit: {artifact_id}")
@@ -487,14 +494,19 @@ def validate_structural_inventory_v2(
     if len(audited) != 1 or audited[0]["status"] != "verified":
         raise ValidationError("structural inventory lacks a verified audit row")
     measured = audited[0]["measured"]
-    if measured is None or inventory["artifact_sha256"] != f"sha256:{measured['sha256']}":
+    if (
+        measured is None
+        or inventory["artifact_sha256"] != f"sha256:{measured['sha256']}"
+    ):
         raise ValidationError("structural inventory artifact digest mismatch")
     if inventory["artifact_bytes"] != measured["bytes"]:
         raise ValidationError("structural inventory byte count mismatch")
     if not inventory["complete"]:
         raise ValidationError("structural inventory is incomplete")
     if inventory["parse_errors"] or inventory["rejected_records"]:
-        raise ValidationError("structural inventory reports rejected or invalid records")
+        raise ValidationError(
+            "structural inventory reports rejected or invalid records"
+        )
     for name in artifact["required_nonzero_counters"]:
         if inventory["counters"].get(name, 0) <= 0:
             raise ValidationError(f"required inventory counter is not positive: {name}")
@@ -528,7 +540,9 @@ def _reject_forbidden_public_fields(value: Any, path: str = "$") -> None:
     if isinstance(value, dict):
         for key, child in value.items():
             if key.casefold() in _FORBIDDEN_PUBLIC_KEYS:
-                raise QuarantineError(f"label-bearing public field forbidden: {path}/{key}")
+                raise QuarantineError(
+                    f"label-bearing public field forbidden: {path}/{key}"
+                )
             _reject_forbidden_public_fields(child, f"{path}/{key}")
     elif isinstance(value, list):
         for index, child in enumerate(value):
@@ -561,8 +575,12 @@ def build_quarantine_contribution_v2(envelope: dict[str, Any]) -> dict[str, Any]
             raise QuarantineError(
                 f"sealed record has no quarantine selector: {record['record_id']}"
             )
-        expected = {_identifier_tuple(item) for item in record["expected_dependency_units"]}
-        resolved = {_identifier_tuple(item) for item in record["resolved_dependency_units"]}
+        expected = {
+            _identifier_tuple(item) for item in record["expected_dependency_units"]
+        }
+        resolved = {
+            _identifier_tuple(item) for item in record["resolved_dependency_units"]
+        }
         unresolved = record["unresolved_dependency_units"]
         if unresolved:
             raise QuarantineError(
@@ -576,7 +594,9 @@ def build_quarantine_contribution_v2(envelope: dict[str, Any]) -> dict[str, Any]
             "identifiers": sorted(
                 (_normalized_identifier(item) for item in selectors["identifiers"]),
                 key=lambda item: (
-                    item["namespace"], item["value"], item["source_version"] or ""
+                    item["namespace"],
+                    item["value"],
+                    item["source_version"] or "",
                 ),
             ),
             "raw_hashes": sorted(set(selectors["raw_hashes"])),
@@ -602,7 +622,9 @@ def build_quarantine_contribution_v2(envelope: dict[str, Any]) -> dict[str, Any]
         total_resolved += len(resolved)
         selector_total += _selector_count(normalized_selectors)
     if duplicate := _duplicates(fingerprint_ids):
-        raise QuarantineError(f"duplicate fingerprint IDs in contribution: {sorted(duplicate)}")
+        raise QuarantineError(
+            f"duplicate fingerprint IDs in contribution: {sorted(duplicate)}"
+        )
     result = {
         "schema_version": SCHEMA_VERSION,
         "record_kind": "quarantine_contribution",
@@ -613,9 +635,7 @@ def build_quarantine_contribution_v2(envelope: dict[str, Any]) -> dict[str, Any]
         "adapter_id": envelope["adapter_id"],
         "adapter_sha256": envelope["adapter_sha256"],
         "bundle_sha256": bundle_sha256,
-        "records": sorted(
-            public_records, key=lambda item: item["record_commitment"]
-        ),
+        "records": sorted(public_records, key=lambda item: item["record_commitment"]),
         "coverage": {
             "record_count": len(public_records),
             "covered_record_count": len(public_records),
@@ -819,7 +839,9 @@ def assess_admission_v2(
         raise ValidationError(f"source_id must resolve exactly once: {source_id}")
     source = sources[0]
     if not _publisher_pins_verified(source):
-        raise GateBlocked("source admission requires freshly verified publisher checksums")
+        raise GateBlocked(
+            "source admission requires freshly verified publisher checksums"
+        )
     verify_licence_review_v2(
         licence_review,
         verified_terms_sha256,
@@ -843,7 +865,10 @@ def assess_admission_v2(
         raise GateBlocked("source admission requires every artifact to be verified")
     inventory_values = list(inventories)
     by_artifact = {item.get("artifact_id"): item for item in inventory_values}
-    if len(by_artifact) != len(inventory_values) or set(by_artifact) != expected_artifacts:
+    if (
+        len(by_artifact) != len(inventory_values)
+        or set(by_artifact) != expected_artifacts
+    ):
         raise GateBlocked("source admission requires one inventory per artifact")
     for inventory in inventory_values:
         validate_structural_inventory_v2(inventory, registry, source_audit)
@@ -860,7 +885,9 @@ def assess_admission_v2(
         "audited_artifacts_sha256": canonical_sha256(rows),
         "storage_attestation_sha256": canonical_sha256(storage_attestation),
         "licence_review_sha256": canonical_sha256(licence_review),
-        "inventory_sha256s": sorted(canonical_sha256(item) for item in inventory_values),
+        "inventory_sha256s": sorted(
+            canonical_sha256(item) for item in inventory_values
+        ),
         "quarantine_index_sha256": canonical_sha256(quarantine_index),
         "decision": "admitted",
         "condition": "admitted_with_mandatory_quarantine",
@@ -941,9 +968,7 @@ def evaluate_gate_v2(
                 storage_attestation, source_registry, evaluated_at=evaluated_at
             )
             storage_identity_ready = True
-            evidence.add(
-                f"storage_attestation:{canonical_sha256(storage_attestation)}"
-            )
+            evidence.add(f"storage_attestation:{canonical_sha256(storage_attestation)}")
         except Exception as exc:
             blockers.add(f"storage_attestation_invalid:{type(exc).__name__}:{exc}")
 
@@ -1022,7 +1047,9 @@ def evaluate_gate_v2(
             review = reviews_by_id.get(review_id)
             try:
                 if review is None or review_id not in verified_terms:
-                    raise ValidationError("review or verified terms snapshot is missing")
+                    raise ValidationError(
+                        "review or verified terms snapshot is missing"
+                    )
                 verify_licence_review_v2(
                     review,
                     verified_terms[review_id],
@@ -1049,7 +1076,9 @@ def evaluate_gate_v2(
             review = reviews_by_id.get(review_id)
             try:
                 if review is None or review_id not in verified_terms:
-                    raise ValidationError("review or verified terms snapshot is missing")
+                    raise ValidationError(
+                        "review or verified terms snapshot is missing"
+                    )
                 verify_licence_review_v2(
                     review,
                     verified_terms[review_id],
@@ -1116,7 +1145,11 @@ def evaluate_gate_v2(
                     )
                 if dataset["status"] != "sealed" or dataset["blockers"]:
                     raise ValidationError("evaluation is not sealed and blocker-free")
-                if receipt is None or contribution is None or seal_id not in verified_seals:
+                if (
+                    receipt is None
+                    or contribution is None
+                    or seal_id not in verified_seals
+                ):
                     raise ValidationError("evaluation seal evidence is incomplete")
                 for field in (
                     "dataset_id",
@@ -1125,7 +1158,10 @@ def evaluate_gate_v2(
                     "adapter_id",
                     "adapter_sha256",
                 ):
-                    if dataset[field] != receipt[field] or dataset[field] != contribution[field]:
+                    if (
+                        dataset[field] != receipt[field]
+                        or dataset[field] != contribution[field]
+                    ):
                         raise ValidationError(f"evaluation binding mismatch: {field}")
             except Exception as exc:
                 public_confirmatory_ready = False
@@ -1189,7 +1225,9 @@ def evaluate_gate_v2(
                 contributions, index_id=quarantine_index["index_id"]
             )
             if recomputed != quarantine_index:
-                raise QuarantineError("public quarantine index differs from contributions")
+                raise QuarantineError(
+                    "public quarantine index differs from contributions"
+                )
             quarantine_ready = True
             evidence.add(f"quarantine_index:{canonical_sha256(quarantine_index)}")
         except Exception as exc:
@@ -1206,7 +1244,9 @@ def evaluate_gate_v2(
                 artifact_id = inventory["artifact_id"]
                 if artifact_id in inventory_by_artifact:
                     raise ValidationError(f"duplicate inventory: {artifact_id}")
-                validate_structural_inventory_v2(inventory, source_registry, source_audit)
+                validate_structural_inventory_v2(
+                    inventory, source_registry, source_audit
+                )
                 inventory_by_artifact[artifact_id] = inventory
                 evidence.add(f"inventory:{artifact_id}:{canonical_sha256(inventory)}")
             except Exception as exc:
@@ -1228,8 +1268,14 @@ def evaluate_gate_v2(
 
     admission_values = list(admission_receipts)
     admission_by_source: dict[str, dict[str, Any]] = {}
-    admission_ready = structural_inventory_ready and licensing_ready and quarantine_ready
-    if source_registry_valid and source_audit is not None and storage_attestation is not None:
+    admission_ready = (
+        structural_inventory_ready and licensing_ready and quarantine_ready
+    )
+    if (
+        source_registry_valid
+        and source_audit is not None
+        and storage_attestation is not None
+    ):
         expected_sources = {
             source["source_id"]
             for source in source_registry["sources"]
@@ -1242,7 +1288,9 @@ def evaluate_gate_v2(
                 if source_id in admission_by_source:
                     raise ValidationError(f"duplicate admission receipt: {source_id}")
                 source = next(
-                    item for item in source_registry["sources"] if item["source_id"] == source_id
+                    item
+                    for item in source_registry["sources"]
+                    if item["source_id"] == source_id
                 )
                 review = reviews_by_id[source["licence_review_id"]]
                 rows = _audit_rows_for_source(source_audit, source_id)

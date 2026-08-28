@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import hashlib
 from collections import Counter
-from datetime import datetime, timezone
-from typing import Any, Iterable
+from collections.abc import Iterable
+from datetime import UTC, datetime
+from typing import Any
 
 from .contracts import (
     OBJECTIVE_FAMILIES,
@@ -14,13 +15,12 @@ from .contracts import (
 )
 from .errors import Phase1ValidationError
 
-
 ALGORITHM_ID = "objective-validation-replay-v1"
 REPLAY_SEED = 20_260_817
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def replay_objectives(
@@ -54,9 +54,7 @@ def replay_objectives(
     ordered = sorted(
         values,
         key=lambda item: (
-            hashlib.sha256(
-                f"{seed}\0{item['example_id']}".encode("utf-8")
-            ).hexdigest(),
+            hashlib.sha256(f"{seed}\0{item['example_id']}".encode()).hexdigest(),
             item["example_id"],
         ),
     )

@@ -25,7 +25,9 @@ def file_identity(path: Path) -> dict[str, Any]:
     try:
         descriptor = os.open(path, flags)
     except OSError as exc:
-        raise Phase1IntegrityError(f"cannot open artifact safely {path}: {exc}") from exc
+        raise Phase1IntegrityError(
+            f"cannot open artifact safely {path}: {exc}"
+        ) from exc
     digest = hashlib.sha256()
     byte_count = 0
     try:
@@ -60,7 +62,9 @@ def file_identity_following_registered_symlink(path: Path) -> dict[str, Any]:
     try:
         resolved = path.resolve(strict=True)
     except OSError as exc:
-        raise Phase1IntegrityError(f"cannot resolve registered asset {path}: {exc}") from exc
+        raise Phase1IntegrityError(
+            f"cannot resolve registered asset {path}: {exc}"
+        ) from exc
     if not resolved.is_file():
         raise Phase1IntegrityError(f"registered asset is not a regular file: {path}")
     return file_identity(resolved)
@@ -110,7 +114,9 @@ def iter_records(path: Path) -> Iterator[dict[str, Any]]:
 
 def _atomic_bytes(path: Path, data: bytes, mode: int = 0o644) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", dir=path.parent
+    )
     temporary = Path(temporary_name)
     try:
         with os.fdopen(descriptor, "wb") as handle:
@@ -130,7 +136,9 @@ def write_json_atomic(path: Path, value: Any, mode: int = 0o644) -> None:
 
 def write_jsonl_atomic(path: Path, records: Iterable[dict[str, Any]]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", dir=path.parent
+    )
     temporary = Path(temporary_name)
     count = 0
     try:

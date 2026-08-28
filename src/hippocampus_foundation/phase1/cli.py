@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from hippocampus_foundation.licensing import load_verified_bundle
-from hippocampus_foundation.phase0.canonical import canonical_sha256, dump_pretty, load_json
+from hippocampus_foundation.phase0.canonical import (
+    canonical_sha256,
+    dump_pretty,
+    load_json,
+)
 from hippocampus_foundation.phase0.errors import Phase0Error
 from hippocampus_foundation.phase0.v2 import validate_v2 as validate_phase0_v2
 from hippocampus_foundation.phase0.v3 import require_phase0_transform_gate_v3
@@ -29,11 +34,13 @@ from .gate import evaluate_phase1_gate, require_phase0_transform_gate
 from .io import file_identity, iter_records, write_json_atomic, write_jsonl_atomic
 from .neighbours import cap_neighbours, make_cap_manifest
 from .objectives import make_objective_manifest, replay_objectives
-from .sampling import DEFAULT_SAMPLE_SIZE, select_nodes, make_sample_manifest
+from .sampling import DEFAULT_SAMPLE_SIZE, make_sample_manifest, select_nodes
 from .v2 import (
     evaluate_phase1_gate_v2,
     validate_encoder_verification_v2,
     validate_schema_lock_v2,
+)
+from .v2 import (
     validate_v2 as validate_phase1_v2,
 )
 
@@ -146,9 +153,7 @@ def _sample_build(args: argparse.Namespace) -> int:
     _refuse_outputs(output, manifest_path)
     candidates_path = Path(args.candidates)
     input_before = file_identity(candidates_path)
-    selected, stats = select_nodes(
-        iter_records(candidates_path), size=args.size
-    )
+    selected, stats = select_nodes(iter_records(candidates_path), size=args.size)
     input_after = file_identity(candidates_path)
     if input_before != input_after:
         raise Phase1IntegrityError("sample candidates changed during selection")
@@ -322,10 +327,14 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     contracts = commands.add_parser("contracts")
-    contract_commands = contracts.add_subparsers(dest="contracts_command", required=True)
+    contract_commands = contracts.add_subparsers(
+        dest="contracts_command", required=True
+    )
     validate = contract_commands.add_parser("validate")
     validate.add_argument("--schema-root")
-    validate.add_argument("--instance", action="append", default=[], metavar="PATH=SCHEMA")
+    validate.add_argument(
+        "--instance", action="append", default=[], metavar="PATH=SCHEMA"
+    )
     validate.set_defaults(handler=_contracts_validate)
     validate_v2 = contract_commands.add_parser("validate-v2")
     validate_v2.add_argument("--schema-root")
@@ -368,7 +377,9 @@ def build_parser() -> argparse.ArgumentParser:
     encoder_verify.set_defaults(handler=_encoder_verify)
 
     objectives = commands.add_parser("objectives")
-    objective_commands = objectives.add_subparsers(dest="objectives_command", required=True)
+    objective_commands = objectives.add_subparsers(
+        dest="objectives_command", required=True
+    )
     objective_validate = objective_commands.add_parser("validate")
     objective_validate.add_argument("--input", required=True)
     objective_validate.set_defaults(handler=_objectives_validate)
@@ -394,9 +405,7 @@ def build_parser() -> argparse.ArgumentParser:
     gate_v2.add_argument("--phase0-gate")
     gate_v2.add_argument("--encoder-spec", required=True)
     gate_v2.add_argument("--encoder-verification")
-    gate_v2.add_argument(
-        "--encoder-licence-assessment", metavar="ASSESSMENT=BUNDLE"
-    )
+    gate_v2.add_argument("--encoder-licence-assessment", metavar="ASSESSMENT=BUNDLE")
     gate_v2.add_argument("--sample-manifest")
     gate_v2.add_argument("--graph-manifest")
     gate_v2.add_argument("--objective-manifest")

@@ -19,7 +19,9 @@ from hippocampus_foundation.phase0.inventory import (
 from hippocampus_foundation.phase0.validation import validate_source_audit
 
 
-def test_byte_audit_records_verified_mismatch_and_missing_without_aborting(tmp_path: Path) -> None:
+def test_byte_audit_records_verified_mismatch_and_missing_without_aborting(
+    tmp_path: Path,
+) -> None:
     payload = b"immutable bytes\n"
     (tmp_path / "good.bin").write_bytes(payload)
     expected = hashlib.sha256(payload).hexdigest()
@@ -126,7 +128,9 @@ def test_artifact_resolution_rejects_parent_traversal(tmp_path: Path) -> None:
     outside.write_bytes(b"not in root")
     try:
         with pytest.raises(IntegrityError, match="parent traversal"):
-            resolve_artifact({"fixture": str(tmp_path)}, "fixture", "../outside-fixture")
+            resolve_artifact(
+                {"fixture": str(tmp_path)}, "fixture", "../outside-fixture"
+            )
     finally:
         outside.unlink()
 

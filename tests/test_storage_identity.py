@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -16,7 +16,6 @@ from hippocampus_foundation.storage_identity import (
     validate_observation_v1,
     validate_schema_lock_v1,
 )
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -56,14 +55,16 @@ def observation(observed_at: str) -> dict:
 
 
 def source_registry() -> dict:
-    return json.loads((ROOT / "registries" / "sources.v2.json").read_text(encoding="utf-8"))
+    return json.loads(
+        (ROOT / "registries" / "sources.v2.json").read_text(encoding="utf-8")
+    )
 
 
 def test_schema_is_frozen_and_observation_must_be_fresh() -> None:
     assert validate_schema_lock_v1() == {
         "drive-observation.schema.json": "sha256:79215c85b26df37c9124760dcb4368137101c1f33ef40813ac8bb1a04cde030c"
     }
-    now = datetime(2026, 8, 17, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 12, 0, tzinfo=UTC)
     validate_observation_v1(
         observation(timestamp(now - timedelta(minutes=15))),
         evaluated_at=timestamp(now),
@@ -76,7 +77,7 @@ def test_schema_is_frozen_and_observation_must_be_fresh() -> None:
 
 
 def test_binding_populates_only_storage_ids_and_derives_attestation() -> None:
-    now = datetime(2026, 8, 17, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 12, 0, tzinfo=UTC)
     registry = source_registry()
     original_digest = canonical_sha256(registry)
     observed = observation(timestamp(now))
@@ -106,7 +107,7 @@ def test_binding_populates_only_storage_ids_and_derives_attestation() -> None:
 
 
 def test_binding_rejects_conflicting_registered_identity_or_false_check() -> None:
-    now = datetime(2026, 8, 17, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 12, 0, tzinfo=UTC)
     registry = source_registry()
     registry["storage_requirements"][0]["provider_resource_id"] = "different-drive"
     with pytest.raises(ValidationError, match="conflicts"):
@@ -124,7 +125,7 @@ def test_binding_rejects_conflicting_registered_identity_or_false_check() -> Non
 
 
 def test_bind_drive_cli_refuses_to_overwrite_outputs(tmp_path: Path) -> None:
-    now = datetime(2026, 8, 17, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 17, 12, 0, tzinfo=UTC)
     registry_path = tmp_path / "sources.json"
     observation_path = tmp_path / "observation.json"
     registry_output = tmp_path / "bound-sources.json"

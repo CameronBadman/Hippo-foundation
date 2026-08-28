@@ -7,7 +7,8 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from hippocampus_foundation.licensing import (
     FORBIDDEN_USES,
@@ -62,7 +63,6 @@ from hippocampus_foundation.phase0.v4_contracts import (
     validate_schema_lock_v4,
     validate_v4,
 )
-
 
 ROOT = Path(__file__).resolve().parents[1]
 T0 = "2026-08-25T10:00:00Z"
@@ -577,7 +577,9 @@ def test_checked_v4_contracts_and_registries_are_frozen() -> None:
     evaluations_v4 = load_json(ROOT / "registries" / "evaluations.v4.json")
     validate_source_registry_v4(sources_v4, sources_v2)
     validate_evaluation_registry_v4(evaluations_v4, evaluations_v2)
-    roles = {item["dataset_id"]: item["usage_role"] for item in evaluations_v4["datasets"]}
+    roles = {
+        item["dataset_id"]: item["usage_role"] for item in evaluations_v4["datasets"]
+    }
     assert roles["socialiqa-v1.4-validation"] == "development"
     assert roles["evidencebench-original-test"] == "diagnostic"
     assert sum(role == "confirmatory" for role in roles.values()) == 5
@@ -586,7 +588,9 @@ def test_checked_v4_contracts_and_registries_are_frozen() -> None:
 def test_role_laundering_and_registry_rewrites_are_rejected() -> None:
     old = load_json(ROOT / "registries" / "evaluations.v2.json")
     new = load_json(ROOT / "registries" / "evaluations.v4.json")
-    social = next(item for item in new["datasets"] if item["dataset_id"].startswith("socialiqa"))
+    social = next(
+        item for item in new["datasets"] if item["dataset_id"].startswith("socialiqa")
+    )
     social["usage_role"] = "confirmatory"
     social["confirmation_eligible"] = True
     social["seal_id"] = "laundered-confirmatory-v4"
@@ -782,9 +786,10 @@ def test_quarantine_matcher_is_tri_state_and_pre_feature(tmp_path: Path) -> None
         lineage_complete=False,
         derived_at=T4,
     )
-    assert match_quarantine_record_v4(
-        uncertain, index, checked_at=EVALUATED
-    )["decision"] == "undetermined"
+    assert (
+        match_quarantine_record_v4(uncertain, index, checked_at=EVALUATED)["decision"]
+        == "undetermined"
+    )
 
     clear = copy.deepcopy(uncertain)
     clear["descriptor_id"] = "source-record-clear-v4"

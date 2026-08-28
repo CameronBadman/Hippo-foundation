@@ -6,10 +6,11 @@ import copy
 import re
 import subprocess
 import tempfile
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 from urllib.parse import urlparse
 
 from hippocampus_foundation.storage_identity import (
@@ -22,7 +23,6 @@ from .errors import GateBlocked, IntegrityError, ValidationError
 from .evaluation_firewall import validate_source_registry_v4
 from .seal import verify_access_chain
 from .v4_contracts import SCHEMA_VERSION_V4, validate_v4
-
 
 DRIVE_BIND_MAX_AGE = timedelta(minutes=15)
 STORAGE_ATTESTATION_MAX_AGE = timedelta(hours=72)
@@ -60,7 +60,7 @@ def _parse_time(value: str, field: str) -> datetime:
 
 
 def _format_time(value: datetime) -> str:
-    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 def bind_drive_observation_v4(
@@ -93,7 +93,9 @@ def bind_drive_observation_v4(
             raise ValidationError(f"Drive observation/registry mismatch: {field}")
     for field in ("provider_resource_id", "root_resource_id"):
         if requirement[field] is not None and requirement[field] != observation[field]:
-            raise ValidationError(f"Drive observation conflicts with registered {field}")
+            raise ValidationError(
+                f"Drive observation conflicts with registered {field}"
+            )
 
     bound_registry = copy.deepcopy(source_registry)
     bound_registry["registry_id"] = registry_id
@@ -119,14 +121,10 @@ def bind_drive_observation_v4(
         "observed_root": observation["observed_root"],
         "drive_observation_sha256": canonical_sha256(observation),
         "source_registry_sha256": canonical_sha256(bound_registry),
-        "principal_permission_id_sha256": observation[
-            "principal_permission_id_sha256"
-        ],
+        "principal_permission_id_sha256": observation["principal_permission_id_sha256"],
         "requested_scope": observation["requested_scope"],
         "scope_exact": observation["scope_exact"],
-        "same_account_human_attested": observation[
-            "same_account_human_attested"
-        ],
+        "same_account_human_attested": observation["same_account_human_attested"],
         "method": observation["method"],
         "observed_at": observation["observed_at"],
         "bound_at": bound_at,
@@ -162,7 +160,9 @@ def validate_storage_attestation_v4(
         if item["locator_id"] == attestation["locator_id"]
     ]
     if len(requirements) != 1:
-        raise ValidationError("storage attestation locator does not resolve exactly once")
+        raise ValidationError(
+            "storage attestation locator does not resolve exactly once"
+        )
     requirement = requirements[0]
     expected = {
         "provider": requirement["provider"],
@@ -194,9 +194,7 @@ def validate_storage_attestation_v4(
             ],
             "requested_scope": observation["requested_scope"],
             "scope_exact": observation["scope_exact"],
-            "same_account_human_attested": observation[
-                "same_account_human_attested"
-            ],
+            "same_account_human_attested": observation["same_account_human_attested"],
             "checks": observation["checks"],
         }
         for field, value in observation_bindings.items():

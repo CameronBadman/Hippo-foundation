@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 from urllib.parse import urlparse
 
 from .canonical import canonical_sha256
@@ -14,7 +15,6 @@ from .errors import QuarantineError, ValidationError
 from .inventory import hash_file
 from .quarantine import normalize_identifier
 from .v4_contracts import SCHEMA_VERSION_V4, validate_v4
-
 
 _DEVELOPMENT_PARTITION = re.compile(
     r"(?:^|[^a-z0-9])(?:dev|development|validation)(?:$|[^a-z0-9])"
@@ -152,7 +152,10 @@ def validate_source_registry_v4(
             raise ValidationError(
                 f"inventory counter policy overlaps for {artifact['artifact_id']}"
             )
-        if source["role"] == "foundation_candidate" and not source["quarantine_required"]:
+        if (
+            source["role"] == "foundation_candidate"
+            and not source["quarantine_required"]
+        ):
             raise ValidationError("foundation sources must require quarantine")
 
     requirements = registry["publisher_evidence_requirements"]
@@ -165,7 +168,9 @@ def validate_source_registry_v4(
             f"duplicate publisher artifact requirement: {sorted(duplicate)}"
         )
     if set(requirement_artifacts) != set(artifacts):
-        raise ValidationError("publisher evidence requirement set does not match artifacts")
+        raise ValidationError(
+            "publisher evidence requirement set does not match artifacts"
+        )
     for requirement in requirements:
         source, _ = artifacts[requirement["artifact_id"]]
         if requirement["source_id"] != source["source_id"]:
@@ -183,7 +188,9 @@ def validate_source_registry_v4(
     if predecessor.get("registry_kind") != "sources":
         raise ValidationError("source predecessor has the wrong registry kind")
     if registry["sources"] != predecessor.get("sources"):
-        raise ValidationError("source entries must remain byte-identical across v4 migration")
+        raise ValidationError(
+            "source entries must remain byte-identical across v4 migration"
+        )
     previous_storage = {
         item["locator_id"]: item for item in predecessor.get("storage_requirements", [])
     }
@@ -191,15 +198,21 @@ def validate_source_registry_v4(
         item["locator_id"]: item for item in registry["storage_requirements"]
     }
     if set(previous_storage) != set(current_storage):
-        raise ValidationError("storage requirement set changed across registry versions")
+        raise ValidationError(
+            "storage requirement set changed across registry versions"
+        )
     for locator_id, old in previous_storage.items():
         new = current_storage[locator_id]
         for field in ("provider", "required_root"):
             if new[field] != old[field]:
-                raise ValidationError(f"storage requirement changed: {locator_id}:{field}")
+                raise ValidationError(
+                    f"storage requirement changed: {locator_id}:{field}"
+                )
         for field in ("provider_resource_id", "root_resource_id"):
             if old[field] is not None and new[field] != old[field]:
-                raise ValidationError(f"stable storage identity changed: {locator_id}:{field}")
+                raise ValidationError(
+                    f"stable storage identity changed: {locator_id}:{field}"
+                )
 
 
 def _validate_exposure_history(dataset: Mapping[str, Any]) -> None:
@@ -207,7 +220,9 @@ def _validate_exposure_history(dataset: Mapping[str, Any]) -> None:
     event_ids = [item["event_id"] for item in history]
     if duplicate := _duplicates(event_ids):
         raise ValidationError(f"duplicate exposure event: {sorted(duplicate)}")
-    times = [_parse_time(item["recorded_at"], "exposure recorded_at") for item in history]
+    times = [
+        _parse_time(item["recorded_at"], "exposure recorded_at") for item in history
+    ]
     if times != sorted(times):
         raise ValidationError("exposure history must be chronological")
     kinds = {item["event_kind"] for item in history}
@@ -232,7 +247,9 @@ def _validate_evaluation_semantics(dataset: Mapping[str, Any]) -> None:
     custody = dataset["custody_state"]
     partition = (dataset.get("partition") or "").casefold()
     if _DEVELOPMENT_PARTITION.search(partition) and role != "development":
-        raise ValidationError("development or validation partition must remain development")
+        raise ValidationError(
+            "development or validation partition must remain development"
+        )
     if role == "confirmatory":
         if not dataset["confirmation_eligible"]:
             raise ValidationError("confirmatory evaluation is marked ineligible")
@@ -244,9 +261,13 @@ def _validate_evaluation_semantics(dataset: Mapping[str, Any]) -> None:
         if dataset["confirmation_eligible"]:
             raise ValidationError("non-confirmatory evaluation cannot be eligible")
         if dataset["seal_id"] is not None:
-            raise ValidationError("non-confirmatory evaluation must not carry a seal_id")
+            raise ValidationError(
+                "non-confirmatory evaluation must not carry a seal_id"
+            )
         if dataset["custodian_signing_key_fingerprint"] is not None:
-            raise ValidationError("non-confirmatory evaluation must not pin a custodian key")
+            raise ValidationError(
+                "non-confirmatory evaluation must not pin a custodian key"
+            )
     if role == "development" and exposure != "development":
         raise ValidationError("development role must retain development exposure")
     if role == "diagnostic" and exposure not in {"development", "content_exposed"}:
@@ -280,7 +301,9 @@ def validate_evaluation_registry_v4(
         raise ValidationError(f"duplicate dataset_id: {sorted(duplicate)}")
     review_ids = [item["licence_review_id"] for item in registry["datasets"]]
     if duplicate := _duplicates(review_ids):
-        raise ValidationError(f"duplicate evaluation licence review: {sorted(duplicate)}")
+        raise ValidationError(
+            f"duplicate evaluation licence review: {sorted(duplicate)}"
+        )
     seal_ids = [item["seal_id"] for item in registry["datasets"] if item["seal_id"]]
     if duplicate := _duplicates(seal_ids):
         raise ValidationError(f"duplicate seal_id: {sorted(duplicate)}")
@@ -290,10 +313,10 @@ def validate_evaluation_registry_v4(
             dataset["exposure_history"][-1]["recorded_at"],
             "exposure recorded_at",
         ) > _parse_time(registry["generated_at"], "evaluation registry generated_at"):
-            raise ValidationError("evaluation exposure history is newer than its registry")
-    if not any(
-        item["usage_role"] == "confirmatory" for item in registry["datasets"]
-    ):
+            raise ValidationError(
+                "evaluation exposure history is newer than its registry"
+            )
+    if not any(item["usage_role"] == "confirmatory" for item in registry["datasets"]):
         raise ValidationError("evaluation registry has no confirmatory dataset")
 
     if predecessor is None:
@@ -310,7 +333,9 @@ def validate_evaluation_registry_v4(
     for dataset_id, old in old_by_id.items():
         new = new_by_id[dataset_id]
         if new["previous_entry_sha256"] != canonical_sha256(old):
-            raise ValidationError(f"evaluation entry predecessor mismatch: {dataset_id}")
+            raise ValidationError(
+                f"evaluation entry predecessor mismatch: {dataset_id}"
+            )
         old_task_role = old.get("task_role", old.get("role"))
         immutable = {
             "task_role": old_task_role,
@@ -320,13 +345,25 @@ def validate_evaluation_registry_v4(
         }
         for field, expected in immutable.items():
             if new[field] != expected:
-                raise ValidationError(f"evaluation identity changed: {dataset_id}:{field}")
-        for field in ("resolved_version", "archive_sha256", "adapter_id", "adapter_sha256"):
+                raise ValidationError(
+                    f"evaluation identity changed: {dataset_id}:{field}"
+                )
+        for field in (
+            "resolved_version",
+            "archive_sha256",
+            "adapter_id",
+            "adapter_sha256",
+        ):
             old_value = old.get(field)
             if old_value is not None and new[field] != old_value:
-                raise ValidationError(f"pinned evaluation asset changed: {dataset_id}:{field}")
+                raise ValidationError(
+                    f"pinned evaluation asset changed: {dataset_id}:{field}"
+                )
         old_partition = (old.get("partition") or "").casefold()
-        if _DEVELOPMENT_PARTITION.search(old_partition) and new["usage_role"] != "development":
+        if (
+            _DEVELOPMENT_PARTITION.search(old_partition)
+            and new["usage_role"] != "development"
+        ):
             raise ValidationError("role laundering from a development partition")
         if any("exposure" in item for item in old.get("blockers", [])) and new[
             "usage_role"
@@ -335,7 +372,9 @@ def validate_evaluation_registry_v4(
         if not predecessor_is_v4:
             continue
         if new["usage_role"] not in _ROLE_TRANSITIONS[old["usage_role"]]:
-            raise ValidationError(f"prohibited evaluation role transition: {dataset_id}")
+            raise ValidationError(
+                f"prohibited evaluation role transition: {dataset_id}"
+            )
         old_history = old["exposure_history"]
         if new["exposure_history"][: len(old_history)] != old_history:
             raise ValidationError(f"exposure history was rewritten: {dataset_id}")
@@ -358,7 +397,9 @@ def _reject_forbidden_public_fields(value: Any, path: str = "$.") -> None:
     if isinstance(value, Mapping):
         for key, child in value.items():
             if str(key).casefold() in _FORBIDDEN_PUBLIC_KEYS:
-                raise QuarantineError(f"forbidden public quarantine field at {path}{key}")
+                raise QuarantineError(
+                    f"forbidden public quarantine field at {path}{key}"
+                )
             _reject_forbidden_public_fields(child, f"{path}{key}.")
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         for index, child in enumerate(value):
@@ -379,11 +420,17 @@ def build_quarantine_contribution_v4(envelope: dict[str, Any]) -> dict[str, Any]
     selector_total = 0
     for record in envelope["records"]:
         expected = sorted(
-            (_normalized_identifier(item) for item in record["expected_dependency_units"]),
+            (
+                _normalized_identifier(item)
+                for item in record["expected_dependency_units"]
+            ),
             key=canonical_sha256,
         )
         resolved = sorted(
-            (_normalized_identifier(item) for item in record["resolved_dependency_units"]),
+            (
+                _normalized_identifier(item)
+                for item in record["resolved_dependency_units"]
+            ),
             key=canonical_sha256,
         )
         if record["unresolved_dependency_units"] or expected != resolved:
@@ -392,13 +439,14 @@ def build_quarantine_contribution_v4(envelope: dict[str, Any]) -> dict[str, Any]
             )
         selectors = {
             "identifiers": sorted(
-                (_normalized_identifier(item) for item in record["selectors"]["identifiers"]),
+                (
+                    _normalized_identifier(item)
+                    for item in record["selectors"]["identifiers"]
+                ),
                 key=canonical_sha256,
             ),
             "raw_hashes": sorted(set(record["selectors"]["raw_hashes"])),
-            "normalized_hashes": sorted(
-                set(record["selectors"]["normalized_hashes"])
-            ),
+            "normalized_hashes": sorted(set(record["selectors"]["normalized_hashes"])),
             "fingerprints": sorted(
                 record["selectors"]["fingerprints"], key=canonical_sha256
             ),
@@ -499,9 +547,7 @@ def validate_quarantine_contribution_v4(contribution: dict[str, Any]) -> None:
             raise QuarantineError("duplicate quarantine identifier")
         if selectors["raw_hashes"] != sorted(selectors["raw_hashes"]):
             raise QuarantineError("quarantine raw hashes are not canonically ordered")
-        if selectors["normalized_hashes"] != sorted(
-            selectors["normalized_hashes"]
-        ):
+        if selectors["normalized_hashes"] != sorted(selectors["normalized_hashes"]):
             raise QuarantineError(
                 "quarantine normalized hashes are not canonically ordered"
             )
@@ -509,9 +555,7 @@ def validate_quarantine_contribution_v4(contribution: dict[str, Any]) -> None:
             selectors["fingerprints"], key=canonical_sha256
         ):
             raise QuarantineError("quarantine fingerprints are not canonically ordered")
-        fingerprint_ids = [
-            item["fingerprint_id"] for item in selectors["fingerprints"]
-        ]
+        fingerprint_ids = [item["fingerprint_id"] for item in selectors["fingerprints"]]
         if len(fingerprint_ids) != len(set(fingerprint_ids)):
             raise QuarantineError("duplicate quarantine fingerprint identifier")
         count = _selector_count(selectors)
@@ -577,7 +621,9 @@ def compile_quarantine_index_v4(
                         f"conflicting fingerprint_id: {fingerprint_id}"
                     )
                 fingerprints[fingerprint_id] = fingerprint
-    if expected_dataset_ids is not None and set(by_dataset) != set(expected_dataset_ids):
+    if expected_dataset_ids is not None and set(by_dataset) != set(
+        expected_dataset_ids
+    ):
         raise QuarantineError("quarantine contribution dataset set mismatch")
     result = {
         "schema_version": SCHEMA_VERSION_V4,

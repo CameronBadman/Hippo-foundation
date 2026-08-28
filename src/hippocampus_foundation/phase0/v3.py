@@ -6,18 +6,23 @@ composes its structural checks with the stricter licensing/v1 authority.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
 
 from hippocampus_foundation.licensing import (
     VerifiedBundle,
-    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
-    validate_v1 as validate_licensing_v1,
     verify_assessment,
+)
+from hippocampus_foundation.licensing import (
+    validate_schema_lock_v1 as validate_licensing_schema_lock_v1,
+)
+from hippocampus_foundation.licensing import (
+    validate_v1 as validate_licensing_v1,
 )
 
 from .canonical import canonical_sha256, load_json
@@ -32,7 +37,6 @@ from .v2 import (
     validate_structural_inventory_v2,
     validate_v2,
 )
-
 
 SCHEMA_VERSION = "3.0.0"
 SOURCE_REQUIRED_USES = frozenset(
@@ -71,10 +75,14 @@ def _parse_time(value: str, field: str) -> datetime:
 
 
 def schema_root_v3() -> Path:
-    package_candidate = Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v3"
+    package_candidate = (
+        Path(__file__).resolve().parents[1] / "schemas" / "phase0" / "v3"
+    )
     if package_candidate.is_dir():
         return package_candidate
-    repository_candidate = Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v3"
+    repository_candidate = (
+        Path(__file__).resolve().parents[3] / "schemas" / "phase0" / "v3"
+    )
     if repository_candidate.is_dir():
         return repository_candidate
     raise ValidationError("cannot locate Phase 0 v3 schema directory")
@@ -88,7 +96,9 @@ def load_schema_v3(name: str, root: Path | None = None) -> dict[str, Any]:
     try:
         Draft202012Validator.check_schema(value)
     except SchemaError as exc:
-        raise ValidationError(f"invalid Phase 0 v3 schema {path}: {exc.message}") from exc
+        raise ValidationError(
+            f"invalid Phase 0 v3 schema {path}: {exc.message}"
+        ) from exc
     return value
 
 
@@ -165,7 +175,9 @@ def _assessment_binding_check(
         raise ValidationError("licence assessment bundle digest mismatch")
 
 
-def _audit_rows_for_source(audit: dict[str, Any], source_id: str) -> list[dict[str, Any]]:
+def _audit_rows_for_source(
+    audit: dict[str, Any], source_id: str
+) -> list[dict[str, Any]]:
     return sorted(
         [item for item in audit["artifacts"] if item["source_id"] == source_id],
         key=lambda item: item["artifact_id"],
@@ -281,12 +293,19 @@ def evaluate_gate_v3(
         licensing_ready = False
         blockers.add("licence_evidence_bundle_set_mismatch")
 
-    for review_id, (kind, subject_id, binding_sha256, required_uses) in expected_reviews.items():
+    for review_id, (
+        kind,
+        subject_id,
+        binding_sha256,
+        required_uses,
+    ) in expected_reviews.items():
         assessment = assessments_by_id.get(review_id)
         verified_bundle = bundles.get(review_id)
         try:
             if assessment is None or verified_bundle is None:
-                raise ValidationError("assessment or verified evidence bundle is missing")
+                raise ValidationError(
+                    "assessment or verified evidence bundle is missing"
+                )
             _assessment_binding_check(
                 assessment=assessment,
                 verified_bundle=verified_bundle,
@@ -296,7 +315,9 @@ def evaluate_gate_v3(
                 subject_binding_sha256=binding_sha256,
             )
             evidence.add(f"licence_bundle:{review_id}:{verified_bundle.sha256}")
-            evidence.add(f"licence_assessment:{review_id}:{canonical_sha256(assessment)}")
+            evidence.add(
+                f"licence_assessment:{review_id}:{canonical_sha256(assessment)}"
+            )
         except Exception as exc:
             licensing_evidence_verified = False
             licensing_ready = False
@@ -346,9 +367,13 @@ def evaluate_gate_v3(
                 validate_v3(receipt, "control-evidence.schema.json")
                 source_id = receipt["source_id"]
                 if source_id in receipt_by_source:
-                    raise ValidationError(f"duplicate v3 admission receipt: {source_id}")
+                    raise ValidationError(
+                        f"duplicate v3 admission receipt: {source_id}"
+                    )
                 source = next(
-                    item for item in source_registry["sources"] if item["source_id"] == source_id
+                    item
+                    for item in source_registry["sources"]
+                    if item["source_id"] == source_id
                 )
                 review_id = source["licence_review_id"]
                 assessment = assessments_by_id[review_id]
@@ -443,7 +468,9 @@ def assess_admission_v3(
     """Build a v3 admission receipt after all bound evidence is valid."""
 
     validate_source_registry_v2(registry)
-    validate_storage_attestation_v2(storage_attestation, registry, evaluated_at=assessed_at)
+    validate_storage_attestation_v2(
+        storage_attestation, registry, evaluated_at=assessed_at
+    )
     validate_source_audit_v2(source_audit)
     validate_v2(quarantine_index, "evaluation-evidence.schema.json")
     source = next(
