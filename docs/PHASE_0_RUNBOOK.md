@@ -19,13 +19,15 @@ authorize real acquisition or transformation.
 
 ### External activation boundary
 
-The checked policy `policies/oauth-authority.v4.2.pending.json` is intentionally
-non-authorizing: it has `status: pending`, no project or signing keys, placeholder
-customer-ID hash, and no approved root in code. An Entor Workspace administrator
-must establish that the selected Google Cloud project belongs to the Workspace
-organization and has an Internal OAuth audience. They must review the non-secret
-policy, exact installed-client file hash, client-ID hash, Cloud project number,
-Workspace customer-ID hash, and both signing-key fingerprints.
+The checked policy `policies/oauth-authority.v4.2.pending.json` remains the
+intentionally non-authorizing baseline used by the reproducible blocked report.
+On 2026-08-29, the Workspace administrator confirmed the organization-owned
+project and Internal audience, supplied the non-secret policy facts, accepted
+online passphrase-protected key staging as an interim custody exception, and
+directed activation of `policies/oauth-authority.v4.2.approved.json`. The exact
+approved policy digest is pinned in code. That pin recognizes only the policy;
+it supplies no OAuth consent, signed authority, live Drive proof, acquisition
+authority, or training authority.
 
 Validate the approved policy and record its canonical instance digest:
 
@@ -34,15 +36,18 @@ uv run hf-phase0 registry validate-v4.2 \
   --instance policies/oauth-authority.v4.2.approved.json
 ```
 
-Set `APPROVED_OAUTH_AUTHORITY_POLICY_SHA256` in
-`phase0/authority_v4_2.py` to that exact digest only in a separate reviewed
-activation commit. Never add the installed-client file, client secret, ADC,
-token, raw Workspace customer ID, or private signing key to the repository.
+`APPROVED_OAUTH_AUTHORITY_POLICY_SHA256` in `phase0/authority_v4_2.py` is set to
+the emitted digest. Any successor requires another separately reviewed change.
+Never add the installed-client file, client secret, ADC, token, raw Workspace
+customer ID, or private signing key to the repository.
 
 Google documents `drive.readonly` as a restricted scope, but also documents an
 internal-use verification exception when the project is organization-owned,
-the audience is Internal, and users belong to that organization. This project
-has not verified those administrator-controlled facts:
+the audience is Internal, and users belong to that organization. On 2026-08-29,
+the Workspace administrator confirmed the organization ownership and Internal
+audience, and the installed-client project binding was checked mechanically.
+Those organization and audience claims remain human-confirmed rather than
+independently observed through the Cloud API:
 
 - [Drive scope classification](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
 - [Internal-use verification exception](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
@@ -184,9 +189,10 @@ uv run hf-phase0 storage bind-drive-v4 \
   --bound-at OBSERVATION-BIND-TIME
 ```
 
-No approved OAuth client or exact-scope observation is currently available.
-That is an external-authority boundary, not permission to infer IDs from a
-mount path.
+A protected Desktop OAuth client is available and mechanically bound to the
+administrator-confirmed project. The policy root, signed authority, stable
+resource IDs, and exact-scope observation are not yet available. That remains
+an external-authority boundary, not permission to infer IDs from a mount path.
 
 ### 3. Fetch fresh publisher statements after Drive binding
 
@@ -817,8 +823,9 @@ read-only mount completed, and an exact-hash metadata-only probe found one
 read no Drive file content, performed no Drive write, and reported
 `training_authorized: false`; the disposable CPU runtime was released and the
 account-wide session list was empty. This mount check is not the exact-scope
-identity observation and supplied no resource IDs. No approved desktop OAuth
-client file was supplied for exact-scope user ADC or fallback execution. A
+identity observation and supplied no resource IDs. A protected Desktop OAuth
+client was supplied and validated on 2026-08-29, but it has not yet been used
+for exact-scope user ADC or fallback execution. A
 read-only check through the separately connected Drive integration found no
 accessible shared drive named `Data`; its account therefore cannot be assumed
 to match the intended Colab mount and no ID from it may be bound.

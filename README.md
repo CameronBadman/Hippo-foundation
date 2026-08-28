@@ -51,11 +51,11 @@ Better Colab build is `0.1.dev103+ga8c1b68b5`. A user-run `colab drivemount`
 completed interactive credential propagation and mounted `/content/drive`;
 that establishes that the broad native mount works, but it does not establish
 the exact API scope, approved OAuth client, stable Drive IDs, marker identity,
-or v4.2 authority. The exact-scope provider and v4.2 observer are implemented,
-but no approved Internal Workspace policy/client pair or live v4.2 proof was
-supplied to this work. The checked pending policy deliberately has no trusted
-project or signing keys, and its hash is not activated in code. Phase 0 also
-lacks
+or v4.2 authority. The exact-scope provider and v4.2 observer are implemented.
+An administrator-confirmed Internal project and mechanically validated protected
+Desktop client are now available, and the exact approved-policy digest is
+activated in code. No signed authority or live v4.2 proof exists. The checked
+pending policy remains the reproducible blocked-report input. Phase 0 also lacks
 fresh publisher receipts and verified source bytes, a pinned evaluation
 successor, pinned-entry rights approvals, materialization receipts, sealed
 evaluation envelopes with GPG-signed independently anchored access logs, the
@@ -147,11 +147,11 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Have an Entor Workspace administrator create or identify an
-   organization-owned Google Cloud project whose OAuth audience is Internal,
-   approve the exact installed-client SHA-256 and signing keys in a non-secret
-   v4.2 policy, and activate only that reviewed policy hash in a separate
-   commit. Do not commit the client secret or ADC.
+1. Retain the exact activated v4.2 policy digest. The project, Internal audience,
+   and protected installed client are administrator-confirmed or mechanically
+   checked as documented in the audit. The signing keys remain in online
+   passphrase-protected staging under an explicit interim exception and must
+   not be represented as offline. Do not commit the client secret or ADC.
 2. Create the canonical marker, upload those exact bytes once to the registered
    lake root, and bind its file ID and digest into the signed OAuth authority.
    In one durable Better Colab CPU session, use `drive-auth authorize` with the

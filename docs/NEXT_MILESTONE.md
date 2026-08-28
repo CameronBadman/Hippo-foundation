@@ -13,9 +13,9 @@ Phase 0 v4.2 is additive. It preserves the frozen v2/v3/v4 contracts, the two
 frozen v4.1 contracts, and every legacy command. It adds four separately locked
 contracts and these controls:
 
-- a checked but deliberately unapproved Entor Workspace OAuth policy;
-- a code-pinned policy root, currently `None`, so an unreviewed policy cannot
-  authorize anything;
+- a checked deliberately unapproved baseline policy plus a separately validated
+  administrator-approved successor;
+- a code-pinned approved-policy root that rejects every other policy digest;
 - exact-byte hashing of a protected installed-client JSON file without emitting
   its client ID or secret;
 - detached signatures over the approved Internal Workspace project, exact
@@ -69,9 +69,13 @@ still be required, and all API/user-data policies still apply:
 - [Google OAuth verification exceptions](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
 - [Google Cloud internal-use summary](https://support.google.com/cloud/answer/13464323)
 
-This repository has not verified that the intended Google Cloud project is
-organization-owned or configured Internal. Those are external administrator
-facts and remain blockers.
+On 2026-08-29, the Workspace administrator reported that the dedicated Cloud
+project is organization-owned, the Drive API is enabled, and the OAuth audience
+visibly says `Internal`. These are human administrator confirmations rather
+than independent Cloud API observations. The downloaded Desktop client was
+mechanically matched to that project and protected outside Git. Policy
+activation, signed authority, stable Drive IDs, and a live exact-scope proof
+remain blockers.
 
 ## External execution order
 
@@ -92,6 +96,16 @@ instance digest emitted by `registry validate-v4.2`, and set
 `APPROVED_OAUTH_AUTHORITY_POLICY_SHA256` to that digest in a separate reviewed
 activation commit. The policy contains no client secret, token, email address,
 raw customer ID, or held-out data.
+
+The staged successor is `policies/oauth-authority.v4.2.approved.json`; its
+validated canonical digest is
+`sha256:8a2bd514dc1a0af85bc21bd848be3efb72b74cf66cd62276c23f28c1f451946e`.
+That exact digest is separately pinned in code. The pin alone supplies no OAuth
+consent, signed authority, live proof, acquisition authority, or training
+authority. Its signing keys currently remain in passphrase-protected online
+staging at the administrator's direction. Do not describe that custody as
+offline. Before any signature, record whether this interim exception is still
+accepted or transfer the keys to genuinely offline custody.
 
 ### 2. Create and place the root marker
 

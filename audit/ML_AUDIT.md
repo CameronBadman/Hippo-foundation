@@ -1,6 +1,6 @@
 # Machine-learning integrity audit — Phases 0, 1, 2A, and 2B
 
-Updated: 2026-08-28
+Updated: 2026-08-29
 
 ## Decision boundary
 
@@ -705,3 +705,47 @@ acquisition evidence, inventory, and admission are missing. No OAuth consent,
 Drive API or filesystem access, marker upload, held-out-data access, sealing,
 source acquisition, transformation, model execution, training, or evaluation
 was performed while implementing v4.2.
+
+## Phase 0 v4.2 administrator setup checkpoint (2026-08-29)
+
+The Workspace administrator reported that the dedicated Cloud project belongs
+to the intended organization, that its OAuth audience visibly says `Internal`,
+and that the Drive API is enabled. These are accountable human confirmations,
+not independent Cloud API observations. The administrator also supplied the
+Workspace customer identifier through a local no-echo capture; its SHA-256 is
+the only form retained in policy. The raw identifier was later inadvertently
+posted in the conversation, so it must not be described as undisclosed, but no
+raw value is stored in this repository.
+
+A newly downloaded Desktop installed-client file was independently checked as
+a regular installed-client JSON object, matched to the reported numeric Cloud
+project, byte-copied into owner-only storage outside Git, and accepted by the
+repository's protected-file verifier. Both retained copies were changed from
+browser-created mode `0644` to `0600`. The exact non-secret bindings are:
+
+- installed-client file SHA-256:
+  `sha256:546f6dade716498a1152a684a7e67e84ff5a18a228109ae1cc8efdc426c727a3`;
+- OAuth client-ID SHA-256:
+  `sha256:544e5c6eae0e953814b2687e80c61f737953dbb590ebc263a82c4cdb39f923df`;
+  and
+- Cloud project number: `349368645786`.
+
+The project consent configuration currently declares future write-capable
+Drive scopes in addition to `drive.readonly`. Declaration is not treated as a
+grant. The Phase 0 provider must request only `drive.readonly`, and the live
+observer rejects a token containing any other scope. Any future write-capable
+flow is a separate authorization mode and cannot be reused as Phase 0 v4.2
+evidence.
+
+Two distinct passphrase-protected signing keys exist in an owner-only staging
+keyring on this online workstation. The administrator elected to proceed for
+now without transferring them to removable or otherwise offline custody. This
+is an explicit custody-strength exception, not evidence of offline signing.
+The non-secret approved policy validates with canonical digest
+`sha256:8a2bd514dc1a0af85bc21bd848be3efb72b74cf66cd62276c23f28c1f451946e`,
+and that exact root was pinned in code after the administrator directed the
+work to move past the offline-custody pause. The pin recognizes only this
+policy; it does not create a signature or grant OAuth, Drive, acquisition, or
+training authority. No OAuth consent, token exchange, Drive API access, Drive
+mutation, marker creation, source acquisition, held-out-data access,
+transformation, or training had occurred at this checkpoint.

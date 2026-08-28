@@ -1,6 +1,38 @@
 # Phase 0 v4.2, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
-Verification date: 2026-08-28
+Verification date: 2026-08-29
+
+## Phase 0 v4.2 policy activation verification (2026-08-29)
+
+- `registry validate-v4.2` accepted
+  `policies/oauth-authority.v4.2.approved.json`, reproduced all four frozen
+  schema locks, and emitted canonical instance digest
+  `sha256:8a2bd514dc1a0af85bc21bd848be3efb72b74cf66cd62276c23f28c1f451946e`.
+  The exact same digest is pinned in
+  `APPROVED_OAUTH_AUTHORITY_POLICY_SHA256`; `training_authorized` remains
+  `false`.
+- The protected Desktop installed-client file remained outside Git, mode
+  `0600`, and the repository verifier matched it to the approved Cloud project
+  without printing the client ID or secret.
+- The focused v4.2 authority and Drive suite passed all 14 tests in 41.96
+  seconds. The complete regression passed all 207 tests in 377.05 seconds.
+- Repository-wide Ruff lint and format checks, `uv lock --check`, and
+  `git diff --check` passed. The first compile invocation could not create a UV
+  cache lock under the managed read-only cache; the same compile check passed
+  with a task-local UV cache and bytecode directory.
+- `uv build` produced an sdist with SHA-256
+  `b9510e7d3b1c3325602f742fe4377abd9ccc80cb9c62490e412833c8c74a1624`
+  and a wheel with SHA-256
+  `dcc739ef2ae4dc861453f94499698296598b3d004fe0b5f11b5058f4c59a3faa`.
+  The wheel and all 28 resolved dependencies installed into a fresh Python 3.12
+  environment. Imports resolved from that environment's `site-packages`; its
+  CLI reproduced the policy and schema digests, and its installed activation
+  constant matched the approved policy digest.
+- The administrator accepted an interim custody exception: both signing keys
+  remain passphrase-protected in owner-only online staging. This verification
+  does not claim offline signing and does not itself prove OAuth consent, Drive
+  identity, signed authority, acquisition readiness, transformation readiness,
+  or training readiness.
 
 ## Phase 0 v4.2 authority and acquisition verification
 

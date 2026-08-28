@@ -24,9 +24,12 @@ OAUTH_AUTHORITY_MAX_AGE = timedelta(days=365)
 ACQUISITION_AUTHORITY_MAX_AGE = timedelta(hours=24)
 DRIVE_ACCESS_PROOF_MAX_AGE = timedelta(minutes=15)
 
-# Activation is a separate reviewed commit after an Entor Workspace
-# administrator supplies the non-secret policy and public signing keys.
-APPROVED_OAUTH_AUTHORITY_POLICY_SHA256: str | None = None
+# This root activates only the exact non-secret policy reviewed by the Entor
+# Workspace administrator. It does not itself grant OAuth consent, sign an
+# authority, authorize acquisition, or authorize training.
+APPROVED_OAUTH_AUTHORITY_POLICY_SHA256: str | None = (
+    "sha256:8a2bd514dc1a0af85bc21bd848be3efb72b74cf66cd62276c23f28c1f451946e"
+)
 
 SignatureVerifier = Callable[[bytes, bytes, bytes, str], str]
 
