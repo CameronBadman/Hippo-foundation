@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.2/execution-evidence.schema.json",
+  "title": "Phase 0 v4.2 internal-authority and acquisition evidence",
+  "oneOf": [
+    { "$ref": "#/$defs/oauthAuthorityPayload" },
+    { "$ref": "#/$defs/oauthAuthorityReceipt" },
+    { "$ref": "#/$defs/driveAccessProof" },
+    { "$ref": "#/$defs/acquisitionAuthorizationPayload" },
+    { "$ref": "#/$defs/acquisitionAuthorizationReceipt" },
+    { "$ref": "#/$defs/acquisitionReceipt" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "fingerprint": { "type": "string", "pattern": "^[0-9A-F]{40,64}$" },
+    "identifier": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+\\-]{0,255}$" },
+    "oauthAuthorityPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authority_id", "authority_policy_sha256",
+        "oauth_config_sha256", "oauth_client_id_sha256", "workspace_domain", "workspace_customer_id_sha256",
+        "cloud_project_number", "oauth_user_type", "approved_scopes",
+        "provider_resource_id", "root_resource_id", "marker_file_id",
+        "marker_filename", "marker_sha256", "approved_at", "valid_until",
+        "approver_id", "signing_key_fingerprint", "contains_credentials",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "oauth_authority_payload" },
+        "authority_id": { "$ref": "#/$defs/identifier" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_config_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_client_id_sha256": { "$ref": "#/$defs/digest" },
+        "workspace_domain": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$" },
+        "workspace_customer_id_sha256": { "$ref": "#/$defs/digest" },
+        "cloud_project_number": { "type": "string", "pattern": "^[0-9]{6,30}$" },
+        "oauth_user_type": { "const": "internal" },
+        "approved_scopes": {
+          "const": ["https://www.googleapis.com/auth/drive.readonly"]
+        },
+        "provider_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+        "root_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+        "marker_file_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+        "marker_filename": { "const": ".entor-drive-identity-v1.json" },
+        "marker_sha256": { "$ref": "#/$defs/digest" },
+        "approved_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "approver_id": { "$ref": "#/$defs/identifier" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "contains_credentials": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "oauthAuthorityReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authority_id", "authority_policy_sha256",
+        "payload_sha256", "signature_sha256", "public_key_sha256",
+        "signing_key_fingerprint", "oauth_config_sha256", "oauth_client_id_sha256", "workspace_domain",
+        "cloud_project_number", "provider_resource_id", "root_resource_id",
+        "marker_file_id", "marker_sha256", "approved_at", "valid_until",
+        "contains_credentials", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "oauth_authority_receipt" },
+        "authority_id": { "$ref": "#/$defs/identifier" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "payload_sha256": { "$ref": "#/$defs/digest" },
+        "signature_sha256": { "$ref": "#/$defs/digest" },
+        "public_key_sha256": { "$ref": "#/$defs/digest" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "oauth_config_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_client_id_sha256": { "$ref": "#/$defs/digest" },
+        "workspace_domain": { "type": "string", "minLength": 1 },
+        "cloud_project_number": { "type": "string", "pattern": "^[0-9]{6,30}$" },
+        "provider_resource_id": { "type": "string", "minLength": 3 },
+        "root_resource_id": { "type": "string", "minLength": 3 },
+        "marker_file_id": { "type": "string", "minLength": 3 },
+        "marker_sha256": { "$ref": "#/$defs/digest" },
+        "approved_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "contains_credentials": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "driveAccessProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "observed_at", "oauth_authority_receipt_sha256",
+        "oauth_config_sha256", "oauth_client_id_sha256", "requested_scope",
+        "scope_exact", "workspace_domain_verified", "same_resource_mechanically_proven",
+        "principal_permission_id_sha256", "provider", "provider_resource_id",
+        "root_resource_id", "observed_root", "marker_file_id", "marker_sha256",
+        "mount_identity_sha256", "checks", "contains_evaluation_content",
+        "api_drive_write_authorized", "drive_write_performed", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "drive_access_proof" },
+        "observed_at": { "$ref": "#/$defs/timestamp" },
+        "oauth_authority_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_config_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_client_id_sha256": { "$ref": "#/$defs/digest" },
+        "requested_scope": { "const": "https://www.googleapis.com/auth/drive.readonly" },
+        "scope_exact": { "const": true },
+        "workspace_domain_verified": { "const": true },
+        "same_resource_mechanically_proven": { "const": true },
+        "principal_permission_id_sha256": { "$ref": "#/$defs/digest" },
+        "provider": { "const": "google_drive_shared_drive" },
+        "provider_resource_id": { "type": "string", "minLength": 3 },
+        "root_resource_id": { "type": "string", "minLength": 3 },
+        "observed_root": { "const": "/content/drive/Shareddrives/Data/graph-memory-data-lake" },
+        "marker_file_id": { "type": "string", "minLength": 3 },
+        "marker_sha256": { "$ref": "#/$defs/digest" },
+        "mount_identity_sha256": { "$ref": "#/$defs/digest" },
+        "checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exact_scope", "internal_domain", "oauth_config_fingerprint",
+            "oauth_client_id", "token_authorized_party", "registered_shared_drive",
+            "registered_direct_folder", "folder_not_shortcut", "api_marker_identity",
+            "api_mount_marker_equal", "root_descriptor_bound", "live_drivefs_mount",
+            "identity_stable"
+          ],
+          "properties": {
+            "exact_scope": { "const": true },
+            "internal_domain": { "const": true },
+            "oauth_config_fingerprint": { "const": true },
+            "oauth_client_id": { "const": true },
+            "token_authorized_party": { "const": true },
+            "registered_shared_drive": { "const": true },
+            "registered_direct_folder": { "const": true },
+            "folder_not_shortcut": { "const": true },
+            "api_marker_identity": { "const": true },
+            "api_mount_marker_equal": { "const": true },
+            "root_descriptor_bound": { "const": true },
+            "live_drivefs_mount": { "const": true },
+            "identity_stable": { "const": true }
+          }
+        },
+        "contains_evaluation_content": { "const": false },
+        "api_drive_write_authorized": { "const": false },
+        "drive_write_performed": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionAuthorizationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authorization_id", "authority_policy_sha256",
+        "artifact_id", "source_registry_sha256", "artifact_entry_sha256",
+        "oauth_authority_receipt_sha256", "storage_attestation_sha256",
+        "provider_resource_id", "root_resource_id", "expected_bytes", "byte_ceiling",
+        "authorized_at", "valid_until", "authorizer_id", "signing_key_fingerprint",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "acquisition_authorization_payload" },
+        "authorization_id": { "$ref": "#/$defs/identifier" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_authority_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "storage_attestation_sha256": { "$ref": "#/$defs/digest" },
+        "provider_resource_id": { "type": "string", "minLength": 3 },
+        "root_resource_id": { "type": "string", "minLength": 3 },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "byte_ceiling": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "authorized_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "authorizer_id": { "$ref": "#/$defs/identifier" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionAuthorizationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authorization_id", "authority_policy_sha256",
+        "artifact_id", "payload_sha256", "signature_sha256", "public_key_sha256",
+        "signing_key_fingerprint", "source_registry_sha256", "artifact_entry_sha256",
+        "oauth_authority_receipt_sha256", "storage_attestation_sha256", "expected_bytes",
+        "byte_ceiling", "authorized_at", "valid_until", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "acquisition_authorization_receipt" },
+        "authorization_id": { "$ref": "#/$defs/identifier" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "payload_sha256": { "$ref": "#/$defs/digest" },
+        "signature_sha256": { "$ref": "#/$defs/digest" },
+        "public_key_sha256": { "$ref": "#/$defs/digest" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_authority_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "storage_attestation_sha256": { "$ref": "#/$defs/digest" },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "byte_ceiling": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "authorized_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "artifact_id", "source_registry_sha256",
+        "artifact_entry_sha256", "authorization_gate_sha256",
+        "acquisition_authorization_receipt_sha256", "oauth_authority_receipt_sha256",
+        "storage_attestation_sha256", "pre_source_audit_sha256",
+        "pre_access_proof_sha256", "post_access_proof_sha256",
+        "provider_resource_id", "root_resource_id", "destination_filename", "bytes",
+        "checksums", "started_at", "completed_at", "complete", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.2.0" },
+        "record_kind": { "const": "source_acquisition_receipt" },
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "authorization_gate_sha256": { "$ref": "#/$defs/digest" },
+        "acquisition_authorization_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "oauth_authority_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "storage_attestation_sha256": { "$ref": "#/$defs/digest" },
+        "pre_source_audit_sha256": { "$ref": "#/$defs/digest" },
+        "pre_access_proof_sha256": { "$ref": "#/$defs/digest" },
+        "post_access_proof_sha256": { "$ref": "#/$defs/digest" },
+        "provider_resource_id": { "type": "string", "minLength": 3 },
+        "root_resource_id": { "type": "string", "minLength": 3 },
+        "destination_filename": { "type": "string", "minLength": 1, "maxLength": 1024, "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$" },
+        "bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "checksums": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 3,
+          "additionalProperties": false,
+          "properties": {
+            "md5": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+            "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "completed_at": { "$ref": "#/$defs/timestamp" },
+        "complete": { "const": true },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}

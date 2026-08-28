@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.2/drive-identity-marker.schema.json",
+  "title": "Non-sensitive Drive root identity marker",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_kind",
+    "marker_id",
+    "provider_resource_id",
+    "root_resource_id",
+    "contains_evaluation_content",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "entor_drive_identity_marker" },
+    "marker_id": { "type": "string", "format": "uuid" },
+    "provider_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+    "root_resource_id": { "type": "string", "minLength": 3, "maxLength": 512 },
+    "contains_evaluation_content": { "const": false },
+    "training_authorized": { "const": false }
+  }
+}

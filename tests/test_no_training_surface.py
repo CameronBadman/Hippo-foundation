@@ -14,7 +14,12 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
-    assert project["dependencies"] == ["jsonschema>=4.23,<5", "rfc8785>=0.1.4,<1"]
+    assert project["dependencies"] == [
+        "google-api-python-client>=2.179,<3",
+        "google-auth>=2.40,<3",
+        "jsonschema>=4.23,<5",
+        "rfc8785>=0.1.4,<1",
+    ]
     assert project["scripts"] == {
         "hf-phase0": "hippocampus_foundation.phase0.cli:main",
         "hf-phase1": "hippocampus_foundation.phase1.cli:main",
@@ -27,6 +32,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     )
     assert set(top_level_choices) == {
         "registry",
+        "oauth",
         "storage",
         "source",
         "evaluation",
@@ -37,6 +43,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "gate-v3",
         "gate-v4",
         "gate-v4.1",
+        "gate-v4.2",
         "gate-v1",
     }
     assert not ({"train", "fit", "optimize", "model"} & set(top_level_choices))
@@ -177,6 +184,47 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     )
     assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
         gate_v4_1_options
+    )
+
+    acquire_v4_2_parser = source_choices["acquire-v4.2"]
+    acquire_v4_2_options = {
+        option
+        for action in acquire_v4_2_parser._actions
+        for option in action.option_strings
+    }
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        acquire_v4_2_options
+    )
+    assert {
+        "--source-registry",
+        "--evaluation-registry",
+        "--authority-policy",
+        "--oauth-authority",
+        "--drive-access-proof",
+        "--acquisition-authorization",
+        "--adc-file",
+        "--artifact-id",
+        "--receipt-output",
+        "--pre-source-audit-output",
+    }.issubset(acquire_v4_2_options)
+    assert "--evaluated-at" not in acquire_v4_2_options
+
+    gate_v4_2_parser = top_level_choices["gate-v4.2"]
+    gate_v4_2_options = {
+        option
+        for action in gate_v4_2_parser._actions
+        for option in action.option_strings
+    }
+    assert {
+        "--authority-policy",
+        "--oauth-authority",
+        "--drive-access-proof",
+        "--acquisition-authorization",
+        "--acquisition-evidence",
+        "--evaluated-at",
+    }.issubset(gate_v4_2_options)
+    assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
+        gate_v4_2_options
     )
 
     evaluation_parser = top_level_choices["evaluation"]

@@ -1,0 +1,14 @@
+{
+  "schema_version": "4.2.0",
+  "record_kind": "oauth_authority_policy",
+  "policy_id": "entor-workspace-oauth-v4.2-pending",
+  "status": "pending",
+  "workspace_domain": "entor.net",
+  "workspace_customer_id_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "cloud_project_numbers": [],
+  "oauth_authority_signing_key_fingerprints": [],
+  "acquisition_authority_signing_key_fingerprints": [],
+  "maximum_oauth_authority_days": 365,
+  "maximum_acquisition_authority_hours": 24,
+  "training_authorized": false
+}

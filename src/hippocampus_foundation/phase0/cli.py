@@ -43,13 +43,29 @@ from hippocampus_foundation.storage_identity import (
     validate_schema_lock_v1 as validate_storage_schema_lock_v1,
 )
 
-from .acquisition import download_resumable, remote_metadata
+from .acquisition import download_resumable, download_resumable_at, remote_metadata
+from .authority_v4_2 import (
+    APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+    VerifiedAcquisitionAuthorization,
+    VerifiedOAuthAuthority,
+    load_oauth_config_identity,
+    make_acquisition_authorization_payload,
+    make_oauth_authority_payload,
+    validate_acquisition_authorization_time,
+    validate_oauth_authority_time,
+    verify_acquisition_authorization,
+    verify_oauth_authority,
+)
 from .canonical import (
     canonical_bytes,
     canonical_sha256,
     dump_pretty,
     load_json,
     sha256_bytes,
+)
+from .drive_access_v4_2 import (
+    make_drive_identity_marker,
+    observe_drive_access_from_adc,
 )
 from .errors import GateBlocked, Phase0Error
 from .evaluation_firewall import (
@@ -75,6 +91,7 @@ from .external_evidence import (
     MAX_PUBLISHER_STATEMENT_BYTES,
     VerifiedAccessAnchor,
     VerifiedPublisherReceipt,
+    _verify_detached_signature_gpg,
     bind_drive_observation_v4,
     build_publisher_checksum_receipt_v4,
     make_access_anchor_payload_v4,
@@ -128,6 +145,8 @@ from .v3 import (
 from .v4 import evaluate_gate_v4
 from .v4_1 import evaluate_gate_v4_1
 from .v4_1_contracts import validate_schema_lock_v4_1, validate_v4_1
+from .v4_2 import AcquisitionEvidenceBundle, evaluate_gate_v4_2
+from .v4_2_contracts import validate_schema_lock_v4_2, validate_v4_2
 from .v4_contracts import validate_schema_lock_v4, validate_v4
 from .validation import (
     validate_evaluation_registry,
@@ -141,6 +160,10 @@ from .validation import (
 
 def _emit(value: Any) -> None:
     sys.stdout.write(dump_pretty(value))
+
+
+def _utc_now_text() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _write_json_atomic(path: Path, value: Any, mode: int = 0o644) -> None:
@@ -1221,6 +1244,34 @@ def _registry_validate_v4_1(args: argparse.Namespace) -> int:
     return 0
 
 
+def _registry_validate_v4_2(args: argparse.Namespace) -> int:
+    digests = validate_schema_lock_v4_2(
+        Path(args.schema_root) if args.schema_root else None
+    )
+    checked: dict[str, str] = {}
+    for path_text in args.instance:
+        instance = _json_object(Path(path_text))
+        if instance.get("gate_id") == "phase0-external-evidence-firewall-v4.2":
+            validate_v4_2(instance, "gate.schema.json")
+        elif instance.get("record_kind") == "oauth_authority_policy":
+            validate_v4_2(instance, "authority-policy.schema.json")
+        elif instance.get("record_kind") == "entor_drive_identity_marker":
+            validate_v4_2(instance, "drive-identity-marker.schema.json")
+        else:
+            validate_v4_2(instance, "execution-evidence.schema.json")
+        checked[path_text] = canonical_sha256(instance)
+    _emit(
+        {
+            "ok": True,
+            "schema_digests": digests,
+            "instances": sorted(checked),
+            "instance_digests": {path: checked[path] for path in sorted(checked)},
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
 def _registry_lineage_v4_1(args: argparse.Namespace) -> int:
     verified = validate_registry_lineage_v4_1(
         [_json_object(Path(path)) for path in args.registry]
@@ -1741,6 +1792,197 @@ def _load_verified_anchor_chains_v4(
     return full_events, previous
 
 
+def _load_verified_oauth_authority_v4_2(
+    value: str,
+    *,
+    policy: dict[str, Any],
+) -> VerifiedOAuthAuthority:
+    payload_text, signature_text, key_text = _parts(value, "--oauth-authority", 3)
+    return verify_oauth_authority(
+        _json_object(Path(payload_text)),
+        signature=_read_bounded_regular_file(
+            Path(signature_text),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "OAuth authority signature",
+        ),
+        public_key=_read_bounded_regular_file(
+            Path(key_text),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "OAuth authority public key",
+        ),
+        policy=policy,
+        approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+        signature_verifier=_verify_detached_signature_gpg,
+    )
+
+
+def _load_verified_acquisition_authorizations_v4_2(
+    values: Sequence[str],
+    *,
+    policy: dict[str, Any],
+    source_registry: dict[str, Any],
+    oauth_authority: VerifiedOAuthAuthority,
+    storage_attestation: dict[str, Any],
+) -> list[VerifiedAcquisitionAuthorization]:
+    result: list[VerifiedAcquisitionAuthorization] = []
+    artifacts: set[str] = set()
+    for value in values:
+        payload_text, signature_text, key_text = _parts(
+            value, "--acquisition-authorization", 3
+        )
+        verified = verify_acquisition_authorization(
+            _json_object(Path(payload_text)),
+            signature=_read_bounded_regular_file(
+                Path(signature_text),
+                MAX_OPENPGP_EVIDENCE_BYTES,
+                "acquisition authorization signature",
+            ),
+            public_key=_read_bounded_regular_file(
+                Path(key_text),
+                MAX_OPENPGP_EVIDENCE_BYTES,
+                "acquisition authorization public key",
+            ),
+            policy=policy,
+            source_registry=source_registry,
+            oauth_authority=oauth_authority,
+            storage_attestation=storage_attestation,
+            approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+            signature_verifier=_verify_detached_signature_gpg,
+        )
+        artifact_id = verified.receipt["artifact_id"]
+        if artifact_id in artifacts:
+            raise Phase0Error(
+                f"duplicate --acquisition-authorization artifact: {artifact_id}"
+            )
+        result.append(verified)
+        artifacts.add(artifact_id)
+    return result
+
+
+def _load_acquisition_evidence_v4_2(
+    values: Sequence[str],
+) -> list[AcquisitionEvidenceBundle]:
+    result: list[AcquisitionEvidenceBundle] = []
+    for value in values:
+        (
+            receipt_text,
+            pre_source_audit_text,
+            pre_proof_text,
+            post_proof_text,
+            gate_text,
+        ) = _parts(value, "--acquisition-evidence", 5)
+        result.append(
+            AcquisitionEvidenceBundle(
+                receipt=_json_object(Path(receipt_text)),
+                pre_source_audit=_json_object(Path(pre_source_audit_text)),
+                pre_access_proof=_json_object(Path(pre_proof_text)),
+                post_access_proof=_json_object(Path(post_proof_text)),
+                authorization_gate=_json_object(Path(gate_text)),
+            )
+        )
+    return result
+
+
+def _oauth_authority_payload_v4_2(args: argparse.Namespace) -> int:
+    policy = _json_object(Path(args.policy))
+    oauth_config = load_oauth_config_identity(Path(args.oauth_config))
+    payload = make_oauth_authority_payload(
+        policy=policy,
+        approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+        oauth_config=oauth_config,
+        authority_id=args.authority_id,
+        provider_resource_id=args.provider_resource_id,
+        root_resource_id=args.root_resource_id,
+        marker_file_id=args.marker_file_id,
+        marker_sha256=args.marker_sha256,
+        approved_at=args.approved_at,
+        valid_until=args.valid_until,
+        approver_id=args.approver_id,
+        signing_key_fingerprint=args.signing_key_fingerprint,
+    )
+    _write_bytes_exclusive(Path(args.output), canonical_bytes(payload))
+    _emit(
+        {
+            "ok": True,
+            "authority_id": payload["authority_id"],
+            "payload_sha256": canonical_sha256(payload),
+            "contains_credentials": False,
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
+def _oauth_authority_verify_v4_2(args: argparse.Namespace) -> int:
+    verified = verify_oauth_authority(
+        _json_object(Path(args.payload)),
+        signature=_read_bounded_regular_file(
+            Path(args.signature),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "OAuth authority signature",
+        ),
+        public_key=_read_bounded_regular_file(
+            Path(args.public_key),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "OAuth authority public key",
+        ),
+        policy=_json_object(Path(args.policy)),
+        approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+        signature_verifier=_verify_detached_signature_gpg,
+    )
+    validate_oauth_authority_time(verified, evaluated_at=args.verified_at)
+    _write_json_exclusive(Path(args.output), verified.receipt)
+    _emit(verified.receipt)
+    return 0
+
+
+def _storage_marker_payload_v4_2(args: argparse.Namespace) -> int:
+    marker = make_drive_identity_marker(
+        marker_id=args.marker_id,
+        provider_resource_id=args.provider_resource_id,
+        root_resource_id=args.root_resource_id,
+    )
+    encoded = canonical_bytes(marker)
+    _write_bytes_exclusive(Path(args.output), encoded)
+    _emit(
+        {
+            "ok": True,
+            "marker_id": marker["marker_id"],
+            "marker_sha256": sha256_bytes(encoded),
+            "contains_evaluation_content": False,
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
+def _storage_observe_drive_v4_2(args: argparse.Namespace) -> int:
+    proof_output = Path(args.proof_output)
+    _refuse_output(proof_output)
+    observed_at = _utc_now_text()
+    policy = _json_object(Path(args.policy))
+    authority = _load_verified_oauth_authority_v4_2(
+        args.oauth_authority,
+        policy=policy,
+    )
+    proof = observe_drive_access_from_adc(
+        adc_path=Path(args.adc_file),
+        authority=authority,
+        observed_at=observed_at,
+    )
+    _write_json_exclusive(proof_output, proof)
+    _emit(
+        {
+            "ok": True,
+            "observed_at": observed_at,
+            "proof_sha256": canonical_sha256(proof),
+            "same_resource_mechanically_proven": True,
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
 def _registry_evaluations_finalize_v4_1(args: argparse.Namespace) -> int:
     pinned = _json_object(Path(args.evaluations))
     materializations = _load_materializations_v4_1(
@@ -1849,7 +2091,10 @@ def _gate_v4(args: argparse.Namespace) -> int:
     return 0 if result["foundation_transform_ready"] else 2
 
 
-def _evaluate_from_v4_1_args(args: argparse.Namespace) -> dict[str, Any]:
+def _load_v4_1_graph_args(
+    args: argparse.Namespace, *, evaluated_at: str | None = None
+) -> dict[str, Any]:
+    effective_time = evaluated_at or args.evaluated_at
     source_registries = [_json_object(Path(path)) for path in args.source_registry]
     evaluation_registries = [
         _json_object(Path(path)) for path in args.evaluation_registry
@@ -1860,7 +2105,7 @@ def _evaluate_from_v4_1_args(args: argparse.Namespace) -> dict[str, Any]:
     publishers = _load_publisher_receipts_v4(
         args.publisher,
         source_registry=source_tip,
-        evaluated_at=args.evaluated_at,
+        evaluated_at=effective_time,
     )
     assessments, bundles = _load_licence_assessments_v1(args.licence_assessment)
     if args.materialization and pinned is None:
@@ -1888,46 +2133,129 @@ def _evaluate_from_v4_1_args(args: argparse.Namespace) -> dict[str, Any]:
             args.anchor_v4,
             evaluation_registry=pinned,
             verified_seals=seals,
-            evaluated_at=args.evaluated_at,
+            evaluated_at=effective_time,
         )
         if pinned is not None
         else ({}, {})
     )
-    return evaluate_gate_v4_1(
-        evaluated_at=args.evaluated_at,
-        source_registries=source_registries,
-        evaluation_registries=evaluation_registries,
-        drive_observation=(
+    return {
+        "evaluated_at": effective_time,
+        "source_registries": source_registries,
+        "evaluation_registries": evaluation_registries,
+        "drive_observation": (
             _json_object(Path(args.drive_observation))
             if args.drive_observation
             else None
         ),
-        storage_attestation=(
+        "storage_attestation": (
             _json_object(Path(args.storage_attestation))
             if args.storage_attestation
             else None
         ),
-        publisher_receipts=publishers,
-        source_audit=(
+        "publisher_receipts": publishers,
+        "source_audit": (
             _json_object(Path(args.source_audit)) if args.source_audit else None
         ),
-        licence_assessments=assessments,
-        verified_bundles=bundles,
-        materializations=materializations,
-        quarantine_contributions=contributions,
-        quarantine_index=(
+        "licence_assessments": assessments,
+        "verified_bundles": bundles,
+        "materializations": materializations,
+        "quarantine_contributions": contributions,
+        "quarantine_index": (
             _json_object(Path(args.quarantine)) if args.quarantine else None
         ),
-        verified_seals=seals,
-        evaluation_access_events=access_events,
-        verified_access_anchors=anchors,
-        structural_inventories=_load_many(args.inventory),
-        admission_receipts=_load_many(args.admission),
-    )
+        "verified_seals": seals,
+        "evaluation_access_events": access_events,
+        "verified_access_anchors": anchors,
+        "structural_inventories": _load_many(args.inventory),
+        "admission_receipts": _load_many(args.admission),
+    }
+
+
+def _evaluate_from_v4_1_args(args: argparse.Namespace) -> dict[str, Any]:
+    return evaluate_gate_v4_1(**_load_v4_1_graph_args(args))
 
 
 def _gate_v4_1(args: argparse.Namespace) -> int:
     result = _evaluate_from_v4_1_args(args)
+    if args.output:
+        _write_json_exclusive(Path(args.output), result)
+    _emit(result)
+    return 0 if result["foundation_transform_ready"] else 2
+
+
+def _load_v4_2_graph_args(
+    args: argparse.Namespace,
+    *,
+    evaluated_at: str | None = None,
+    drive_access_proof: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    effective_time = evaluated_at or args.evaluated_at
+    graph = _load_v4_1_graph_args(args, evaluated_at=effective_time)
+    policy = (
+        _json_object(Path(args.authority_policy)) if args.authority_policy else None
+    )
+    authority = None
+    if args.oauth_authority:
+        if policy is None:
+            raise Phase0Error("--oauth-authority requires --authority-policy")
+        authority = _load_verified_oauth_authority_v4_2(
+            args.oauth_authority,
+            policy=policy,
+        )
+    authorizations: list[VerifiedAcquisitionAuthorization] = []
+    if args.acquisition_authorization:
+        if policy is None or authority is None or graph["storage_attestation"] is None:
+            raise Phase0Error(
+                "--acquisition-authorization requires policy, OAuth authority, "
+                "and storage attestation"
+            )
+        authorizations = _load_verified_acquisition_authorizations_v4_2(
+            args.acquisition_authorization,
+            policy=policy,
+            source_registry=graph["source_registries"][-1],
+            oauth_authority=authority,
+            storage_attestation=graph["storage_attestation"],
+        )
+    graph.update(
+        {
+            "authority_policy": policy,
+            "approved_policy_sha256": APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+            "oauth_authority": authority,
+            "drive_access_proof": (
+                drive_access_proof
+                if drive_access_proof is not None
+                else (
+                    _json_object(Path(args.drive_access_proof))
+                    if args.drive_access_proof
+                    else None
+                )
+            ),
+            "acquisition_authorizations": authorizations,
+            "acquisition_evidence": _load_acquisition_evidence_v4_2(
+                args.acquisition_evidence
+            ),
+        }
+    )
+    return graph
+
+
+def _evaluate_from_v4_2_args(
+    args: argparse.Namespace,
+    *,
+    evaluated_at: str | None = None,
+    drive_access_proof: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return evaluate_gate_v4_2(
+        **_load_v4_2_graph_args(
+            args,
+            evaluated_at=evaluated_at,
+            drive_access_proof=drive_access_proof,
+        )
+    )
+
+
+def _gate_v4_2(args: argparse.Namespace) -> int:
+    result = _evaluate_from_v4_2_args(args)
     if args.output:
         _write_json_exclusive(Path(args.output), result)
     _emit(result)
@@ -1974,6 +2302,226 @@ def _source_assess_admission_v4(args: argparse.Namespace) -> int:
         _refuse_output(output)
         _write_json_exclusive(output, result)
     _emit(result)
+    return 0
+
+
+def _source_authorization_payload_v4_2(args: argparse.Namespace) -> int:
+    gate = _evaluate_from_v4_2_args(args)
+    if not gate["foundation_acquisition_ready"]:
+        codes = [item["code"] for item in gate["blockers"]]
+        raise GateBlocked(
+            "Phase 0 v4.2 acquisition prerequisites are blocked: " + ", ".join(codes)
+        )
+    graph = _load_v4_2_graph_args(args)
+    policy = graph["authority_policy"]
+    authority = graph["oauth_authority"]
+    attestation = graph["storage_attestation"]
+    if policy is None or authority is None or attestation is None:
+        raise GateBlocked("v4.2 acquisition authority prerequisites are unavailable")
+    payload = make_acquisition_authorization_payload(
+        policy=policy,
+        approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+        source_registry=graph["source_registries"][-1],
+        artifact_id=args.artifact_id,
+        oauth_authority=authority,
+        storage_attestation=attestation,
+        authorization_id=args.authorization_id,
+        byte_ceiling=args.byte_ceiling,
+        authorized_at=args.authorized_at,
+        valid_until=args.valid_until,
+        authorizer_id=args.authorizer_id,
+        signing_key_fingerprint=args.signing_key_fingerprint,
+    )
+    _write_bytes_exclusive(Path(args.authorization_output), canonical_bytes(payload))
+    _emit(
+        {
+            "ok": True,
+            "authorization_id": payload["authorization_id"],
+            "artifact_id": payload["artifact_id"],
+            "payload_sha256": canonical_sha256(payload),
+            "training_authorized": False,
+        }
+    )
+    return 0
+
+
+def _source_authorization_verify_v4_2(args: argparse.Namespace) -> int:
+    policy = _json_object(Path(args.policy))
+    source_lineage = validate_registry_lineage_v4_1(
+        [_json_object(Path(path)) for path in args.source_registry]
+    )
+    attestation = _json_object(Path(args.storage_attestation))
+    authority = _load_verified_oauth_authority_v4_2(
+        args.oauth_authority,
+        policy=policy,
+    )
+    validate_oauth_authority_time(authority, evaluated_at=args.verified_at)
+    verified = verify_acquisition_authorization(
+        _json_object(Path(args.payload)),
+        signature=_read_bounded_regular_file(
+            Path(args.signature),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "acquisition authorization signature",
+        ),
+        public_key=_read_bounded_regular_file(
+            Path(args.public_key),
+            MAX_OPENPGP_EVIDENCE_BYTES,
+            "acquisition authorization public key",
+        ),
+        policy=policy,
+        source_registry=source_lineage.tip,
+        oauth_authority=authority,
+        storage_attestation=attestation,
+        approved_policy_sha256=APPROVED_OAUTH_AUTHORITY_POLICY_SHA256,
+        signature_verifier=_verify_detached_signature_gpg,
+    )
+    validate_acquisition_authorization_time(verified, evaluated_at=args.verified_at)
+    _write_json_exclusive(Path(args.output), verified.receipt)
+    _emit(verified.receipt)
+    return 0
+
+
+def _source_acquire_v4_2(args: argparse.Namespace) -> int:
+    outputs = [
+        Path(args.receipt_output),
+        Path(args.pre_source_audit_output),
+        Path(args.pre_proof_output),
+        Path(args.post_proof_output),
+        Path(args.authorization_gate_output),
+    ]
+    for output in outputs:
+        _refuse_output(output)
+
+    initial_time = _utc_now_text()
+    graph = _load_v4_2_graph_args(args, evaluated_at=initial_time)
+    source_lineage = validate_registry_lineage_v4_1(graph["source_registries"])
+    registry = source_lineage.tip
+    attestation = graph["storage_attestation"]
+    authority = graph["oauth_authority"]
+    pre_source_audit = graph["source_audit"]
+    if attestation is None or authority is None or pre_source_audit is None:
+        raise GateBlocked(
+            "v4.2 storage, OAuth authority, and pre-acquisition audit are required"
+        )
+    matches = [
+        artifact
+        for source in registry["sources"]
+        for artifact in source["artifacts"]
+        if artifact["artifact_id"] == args.artifact_id
+    ]
+    if len(matches) != 1:
+        raise Phase0Error("--artifact-id must resolve exactly once")
+    artifact = matches[0]
+    if artifact["availability"] != "acquisition_target":
+        raise GateBlocked("source acquire-v4.2 accepts only an acquisition target")
+    publisher_matches = [
+        item
+        for item in graph["publisher_receipts"]
+        if item.receipt["artifact_id"] == args.artifact_id
+    ]
+    if len(publisher_matches) != 1:
+        raise GateBlocked("acquisition target lacks exact publisher evidence")
+    publisher = publisher_matches[0].receipt
+    authorization_matches = [
+        item
+        for item in graph["acquisition_authorizations"]
+        if item.receipt["artifact_id"] == args.artifact_id
+    ]
+    if len(authorization_matches) != 1:
+        raise GateBlocked("acquisition target lacks one signed authorization")
+    acquisition_authorization = authorization_matches[0]
+    if acquisition_authorization.receipt["byte_ceiling"] < artifact["expected_bytes"]:
+        raise GateBlocked("signed acquisition byte ceiling is insufficient")
+    if Path(attestation["observed_root"]) != Path(
+        "/content/drive/Shareddrives/Data/graph-memory-data-lake"
+    ):
+        raise GateBlocked("storage attestation root differs from the frozen lake root")
+
+    identity_results: dict[str, dict[str, Any]] = {}
+
+    def identity_check(stage: str, _root_fd: int) -> dict[str, Any]:
+        checked_at = _utc_now_text()
+        proof = observe_drive_access_from_adc(
+            adc_path=Path(args.adc_file),
+            authority=authority,
+            observed_at=checked_at,
+            root_fd=_root_fd,
+        )
+        authorization_graph = _load_v4_2_graph_args(
+            args, evaluated_at=checked_at, drive_access_proof=proof
+        )
+        authorization_graph["source_audit"] = pre_source_audit
+        authorization_graph["structural_inventories"] = []
+        authorization_graph["admission_receipts"] = []
+        authorization_graph["acquisition_evidence"] = []
+        gate = evaluate_gate_v4_2(**authorization_graph)
+        if not gate["foundation_acquisition_authorized"]:
+            codes = [item["code"] for item in gate["blockers"]]
+            raise GateBlocked(
+                f"v4.2 acquisition {stage} gate is blocked: " + ", ".join(codes)
+            )
+        if stage == "before_promote":
+            before = identity_results.get("before_download")
+            if before is None:
+                raise GateBlocked("pre-download identity evidence is unavailable")
+            for field in (
+                "mount_identity_sha256",
+                "principal_permission_id_sha256",
+                "provider_resource_id",
+                "root_resource_id",
+                "marker_file_id",
+                "marker_sha256",
+            ):
+                if before["proof"][field] != proof[field]:
+                    raise GateBlocked(
+                        f"Drive identity changed during acquisition: {field}"
+                    )
+        result = {"proof": proof, "gate": gate}
+        identity_results[stage] = result
+        return result
+
+    download = download_resumable_at(
+        url=artifact["source_url"],
+        root=Path(attestation["observed_root"]),
+        filename=artifact["filename"],
+        expected_bytes=artifact["expected_bytes"],
+        expected_checksums={publisher["algorithm"]: publisher["value"]},
+        minimum_free_bytes=args.minimum_free_bytes,
+        resume_authorization_sha256=acquisition_authorization.sha256,
+        identity_check=identity_check,
+    )
+    pre = identity_results["before_download"]
+    post = identity_results["before_promote"]
+    receipt = {
+        "schema_version": "4.2.0",
+        "record_kind": "source_acquisition_receipt",
+        "artifact_id": artifact["artifact_id"],
+        "source_registry_sha256": canonical_sha256(registry),
+        "artifact_entry_sha256": canonical_sha256(artifact),
+        "authorization_gate_sha256": canonical_sha256(pre["gate"]),
+        "acquisition_authorization_receipt_sha256": acquisition_authorization.sha256,
+        "oauth_authority_receipt_sha256": authority.sha256,
+        "storage_attestation_sha256": canonical_sha256(attestation),
+        "pre_source_audit_sha256": canonical_sha256(pre_source_audit),
+        "pre_access_proof_sha256": canonical_sha256(pre["proof"]),
+        "post_access_proof_sha256": canonical_sha256(post["proof"]),
+        "provider_resource_id": attestation["provider_resource_id"],
+        "root_resource_id": attestation["root_resource_id"],
+        "destination_filename": artifact["filename"],
+        "bytes": download["bytes"],
+        "checksums": download["checksums"],
+        "started_at": pre["proof"]["observed_at"],
+        "completed_at": post["proof"]["observed_at"],
+        "complete": True,
+        "training_authorized": False,
+    }
+    validate_v4_2(receipt, "execution-evidence.schema.json")
+    _write_json_exclusive(Path(args.pre_source_audit_output), pre_source_audit)
+    _write_json_exclusive(Path(args.pre_proof_output), pre["proof"])
+    _write_json_exclusive(Path(args.post_proof_output), post["proof"])
+    _write_json_exclusive(Path(args.authorization_gate_output), pre["gate"])
+    _write_json_exclusive(Path(args.receipt_output), receipt)
+    _emit(receipt)
     return 0
 
 
@@ -2247,7 +2795,9 @@ def _add_v4_gate_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--evaluated-at", required=True)
 
 
-def _add_v4_1_gate_arguments(parser: argparse.ArgumentParser) -> None:
+def _add_v4_1_gate_arguments(
+    parser: argparse.ArgumentParser, *, include_evaluated_at: bool = True
+) -> None:
     parser.add_argument(
         "--source-registry", action="append", required=True, metavar="PATH"
     )
@@ -2291,7 +2841,32 @@ def _add_v4_1_gate_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--quarantine")
     parser.add_argument("--inventory", action="append", default=[])
     parser.add_argument("--admission", action="append", default=[])
-    parser.add_argument("--evaluated-at", required=True)
+    if include_evaluated_at:
+        parser.add_argument("--evaluated-at", required=True)
+
+
+def _add_v4_2_gate_arguments(
+    parser: argparse.ArgumentParser, *, include_evaluated_at: bool = True
+) -> None:
+    _add_v4_1_gate_arguments(parser, include_evaluated_at=include_evaluated_at)
+    parser.add_argument("--authority-policy")
+    parser.add_argument(
+        "--oauth-authority",
+        metavar="PAYLOAD=SIGNATURE=PUBLIC_KEY",
+    )
+    parser.add_argument("--drive-access-proof")
+    parser.add_argument(
+        "--acquisition-authorization",
+        action="append",
+        default=[],
+        metavar="PAYLOAD=SIGNATURE=PUBLIC_KEY",
+    )
+    parser.add_argument(
+        "--acquisition-evidence",
+        action="append",
+        default=[],
+        metavar=("RECEIPT=PRE_SOURCE_AUDIT=PRE_PROOF=POST_PROOF=AUTHORIZATION_GATE"),
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -2324,6 +2899,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--instance", action="append", default=[], metavar="PATH"
     )
     validate_v4_1_command.set_defaults(handler=_registry_validate_v4_1)
+    validate_v4_2_command = registry_commands.add_parser("validate-v4.2")
+    validate_v4_2_command.add_argument("--schema-root")
+    validate_v4_2_command.add_argument(
+        "--instance", action="append", default=[], metavar="PATH"
+    )
+    validate_v4_2_command.set_defaults(handler=_registry_validate_v4_2)
     lineage_v4_1 = registry_commands.add_parser("lineage-v4.1")
     lineage_v4_1.add_argument(
         "--registry", action="append", required=True, metavar="PATH"
@@ -2364,6 +2945,31 @@ def build_parser() -> argparse.ArgumentParser:
     finalize_v4_1.add_argument("--output", required=True)
     finalize_v4_1.set_defaults(handler=_registry_evaluations_finalize_v4_1)
 
+    oauth = commands.add_parser("oauth")
+    oauth_commands = oauth.add_subparsers(dest="oauth_command", required=True)
+    authority_payload_v4_2 = oauth_commands.add_parser("authority-payload-v4.2")
+    authority_payload_v4_2.add_argument("--policy", required=True)
+    authority_payload_v4_2.add_argument("--oauth-config", required=True)
+    authority_payload_v4_2.add_argument("--authority-id", required=True)
+    authority_payload_v4_2.add_argument("--provider-resource-id", required=True)
+    authority_payload_v4_2.add_argument("--root-resource-id", required=True)
+    authority_payload_v4_2.add_argument("--marker-file-id", required=True)
+    authority_payload_v4_2.add_argument("--marker-sha256", required=True)
+    authority_payload_v4_2.add_argument("--approved-at", required=True)
+    authority_payload_v4_2.add_argument("--valid-until", required=True)
+    authority_payload_v4_2.add_argument("--approver-id", required=True)
+    authority_payload_v4_2.add_argument("--signing-key-fingerprint", required=True)
+    authority_payload_v4_2.add_argument("--output", required=True)
+    authority_payload_v4_2.set_defaults(handler=_oauth_authority_payload_v4_2)
+    authority_verify_v4_2 = oauth_commands.add_parser("authority-verify-v4.2")
+    authority_verify_v4_2.add_argument("--policy", required=True)
+    authority_verify_v4_2.add_argument("--payload", required=True)
+    authority_verify_v4_2.add_argument("--signature", required=True)
+    authority_verify_v4_2.add_argument("--public-key", required=True)
+    authority_verify_v4_2.add_argument("--verified-at", required=True)
+    authority_verify_v4_2.add_argument("--output", required=True)
+    authority_verify_v4_2.set_defaults(handler=_oauth_authority_verify_v4_2)
+
     storage = commands.add_parser("storage")
     storage_commands = storage.add_subparsers(dest="storage_command", required=True)
     storage_contracts = storage_commands.add_parser("contracts-validate")
@@ -2388,6 +2994,22 @@ def build_parser() -> argparse.ArgumentParser:
     bind_drive_v4.add_argument("--verifier", required=True)
     bind_drive_v4.add_argument("--bound-at")
     bind_drive_v4.set_defaults(handler=_storage_bind_drive_v4)
+    marker_payload_v4_2 = storage_commands.add_parser("marker-payload-v4.2")
+    marker_payload_v4_2.add_argument("--marker-id", required=True)
+    marker_payload_v4_2.add_argument("--provider-resource-id", required=True)
+    marker_payload_v4_2.add_argument("--root-resource-id", required=True)
+    marker_payload_v4_2.add_argument("--output", required=True)
+    marker_payload_v4_2.set_defaults(handler=_storage_marker_payload_v4_2)
+    observe_drive_v4_2 = storage_commands.add_parser("observe-drive-v4.2")
+    observe_drive_v4_2.add_argument("--policy", required=True)
+    observe_drive_v4_2.add_argument(
+        "--oauth-authority",
+        required=True,
+        metavar="PAYLOAD=SIGNATURE=PUBLIC_KEY",
+    )
+    observe_drive_v4_2.add_argument("--adc-file", required=True)
+    observe_drive_v4_2.add_argument("--proof-output", required=True)
+    observe_drive_v4_2.set_defaults(handler=_storage_observe_drive_v4_2)
 
     source = commands.add_parser("source")
     source_commands = source.add_subparsers(dest="source_command", required=True)
@@ -2518,6 +3140,47 @@ def build_parser() -> argparse.ArgumentParser:
     acquire_v4_1.add_argument("--artifact-id", required=True)
     acquire_v4_1.add_argument("--minimum-free-bytes", required=True, type=int)
     acquire_v4_1.set_defaults(handler=_source_acquire_v4_1)
+    authorization_payload_v4_2 = source_commands.add_parser(
+        "authorization-payload-v4.2"
+    )
+    _add_v4_2_gate_arguments(authorization_payload_v4_2)
+    authorization_payload_v4_2.add_argument("--artifact-id", required=True)
+    authorization_payload_v4_2.add_argument("--authorization-id", required=True)
+    authorization_payload_v4_2.add_argument("--byte-ceiling", required=True, type=int)
+    authorization_payload_v4_2.add_argument("--authorized-at", required=True)
+    authorization_payload_v4_2.add_argument("--valid-until", required=True)
+    authorization_payload_v4_2.add_argument("--authorizer-id", required=True)
+    authorization_payload_v4_2.add_argument("--signing-key-fingerprint", required=True)
+    authorization_payload_v4_2.add_argument("--authorization-output", required=True)
+    authorization_payload_v4_2.set_defaults(handler=_source_authorization_payload_v4_2)
+    authorization_verify_v4_2 = source_commands.add_parser("authorization-verify-v4.2")
+    authorization_verify_v4_2.add_argument("--policy", required=True)
+    authorization_verify_v4_2.add_argument(
+        "--source-registry", action="append", required=True
+    )
+    authorization_verify_v4_2.add_argument("--storage-attestation", required=True)
+    authorization_verify_v4_2.add_argument(
+        "--oauth-authority",
+        required=True,
+        metavar="PAYLOAD=SIGNATURE=PUBLIC_KEY",
+    )
+    authorization_verify_v4_2.add_argument("--payload", required=True)
+    authorization_verify_v4_2.add_argument("--signature", required=True)
+    authorization_verify_v4_2.add_argument("--public-key", required=True)
+    authorization_verify_v4_2.add_argument("--verified-at", required=True)
+    authorization_verify_v4_2.add_argument("--output", required=True)
+    authorization_verify_v4_2.set_defaults(handler=_source_authorization_verify_v4_2)
+    acquire_v4_2 = source_commands.add_parser("acquire-v4.2")
+    _add_v4_2_gate_arguments(acquire_v4_2, include_evaluated_at=False)
+    acquire_v4_2.add_argument("--artifact-id", required=True)
+    acquire_v4_2.add_argument("--minimum-free-bytes", required=True, type=int)
+    acquire_v4_2.add_argument("--adc-file", required=True)
+    acquire_v4_2.add_argument("--receipt-output", required=True)
+    acquire_v4_2.add_argument("--pre-source-audit-output", required=True)
+    acquire_v4_2.add_argument("--pre-proof-output", required=True)
+    acquire_v4_2.add_argument("--post-proof-output", required=True)
+    acquire_v4_2.add_argument("--authorization-gate-output", required=True)
+    acquire_v4_2.set_defaults(handler=_source_acquire_v4_2)
     acquire_v1 = source_commands.add_parser("acquire-v1")
     acquire_v1.add_argument("--registry", required=True)
     acquire_v1.add_argument("--storage-map", required=True)
@@ -2853,6 +3516,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_v4_1_gate_arguments(gate_v4_1)
     gate_v4_1.add_argument("--output")
     gate_v4_1.set_defaults(handler=_gate_v4_1)
+
+    gate_v4_2 = commands.add_parser("gate-v4.2")
+    _add_v4_2_gate_arguments(gate_v4_2)
+    gate_v4_2.add_argument("--output")
+    gate_v4_2.set_defaults(handler=_gate_v4_2)
 
     gate_v1 = commands.add_parser("gate-v1")
     gate_v1.add_argument("--sources", required=True)

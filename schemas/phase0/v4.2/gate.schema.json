@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.2/gate.schema.json",
+  "title": "Phase 0 v4.2 internal-authority external-evidence firewall gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "gate_id", "evaluated_at", "contracts_frozen",
+    "registry_lineage_ready", "source_registry_ready", "evaluation_registry_ready",
+    "evaluation_roles_ready", "evaluation_materialization_ready", "storage_identity_ready",
+    "oauth_authority_ready", "same_resource_ready", "publisher_evidence_ready",
+    "source_audit_ready", "foundation_bytes_ready", "licensing_evidence_verified",
+    "licensing_ready", "confirmatory_custody_ready", "quarantine_ready",
+    "quarantine_matcher_ready", "structural_inventory_ready", "admission_ready",
+    "foundation_acquisition_ready", "acquisition_authorization_ready",
+    "acquisition_evidence_ready", "foundation_acquisition_authorized",
+    "foundation_transform_ready", "training_authorized", "blockers", "evidence_bindings"
+  ],
+  "properties": {
+    "schema_version": { "const": "4.2.0" },
+    "gate_id": { "const": "phase0-external-evidence-firewall-v4.2" },
+    "evaluated_at": { "$ref": "#/$defs/timestamp" },
+    "contracts_frozen": { "type": "boolean" },
+    "registry_lineage_ready": { "type": "boolean" },
+    "source_registry_ready": { "type": "boolean" },
+    "evaluation_registry_ready": { "type": "boolean" },
+    "evaluation_roles_ready": { "type": "boolean" },
+    "evaluation_materialization_ready": { "type": "boolean" },
+    "storage_identity_ready": { "type": "boolean" },
+    "oauth_authority_ready": { "type": "boolean" },
+    "same_resource_ready": { "type": "boolean" },
+    "publisher_evidence_ready": { "type": "boolean" },
+    "source_audit_ready": { "type": "boolean" },
+    "foundation_bytes_ready": { "type": "boolean" },
+    "licensing_evidence_verified": { "type": "boolean" },
+    "licensing_ready": { "type": "boolean" },
+    "confirmatory_custody_ready": { "type": "boolean" },
+    "quarantine_ready": { "type": "boolean" },
+    "quarantine_matcher_ready": { "type": "boolean" },
+    "structural_inventory_ready": { "type": "boolean" },
+    "admission_ready": { "type": "boolean" },
+    "foundation_acquisition_ready": { "type": "boolean" },
+    "acquisition_authorization_ready": { "type": "boolean" },
+    "acquisition_evidence_ready": { "type": "boolean" },
+    "foundation_acquisition_authorized": { "type": "boolean" },
+    "foundation_transform_ready": { "type": "boolean" },
+    "training_authorized": { "const": false },
+    "blockers": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/blocker" } },
+    "evidence_bindings": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/evidence" } }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "subject_kind", "subject_id"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "subject_kind": { "enum": ["gate", "registry", "storage", "source", "artifact", "rights", "evaluation", "materialization", "seal", "quarantine", "inventory", "admission", "authority", "acquisition"] },
+        "subject_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "subject_id", "sha256"],
+      "properties": {
+        "kind": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "subject_id": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

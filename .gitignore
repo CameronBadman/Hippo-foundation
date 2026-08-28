@@ -17,6 +17,10 @@ vault/
 *.gpg
 *.asc
 *.partial
+*.partial.authorization.json
+application_default_credentials.json
+google-drive-readonly.json
+client_secret*.json
 
 # Phase 0 may emit reports locally; reviewed receipts are added explicitly.
 artifacts/
