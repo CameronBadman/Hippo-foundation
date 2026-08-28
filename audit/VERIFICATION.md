@@ -1,6 +1,83 @@
-# Phase 0 v4.1, Phase 1 v2, Phase 2A, and Phase 2B verification record
+# Phase 0 v4.2, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
-Verification date: 2026-08-25
+Verification date: 2026-08-28
+
+## Phase 0 v4.2 authority and acquisition verification
+
+- The final complete regression run passed all 207 tests in 415.10 seconds. The
+  focused v4.2/Drive/rooted-acquisition/no-training suite passed all 31 tests in
+  42.06 seconds after the final resume-provenance hardening.
+- Repository-wide `ruff check .` and `ruff format --check .` pass. Ruff 0.16.4
+  reports 93 files formatted. `git diff --check`, `uv lock --check`, and
+  `python -m compileall -q src scripts tests` also pass.
+- The eight frozen v4 schema locks and both frozen v4.1 locks remain unchanged.
+  The four separately frozen v4.2 locks are:
+  - authority policy:
+    `sha256:0d052d604a731602acafe4779bf98affab394e3808fa664ee7f8f78954af0192`;
+  - Drive marker:
+    `sha256:0cbf054689b16c622b696b73458d06dac7e2d204c39faa3e51975ec512528696`;
+  - execution evidence:
+    `sha256:dd9c19f7d365008c8d2e26359762a765e162d1eadc955788379ddadc7d23c12f`;
+  - gate:
+    `sha256:698706551145cc1ca9a1a91cd5a5a655010d5924a21d0d0d1e6d203544d5cf4b`.
+- `registry validate-v4.2` validates the pending policy and emits its canonical
+  instance digest
+  `sha256:34deb3c4149d248e07845a08666f5e2544beea9d6ea5d13e580d869ce47154b4`.
+  This is not an approved root: the policy remains pending and
+  `APPROVED_OAUTH_AUTHORITY_POLICY_SHA256` remains `None`.
+- The checked report `audit/phase0-gate.v4.2.blocked.json` reproduces exactly
+  from the two checked source registries, evaluation root, pending policy, and
+  fixed evaluation time. It has 54 structured blockers, while schema locks and
+  registry lineage are ready. OAuth policy/authority, live same-resource proof,
+  publisher, evaluation materialization/rights/custody, quarantine, source
+  bytes/audit, acquisition evidence, inventories, and admissions remain
+  blocked. Acquisition, transformation, and training are false.
+- Synthetic complete-graph tests reach transformation readiness while retaining
+  `training_authorized: false`. Removing any new authority, live-proof,
+  acquisition-signature, or acquisition-evidence family blocks readiness. A
+  forged precondition gate remains rejected even when its digest in the receipt
+  is recomputed.
+- Authority tests reject forged policy roots/signatures, wrong exact-client
+  fingerprints, scope combinations, another authorized OAuth client,
+  non-Workspace principals, marker mutation, duplicate marker JSON, API/mount
+  byte disagreement, and root-descriptor drift. Token-info tests distinguish
+  the authorized party (`azp` or legacy `issued_to`) from an audience that may
+  differ.
+- Acquisition tests reject absolute, parent-traversing, normalized-different,
+  backslash, and symlinked paths; pin/create nested parents by directory file
+  descriptor; retain partials on final identity drift; and reject an unbound or
+  differently authorized partial before publisher network access. Successful
+  promotion removes its authorization sidecar only after the final identity and
+  publisher checksum checks.
+- Re-verifying identical signed OAuth and acquisition payloads produces
+  byte-stable receipt digests; current-time validity is checked separately.
+  Completed acquisition evidence remains historically valid after a short
+  authorization expires only when its recorded transfer interval was inside
+  that signature's window.
+- `uv build --out-dir /tmp/hf-phase0-v4-2-dist-20260828` produced an sdist with
+  SHA-256
+  `501586b3188484dacbcfd0db7ecb3cfc901123212f97096a330174188d2f0f97`
+  and a wheel with SHA-256
+  `aed0d9828705a53c955c1463e2436ab5f0d602b8875bdebc512064a7257af14f`.
+  Wheel inspection found all four v4.2 modules and schemas.
+- The wheel was installed into a new Python 3.12 environment from `/tmp` with
+  Google Auth 2.57.0 and Google API Python Client 2.199.0. Imports resolved from
+  that environment's `site-packages`; the installed CLI created and validated a
+  canonical marker, reproduced all four schema locks, and returned exit 2 with
+  the expected blocked real-state v4.2 report.
+- Local package inventory identifies the installed Better Colab core and
+  compatibility CLIs as `0.1.dev103+ga8c1b68b5`. Static inspection confirmed
+  that its protected runtime ADC contains exactly the custom scope, exact config
+  digest, provider mode, and creation metadata consumed by the v4.2 observer.
+- Current primary Google documentation was checked independently: it classifies
+  `drive.readonly` as restricted; documents an internal-use verification
+  exception for organization-owned projects with an Internal audience; and
+  distinguishes a token's authorized requesting client from its audience.
+  This does not establish that the intended project satisfies those conditions.
+- No OAuth consent, token exchange, Colab allocation, Drive API call, DriveFS
+  read or write, marker upload, publisher fetch, human approval, held-out-data
+  access, sealing, source acquisition, transformation, model execution,
+  training, evaluation, or Git push was performed during v4.2 implementation.
 
 ## Phase 0 v4.1 execution-hardening verification
 

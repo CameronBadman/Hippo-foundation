@@ -14,12 +14,17 @@ model family.
 
 ## Data authorization boundary
 
-Phase 0 v4.1 sits before every raw-source transformer. It is a trusted-root
-evidence firewall rather than a wrapper around the historical v2/v3/v4 gates. A source may
-enter foundation transformation only when all of the following bind to the
-same versioned registry entries and bytes:
+Phase 0 v4.2 sits before every raw-source transformer. It is a trusted-root
+evidence firewall rather than a wrapper around historical v2/v3/v4 gates. It
+retains the complete v4.1 evidence graph and adds an independently rooted
+Workspace/OAuth and acquisition layer. A source may enter foundation
+transformation only when all of the following bind to the same versioned
+registry entries and bytes:
 
-- a fresh exact-scope Drive observation and stable provider resource IDs;
+- a code-pinned, administrator-approved Internal Workspace policy and detached
+  signature over the exact OAuth installed-client bytes and project;
+- a fresh exact-scope Drive observation, stable provider resource IDs, and a
+  live API-to-DriveFS marker proof over the same root;
 - a retained, freshly verified publisher checksum statement for every byte
   artifact;
 - an exact source audit and structural inventory;
@@ -32,14 +37,17 @@ same versioned registry entries and bytes:
 - ciphertext receipts, hash-chained access logs, and fresh GPG-detached
   custodian anchors for every confirmatory set; and
 - source admission receipts binding the complete quarantine union.
+- for every acquisition target, a detached per-artifact authorization and
+  retained pre/post identity proofs, reproducible precondition gate, and
+  checksum-corroborated acquisition receipt.
 
 The mandatory record matcher runs before graph features, embeddings,
 neighbourhoods, negatives, or samples. Its outcomes are `excluded`,
 `undetermined`, and `clear`; only `clear` permits feature construction. A ready
 Phase 0 report can authorize acquisition or transformation, but its schema
 always fixes `training_authorized` to `false`. No raw-source-to-graph consumer
-is implemented yet, so the v4.1 transformation gate is not currently consumed by
-Phase 1.
+is implemented yet, so the v4.2 transformation gate is not currently consumed
+by Phase 1.
 
 ## Graph contract
 

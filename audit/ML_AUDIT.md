@@ -1,13 +1,13 @@
 # Machine-learning integrity audit — Phases 0, 1, 2A, and 2B
 
-Updated: 2026-08-25
+Updated: 2026-08-28
 
 ## Decision boundary
 
 The current operational decisions are only:
 
 1. whether registered source acquisition or transformation may begin under the
-   direct Phase 0 v4 external-evidence firewall; and
+   direct Phase 0 v4.2 external-evidence firewall; and
 2. whether deterministic Phase 1 v2 development-data artifacts satisfy their
    frozen contracts; and
 3. whether the local Phase 2A procedural candidates reproduce exactly, agree
@@ -604,3 +604,104 @@ The existing checked Phase 0 v4.1 report remains blocked. The next in-project
 execution after external activation remains the same-account ADC/read-only
 mount identity proof and 15-minute binding, followed by fresh publisher
 receipts inside 72 hours. `training_authorized` remains false.
+
+## Phase 0 v4.2 authority and acquisition audit (2026-08-28)
+
+This section supersedes the operational conclusions above that require a public
+OAuth client or name v4.1 as the current boundary. Google currently documents
+an internal-use verification exception when an OAuth app is used only by one
+Google Workspace or Cloud Identity organization, the project is owned by that
+organization, and the OAuth audience is Internal. Google still classifies
+`drive.readonly` as restricted, organization administrators may need to approve
+the client, and API/user-data policies still apply. This audit did not verify
+the intended project's organization ownership, audience, administrator
+approval, or customer ID. Those remain external facts rather than inferred
+readiness.
+
+The installed Better Colab packages now identify as
+`0.1.dev103+ga8c1b68b5`. The user independently completed the native
+`colab drivemount` interaction and the CLI reported
+`Mounted at /content/drive`. That falsifies the hypothesis that current native
+credential propagation is generally broken when the terminal stays attached
+through consent. It does not prove v4.2 authority: the classic flow requested
+broader Drive permissions and did not bind an approved installed client, exact
+token authorized party, stable resource IDs, canonical marker, or signed Entor
+policy.
+
+V4.2 adds four separately locked schemas and a pending, non-authorizing policy.
+The code-pinned policy root remains `None`; therefore the checked pending policy
+and any locally invented approved policy both fail closed. Activation requires
+a separate reviewed commit after an administrator supplies only the non-secret
+organization/project and signing-key facts. Protected installed-client files
+are read with no-follow, ownership, regular-file, size, and mode checks; exact
+file bytes and the client ID are hashed, but neither the ID nor secret is
+returned.
+
+Detached OAuth authority binds the policy root, exact config and client-ID
+digests, Workspace domain/customer hash, Cloud project, sole
+`drive.readonly` scope, stable shared-Drive/root IDs, and a canonical marker ID
+and digest. The live observer independently checks token scope and the
+authorized-party client, verifies the Entor email domain only in memory, emits
+only a salted permission-ID digest, fetches Drive/root/marker objects by ID,
+compares exact marker bytes through Drive API and DriveFS, pins the root
+descriptor to the live path, verifies DriveFS mount metadata, and repeats the
+API observations to detect drift. Token introspection binds `azp` or legacy
+`issued_to`, not `aud`: Google's
+[token documentation](https://cloud.google.com/docs/authentication/token-types)
+distinguishes the authorized requesting client from the token audience, which
+can differ for clients in one project.
+
+Two near misses were found during adversarial review and corrected before this
+record. First, an early compatibility projection labelled a mechanical
+same-resource result as the frozen storage schema's human same-account
+attestation. V4.2 now has a separate proof type and never fabricates that human
+statement; the v4.1 base observation remains independently required. Second,
+the initial signature receipts included the time at which verification happened,
+so rechecking the same bytes changed the receipt digest and invalidated every
+downstream binding. Receipts are now stable functions of signed evidence, while
+freshness is checked separately at each decision time. Tests reproduce both
+properties.
+
+Every registered acquisition target now needs a detached, policy-listed
+per-artifact authorization binding the exact registry entry, storage
+attestation, OAuth authority, expected byte count, byte ceiling, and a validity
+window no longer than 24 hours. `source acquire-v4.2` takes no URL,
+destination, size, checksum, or evaluated-time override. It opens all relative
+paths beneath one pinned root descriptor, rejects unsafe components, reproduces
+the full precondition gate immediately before transfer, records pre/post live
+proofs, and promotes only after publisher-checksum verification and stable
+identity. A later audit independently corroborates bytes and digests.
+
+A final counterexample showed that an old `.partial` file could otherwise be
+promoted under a newly signed authorization. Rooted acquisition now writes a
+bounded canonical sidecar tied to the exact authorization receipt, URL digest,
+relative destination, expected bytes, and checksums. Unbound or mismatched
+partials fail before publisher network access; interrupted, correctly bound
+partials remain resumable; the sidecar is removed only after immutable
+promotion.
+
+The v4.2 gate also recomputes the retained acquisition precondition report from
+the pre-source audit and pre-proof. Merely changing a forged gate and its digest
+in the acquisition receipt is rejected. A completed acquisition remains valid
+historical evidence after its short authorization expires only when its start
+and completion both fell inside that signed window; expiry blocks new transfer
+but does not erase a verified completed event.
+
+Adversarial tests cover forged policy roots and signatures, exact-client and
+scope mismatch, external-domain principals, marker/API/mount mutation,
+duplicate marker JSON, root-descriptor drift, forged precondition reports,
+missing new evidence families, unsafe rooted paths, unbound partials, and
+identity drift before promotion. A synthetic complete v4.2 graph reaches
+foundation transformation readiness with `training_authorized: false`; this is
+control-path evidence, not evidence that any external source, licence, account,
+or evaluation is ready.
+
+The mechanically reproduced real-state report is
+`audit/phase0-gate.v4.2.blocked.json`. It has 54 structured blockers. Registry
+lineage and contract locks are ready; policy activation, signed OAuth authority,
+live same-resource proof, fresh publisher evidence, pinned evaluation assets,
+human rights approval, materialization, custody, quarantine, byte audit,
+acquisition evidence, inventory, and admission are missing. No OAuth consent,
+Drive API or filesystem access, marker upload, held-out-data access, sealing,
+source acquisition, transformation, model execution, training, or evaluation
+was performed while implementing v4.2.

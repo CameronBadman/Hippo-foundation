@@ -90,6 +90,29 @@ anchors to the penultimate pinned registry before producing one final
 successor. Only `gate-v4.1` and `source acquire-v4.1` may support real Phase 0
 execution. Training remains unconditionally unauthorized.
 
+### 2026-08-28: Phase 0 v4.2 roots OAuth and acquisition authority externally
+
+Phase 0 v4.2 supersedes v4.1 for operational authorization while preserving all
+frozen predecessor contracts and commands. A broad native DriveFS mount proves
+only that Colab credential propagation and the mount worked; it does not prove
+the exact API scope, OAuth client, Workspace organization, stable resource IDs,
+or API-to-filesystem identity required by the data firewall.
+
+V4.2 therefore requires a separately reviewed, code-pinned Internal Workspace
+policy; detached administrator authority over the exact installed-client bytes,
+Cloud project, resource IDs, and canonical marker; and a live proof that reads
+the same marker through exact-scope Drive API and a pinned DriveFS root. The
+mechanical proof is separate from the legacy human same-account observation and
+must never synthesize that human statement.
+
+Every real acquisition additionally requires a short-lived detached signature
+over the exact artifact, registry, storage identity, expected bytes, and byte
+ceiling. The acquisition command recomputes its precondition gate, binds
+resumable partials to that signature, repeats live identity before immutable
+promotion, and retains enough evidence for later reproduction. Completed
+acquisition evidence remains historically valid after the short authorization
+expires; new transfer does not. Training remains unconditionally unauthorized.
+
 ### 2026-08-25: evaluation roles cannot be laundered
 
 SocialIQA v1.4 validation is development-only and the exposed EvidenceBench

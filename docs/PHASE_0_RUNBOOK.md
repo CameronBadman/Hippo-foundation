@@ -1,21 +1,142 @@
-# Phase 0 v4.1 clean-room runbook
+# Phase 0 v4.2 clean-room runbook
 
 Phase 0 establishes frozen contracts, storage identity, provenance, licensing,
 evaluation quarantine, immutable raw-byte inventory, source admission, and a
 mechanical readiness gate. It does not transform a graph, generate model
 examples, run an encoder, fit a model, tune a threshold, or authorize training.
 
-The active authorization boundary is `gate-v4.1`. It consumes complete source
-and evaluation registry lineages anchored to the checked-in roots, independently
-materialized evaluation receipts, licensing/v1 assessment bundles bound to the
-penultimate pinned evaluation entries, signed custody anchors, and v4 admission
-receipts. It validates the frozen v2/v3/v4 contracts for historical integrity
-but never imports their blocker lists or treats their gates as readiness
-evidence. `gate-v4` and all unsuffixed or older-suffix commands remain available
-for reproducibility only; they must not authorize real acquisition or
-transformation.
+The active authorization boundary is `gate-v4.2`. It consumes the complete
+v4.1 evidence graph and adds a code-pinned Internal Workspace OAuth policy,
+detached authority over exact installed-client bytes, a live Drive API/DriveFS
+same-resource proof, signed per-artifact acquisition authority, and retained
+pre/post-acquisition evidence. It validates every frozen predecessor contract
+but does not import an older gate's readiness decision. `gate-v4.1`, `gate-v4`,
+and all unsuffixed or older-suffix commands remain available for reproducibility
+or as explicitly required evidence producers; they cannot by themselves
+authorize real acquisition or transformation.
 
-## Active v4.1 command path
+## Active v4.2 authority layer
+
+### External activation boundary
+
+The checked policy `policies/oauth-authority.v4.2.pending.json` is intentionally
+non-authorizing: it has `status: pending`, no project or signing keys, placeholder
+customer-ID hash, and no approved root in code. An Entor Workspace administrator
+must establish that the selected Google Cloud project belongs to the Workspace
+organization and has an Internal OAuth audience. They must review the non-secret
+policy, exact installed-client file hash, client-ID hash, Cloud project number,
+Workspace customer-ID hash, and both signing-key fingerprints.
+
+Validate the approved policy and record its canonical instance digest:
+
+```bash
+uv run hf-phase0 registry validate-v4.2 \
+  --instance policies/oauth-authority.v4.2.approved.json
+```
+
+Set `APPROVED_OAUTH_AUTHORITY_POLICY_SHA256` in
+`phase0/authority_v4_2.py` to that exact digest only in a separate reviewed
+activation commit. Never add the installed-client file, client secret, ADC,
+token, raw Workspace customer ID, or private signing key to the repository.
+
+Google documents `drive.readonly` as a restricted scope, but also documents an
+internal-use verification exception when the project is organization-owned,
+the audience is Internal, and users belong to that organization. This project
+has not verified those administrator-controlled facts:
+
+- [Drive scope classification](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
+- [Internal-use verification exception](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
+
+### Canonical Drive root marker
+
+Once the stable shared-Drive and direct lake-root folder IDs are independently
+resolved, generate a non-sensitive marker:
+
+```bash
+uv run hf-phase0 storage marker-payload-v4.2 \
+  --marker-id MARKER-UUID \
+  --provider-resource-id SHARED-DRIVE-ID \
+  --root-resource-id LAKE-ROOT-FOLDER-ID \
+  --output private/drive/.entor-drive-identity-v1.json
+```
+
+The storage custodian uploads those exact canonical bytes once as
+`.entor-drive-identity-v1.json` directly beneath
+`/content/drive/Shareddrives/Data/graph-memory-data-lake`, then records its Drive
+file ID and emitted SHA-256. This is the one deliberate external write in this
+identity setup. The observer below performs no write.
+
+### Signed OAuth authority
+
+Keep the installed-client JSON at an absolute, owner-owned, mode-`0600` path.
+Construct the canonical payload, sign the exact output with a policy-listed
+offline key, and verify it:
+
+```bash
+uv run hf-phase0 oauth authority-payload-v4.2 \
+  --policy policies/oauth-authority.v4.2.approved.json \
+  --oauth-config /PROTECTED/entor-internal-oauth.json \
+  --authority-id ENTOR-AUTHORITY-ID \
+  --provider-resource-id SHARED-DRIVE-ID \
+  --root-resource-id LAKE-ROOT-FOLDER-ID \
+  --marker-file-id MARKER-FILE-ID \
+  --marker-sha256 MARKER-SHA256 \
+  --approved-at APPROVED-AT \
+  --valid-until VALID-UNTIL \
+  --approver-id WORKSPACE-ADMIN-ID \
+  --signing-key-fingerprint ADMIN-SIGNING-FINGERPRINT \
+  --output private/authority/oauth-authority.v4.2.canonical.json
+
+uv run hf-phase0 oauth authority-verify-v4.2 \
+  --policy policies/oauth-authority.v4.2.approved.json \
+  --payload private/authority/oauth-authority.v4.2.canonical.json \
+  --signature private/authority/oauth-authority.v4.2.sig \
+  --public-key private/authority/oauth-authority.v4.2.pub \
+  --verified-at VERIFIED-AT \
+  --output artifacts/oauth-authority.v4.2.receipt.json
+```
+
+The receipt digest is stable across re-verification. Freshness is evaluated
+separately, so checking the same signature later does not silently change every
+downstream binding.
+
+### Exact-scope ADC and live same-resource proof
+
+The installed Better Colab build is `0.1.dev103+ga8c1b68b5`. Use one fresh,
+durable CPU session. Authorize the exact-scope provider with the protected
+approved client and keep its ADC in the runtime's protected `/dev/shm` path.
+Then run `colab drivemount --read-only` in the user's visible terminal. Leave
+the command attached while the user finishes browser consent; after the browser
+says to close the window, return to the terminal and press Enter so credential
+propagation completes.
+
+Better Colab labels a caller-supplied client `provider_mode=development`. That
+label is not treated as authority. V4.2 accepts it only when the separately
+signed and code-pinned project policy approves the exact client bytes and Cloud
+project. A broad default `colab drivemount` success cannot be reused because it
+does not prove the exact API scope or client.
+
+Using the same ADC and mounted runtime, first create the frozen storage/v1
+observation with the accountable human same-account statement and bind it with
+`storage bind-drive-v4`. Then independently create the v4.2 proof:
+
+```bash
+uv run hf-phase0 storage observe-drive-v4.2 \
+  --policy policies/oauth-authority.v4.2.approved.json \
+  --oauth-authority \
+private/authority/oauth-authority.v4.2.canonical.json=private/authority/oauth-authority.v4.2.sig=private/authority/oauth-authority.v4.2.pub \
+  --adc-file /dev/shm/better-colab/credentials/google-drive-readonly.json \
+  --proof-output artifacts/drive-access-proof.v4.2.json
+```
+
+The observer verifies the exact token scope and authorized OAuth client, checks
+the Entor-domain principal without emitting its email or raw permission ID,
+gets the registered Drive/root/marker by ID, compares exact marker bytes through
+the API and pinned DriveFS root, checks the live mount, and repeats remote
+identity. It does not claim that a human performed a check. The separate
+storage/v1 observation remains required by the v4.1 base graph.
+
+## Required v4.1 evidence graph
 
 The order below is part of the evidence contract. Do not move rights review or
 sealing after the final evaluation-registry transition, and do not treat a
@@ -215,20 +336,48 @@ move from `pinned` to `sealed`; non-confirmatory entries stay pinned. The tool
 removes only evidence-backed blockers, preserves every other field, and requires
 the final timestamp to follow all supplied evidence.
 
-### 9. Quarantine, audit, acquire, inventory, admit, and gate
+### 9. Quarantine and audit the pre-acquisition source state
 
 Compile all seven contributions against the final registry, then perform the
-registered source audit. Only a complete `source acquire-v4.1` evidence graph
-whose report sets `foundation_acquisition_authorized: true` may start the
-roughly 102 GB Wikidata acquisition. The command accepts no caller override for
-URL, destination, expected size, or checksum. After acquisition, re-audit all
-bytes, build each structural inventory, and create one admission receipt per
-foundation source.
+registered source audit. Evaluate `gate-v4.2` with the approved policy, verified
+OAuth authority, and current Drive access proof. Before a per-artifact signature
+is supplied, it must report `foundation_acquisition_ready: true` and
+`foundation_acquisition_authorized: false`.
+
+### 10. Sign and execute each acquisition
+
+Build a canonical `source authorization-payload-v4.2` using the same complete
+v4.1 evidence arguments plus the v4.2 policy, OAuth authority, and live proof.
+The policy-listed authorizer reviews the exact artifact, expected bytes, byte
+ceiling, and validity window, then signs it offline. Verify the signature with
+`source authorization-verify-v4.2`.
+
+Only `source acquire-v4.2` may perform the real download. It accepts the complete
+evidence graph, the verified signed authorization, artifact ID, minimum free
+space, protected ADC, and five output paths. It accepts no caller URL,
+destination, expected-size, checksum, or evaluation-time override. Runtime time
+must fall inside the 24-hour authorization window.
+
+The command pins the lake-root directory descriptor, reproduces the full
+authorization gate immediately before transfer, binds any resumable partial to
+the exact signed authorization, repeats the API/DriveFS proof before immutable
+promotion, and preserves the partial if identity drifts. An old unbound partial
+is rejected before publisher network access. It emits:
+
+- the acquisition receipt;
+- the retained pre-acquisition source audit;
+- the pre- and post-acquisition Drive proofs; and
+- the exact precondition gate.
+
+After acquisition, re-audit all bytes, build each structural inventory, and
+create one admission receipt per foundation source.
+
+### 11. Evaluate the final v4.2 gate
 
 The final gate repeats every registry in order:
 
 ```bash
-uv run hf-phase0 gate-v4.1 \
+uv run hf-phase0 gate-v4.2 \
   --source-registry registries/sources.v4.pending.json \
   --source-registry registries/sources.v4.publisher-pinned.json \
   --source-registry artifacts/sources.v4.drive-bound.json \
@@ -247,22 +396,29 @@ uv run hf-phase0 gate-v4.1 \
   --quarantine artifacts/public-quarantine-index.v4.json \
   --inventory artifacts/inventory.ARTIFACT.v4.json \
   --admission artifacts/admission.SOURCE.v4.json \
+  --authority-policy policies/oauth-authority.v4.2.approved.json \
+  --oauth-authority PAYLOAD=SIGNATURE=PUBLIC_KEY \
+  --drive-access-proof artifacts/drive-access-proof.v4.2.json \
+  --acquisition-authorization PAYLOAD=SIGNATURE=PUBLIC_KEY \
+  --acquisition-evidence RECEIPT=PRE_SOURCE_AUDIT=PRE_PROOF=POST_PROOF=AUTHORIZATION_GATE \
   --evaluated-at EVALUATED-AT \
-  --output artifacts/phase0-gate.v4.1.json
+  --output artifacts/phase0-gate.v4.2.json
 ```
 
 Exit status 2 is blocked. Exit status 0 authorizes only the named acquisition or
-transformation action. Every v4.1 report has `training_authorized: false`.
+transformation action. Every v4.2 report has `training_authorized: false`.
 
 ### Current reproducible boundary
 
-`audit/phase0-gate.v4.1.blocked.json` is generated from the trusted roots and
-publisher successor. It correctly reports missing OAuth/Drive identity, fresh
-publisher receipts, pinned evaluation assets, rights approvals,
-materializations, custody anchors, quarantine, source audit/bytes, inventories,
-and admissions. No Drive authorization, held-out-data access, human approval,
-sealing, source acquisition, transformation, or training was performed in this
-stage.
+`audit/phase0-gate.v4.2.blocked.json` is generated from the trusted roots,
+publisher successor, pending policy, and fixed evaluation time. Its 54
+structured blockers include the unapproved OAuth policy, missing signed
+authority and same-resource proof, fresh publisher receipts, pinned evaluation
+assets, rights approvals, materializations, custody anchors, quarantine, source
+audit/bytes, acquisition evidence, inventories, and admissions. No OAuth
+consent, Drive access or mutation, held-out-data access, human approval, sealing,
+source acquisition, transformation, training, or push was performed while
+implementing v4.2.
 
 ## Frozen v4 reference workflow
 
@@ -439,7 +595,7 @@ authorizes training.
 ## Frozen v3 reference workflow
 
 All remaining sections reproduce v3 or earlier operational history. They are
-retained to explain existing artifacts and are not part of the active v4.1
+retained to explain existing artifacts and are not part of the active v4.2
 authorization path above.
 
 ## Control order
@@ -502,14 +658,17 @@ pins the released 1.0.1 API, and its wheel smoke test exercises that exact
 boundary. Reinstall the current built artifact and repeat the nonce probe; do
 not silently substitute a different source-only dependency.
 
-Attempt native mounting first. Keep `colab drivemount` attached, approve the
-validated Google URL in the browser, and press Enter once only after the browser
-shows its close-window page. The keypress merely permits final propagation;
-require the CLI's final `drive_auth_success` before accepting the mount:
+Create exact-scope ADC first, then attempt native mounting in the same durable
+session. Keep `colab drivemount` attached, approve the validated Google URL in
+the browser, and press Enter once only after the browser shows its close-window
+page. The keypress permits final propagation; require both the credential
+status check and `Mounted at /content/drive` before continuing:
 
 ```bash
-uv run colab --auth=adc drivemount --read-only \
-  --session DRIVE-AUDIT-CPU /content/drive
+better-colab drive-auth authorize DRIVE-AUDIT-CPU \
+  --oauth-config /PROTECTED/entor-internal-oauth.json
+better-colab drive-auth status DRIVE-AUDIT-CPU --format json
+colab drivemount --session DRIVE-AUDIT-CPU --read-only /content/drive
 ```
 
 The corrected client performs one fresh-token/bodyless dry run and one
@@ -518,16 +677,16 @@ or send the obsolete multipart `file_id`. If native mounting fails, compare it
 with the official browser flow on the same account before classifying the
 failure as upstream.
 
-In the browser connected to the exact audited Colab runtime, obtain ADC with
-the exact Drive read-only scope. User ADC containing Drive scopes requires an
-approved desktop OAuth client file. Keep that file protected locally; do not
-commit it, paste it into chat, or include it in logs. Set the attestation only
-after personally checking that the native mount and ADC used the same account:
+The provider keeps exact-scope ADC at
+`/dev/shm/better-colab/credentials/google-drive-readonly.json` in the tracked
+kernel. Keep the installed-client file protected locally; do not commit it,
+paste it into chat, or include it in logs. Set the legacy attestation only after
+personally checking that the native mount and exact-scope ADC used the same
+account:
 
 ```python
-!gcloud auth application-default login --no-launch-browser --client-id-file=/PROTECTED/approved-desktop-oauth.json --scopes=openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/drive.readonly
-
 import os
+
 os.environ["HF_DRIVE_SAME_ACCOUNT_ATTESTED"] = "1"
 ```
 

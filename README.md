@@ -11,18 +11,23 @@ older Hippocampus implementation.
 
 ## Status
 
-Phase 0 v4.1 clean-room controls and Phase 1 v2 deterministic data-preparation
-controls are implemented locally. Phase 0 v4.1 is an additive, trusted-root
-external-evidence firewall: it binds complete registry lineages, independently
-materialized evaluation receipts, the exact Drive observation, retained
-publisher checksum statements, accountable rights packets, explicit evaluation
-roles, authenticated custody anchors, the complete quarantine union,
-source-byte audits, inventories, and admission receipts. Phase 1 freezes
+Phase 0 v4.2 clean-room controls and Phase 1 v2 deterministic data-preparation
+controls are implemented locally. Phase 0 v4.2 retains the complete v4.1
+trusted-root evidence graph and adds an externally rooted Entor Workspace OAuth
+policy, signed authority over the exact installed-client bytes, a live
+same-resource proof joining the Drive API to the mounted DriveFS root through a
+canonical marker, and signed per-artifact authority for acquisition. Rooted
+downloads bind resumable partials to that signature and repeat the live proof
+before immutable promotion. Phase 0 also binds independently materialized
+evaluation receipts, publisher statements, accountable rights packets,
+explicit evaluation roles, authenticated custody anchors, the complete
+quarantine union, source-byte audits, inventories, and admission receipts.
+Phase 1 freezes
 graph/objective contracts, a deterministic 40,000-node sampler, complete
 neighbour-overflow accounting, development
 objective replay, and separate encoder identity/licensing readiness. The
-frozen Phase 0 v2/v3 and Phase 1 v1 contracts remain available for historical
-reproducibility; v4.1 does not delegate readiness to any historical gate.
+frozen Phase 0 v2/v3/v4/v4.1 and Phase 1 v1 contracts remain available for
+historical reproducibility; v4.2 does not delegate readiness to an older gate.
 
 Phase 2A and Phase 2B are also implemented locally. The preparation-only Phase
 2 CLI generates and verifies 16 open-world candidates and 32 staged-write
@@ -35,22 +40,22 @@ contract and leakage-control fixtures, not admitted corpora: they are bound
 only to a local reservation quarantine index, their rights records remain
 pending, and no predictive performance was measured.
 
-The checked real-state Phase 0 v4.1 and Phase 1 v2 gates are blocked. Phase 0 v4
+The checked real-state Phase 0 v4.2 and Phase 1 v2 gates are blocked. Phase 0 v4
 corrects evaluation roles: SocialIQA validation is development-only, the
 previously exposed EvidenceBench partition is diagnostic-only, and five other
 datasets remain confirmatory candidates. Forty-three allowlisted legal/provenance
 documents have been captured into 10 digest-bound review packets; none is a
 human approval. Every assessment remains pending, and two private confirmatory
-first-party evaluations have no external evidence documents. The native
-read-only Drive command, identity probe, binding command, and a fail-closed
-rclone fallback are implemented. The repaired native authorization sequence
-and read-only mount were live-verified on one disposable CPU runtime, including
-the fixed expected lake-root directory, but no exact-scope identity observation
-has yet established stable resource IDs. The fallback and identity observation
-cannot proceed without protected exact-scope user ADC created with an approved
-desktop OAuth client file, and none was supplied to this work. The separately
-connected Drive integration has no accessible shared drive named `Data`, so it
-was not used as a substitute. Phase 0 also lacks
+first-party evaluations have no external evidence documents. The installed
+Better Colab build is `0.1.dev103+ga8c1b68b5`. A user-run `colab drivemount`
+completed interactive credential propagation and mounted `/content/drive`;
+that establishes that the broad native mount works, but it does not establish
+the exact API scope, approved OAuth client, stable Drive IDs, marker identity,
+or v4.2 authority. The exact-scope provider and v4.2 observer are implemented,
+but no approved Internal Workspace policy/client pair or live v4.2 proof was
+supplied to this work. The checked pending policy deliberately has no trusted
+project or signing keys, and its hash is not activated in code. Phase 0 also
+lacks
 fresh publisher receipts and verified source bytes, a pinned evaluation
 successor, pinned-entry rights approvals, materialization receipts, sealed
 evaluation envelopes with GPG-signed independently anchored access logs, the
@@ -142,15 +147,18 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Validate the checked publisher-URL successor, then execute the implemented
-   v4.1 external-evidence firewall without opening
-   item-level confirmatory data in the development environment.
-2. Attempt the repaired native `colab drivemount --read-only` flow first. With
-   an approved protected desktop OAuth client, create exact-scope ADC in the
-   same CPU runtime, run the read-only Drive identity probe, and bind its stable
-   shared-Drive/root-folder IDs into a new registry plus fresh storage
-   attestation. Use the gated rclone fallback only if native mounting fails.
-   Do not grant a Drive scope broader than `drive.readonly`.
+1. Have an Entor Workspace administrator create or identify an
+   organization-owned Google Cloud project whose OAuth audience is Internal,
+   approve the exact installed-client SHA-256 and signing keys in a non-secret
+   v4.2 policy, and activate only that reviewed policy hash in a separate
+   commit. Do not commit the client secret or ADC.
+2. Create the canonical marker, upload those exact bytes once to the registered
+   lake root, and bind its file ID and digest into the signed OAuth authority.
+   In one durable Better Colab CPU session, use `drive-auth authorize` with the
+   protected approved client and manually complete `colab drivemount
+   --read-only`. Then generate both the legacy human-observed storage record and
+   the independent v4.2 API/DriveFS marker proof. A broad default mount is not a
+   substitute.
 3. Fetch fresh publisher statements after Drive binding and create one receipt
    per registered artifact.
 4. Pin all evaluation assets, adapters or generators, independent-oracle
@@ -162,11 +170,12 @@ configurations into this project.
    offline public key, externally anchor each materialization-bound access log,
    create the evidence-backed final registry successor, and compile the public
    quarantine union.
-7. Audit the existing lake from raw bytes. Acquire the registered Wikidata dump
-   only if the Phase 0 acquisition gate becomes ready, then re-audit and build
-   structural inventories and admission receipts.
-8. After a ready v4.1 transformation report exists, add the separately versioned
+7. Audit the existing lake from raw bytes. For each registered acquisition
+   target, obtain a fresh detached signature over its exact registry entry,
+   storage identity, expected bytes, and byte ceiling. Use only `source
+   acquire-v4.2`, then re-audit and build structural inventories and admission
+   receipts.
+8. After a ready v4.2 transformation report exists, add the separately versioned
    raw-source consumer and Phase 1 v3 input gate. Then run data preparation on
-   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.1,
+   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.2,
    and no Phase 1 readiness report authorizes training.
-# Hippo-foundation
