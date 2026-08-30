@@ -186,8 +186,30 @@ def test_direct_pool_is_similarity_independent_and_gamma_invariant() -> None:
     assert report["passed"] is True
     for values in report["coverage"].values():
         assert len(set(values.values())) == 1
+    # Amendment 01 capped MAX_PATH_LENGTH at 4, so a preregistered budget now
+    # clears the 90% threshold. Selection must still return the smallest such
+    # candidate rather than simply the largest budget.
+    selected = select_main_budget(report)
+    assert selected in BUDGET_CANDIDATES
+    assert report["coverage"][str(selected)]["0.0"] > 0.9
+    assert all(
+        report["coverage"][str(budget)]["0.0"] <= 0.9
+        for budget in BUDGET_CANDIDATES
+        if budget < selected
+    )
+
+
+def test_budget_selection_still_blocks_when_no_candidate_clears_threshold() -> None:
+    blocked = {
+        "gate": "direct_pool_invariance",
+        "passed": True,
+        "coverage": {
+            str(budget): {f"{gamma:.1f}": 0.5 for gamma in GAMMA_BUCKETS}
+            for budget in BUDGET_CANDIDATES
+        },
+    }
     with pytest.raises(IntegrityGateError, match="no preregistered budget"):
-        select_main_budget(report)
+        select_main_budget(blocked)
 
 
 def test_dire_removes_reachability_without_changing_local_marginals() -> None:

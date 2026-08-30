@@ -26,7 +26,9 @@ MAX_NODES = 256
 MIN_RELATIONS = 8
 MAX_RELATIONS = 16
 MIN_PATH_LENGTH = 2
-MAX_PATH_LENGTH = 6
+# Amendment 01: capped from 6 after the stratified coverage diagnostic showed
+# path length, not world size, drives the DIRECT target-in-pool deficit.
+MAX_PATH_LENGTH = 4
 OUT_DEGREE = 3
 ASSERTION_COUNT = 4
 MAX_GENERATION_ATTEMPTS = 128

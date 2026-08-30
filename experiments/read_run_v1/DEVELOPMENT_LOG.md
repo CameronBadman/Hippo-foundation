@@ -73,3 +73,88 @@ code. If it also fails to exceed 90%, the main sweep stops as preregistered.
   regression test.
 - This was caught before an official split, P0 report, model run, or accuracy
   existed. No result was invalidated.
+
+## 2026-08-31 — stratified coverage diagnostic and single-knob generator fix
+
+The full stratified evidence is in
+[`diagnostics/coverage_stratified.md`](diagnostics/coverage_stratified.md). This
+entry records the change it selected and the consequences of that change. No
+model, training step, holdout episode, or accuracy was involved.
+
+### Measured baseline replaces the prototype figure
+
+No prototype episodes were retained, so the screening domain was reconstructed
+deterministically from the committed seed and code rather than re-drawn. The
+committed generator reproduces this log's earlier 200-world check exactly
+(81.00% at B=128) but not its 2,000-world row: measured set-level coverage at
+gamma=0 was 23.50%, 40.85%, 60.45%, and 81.30% against the recorded 23.10%,
+39.80%, 59.95%, and 82.25%. The 2,000-world row predates a later code change,
+which this log already anticipated when it recorded that the official
+2,000-episode evidence must be regenerated from committed code. **81.30% is the
+governing pre-fix number.**
+
+### Both preregistered gates on the diagnostic passed
+
+The blocked figure was already set-level: the shipped indicator is a subset test
+requiring every target node of both valid routes to be pooled. Node-level
+coverage is 95.80%. The governing number therefore did not move down.
+
+Coverage is bit-identical across all five gamma buckets per episode, not merely
+equal within sampling noise, because pool construction orders edges without
+reading `query_similarity_ppm`. Pool construction is not correlated with query
+similarity, so the deficit was a generator-shape problem rather than a
+correctness bug.
+
+### Path length dominates; world size was rejected
+
+Coverage at B=128 spans 100% to 47.16% across path lengths 2 to 6, against 95.09%
+to 72.09% across the 64–256 node range. Hop distance from the traversal root is
+sharper still and very nearly deterministic — 100% within 4 hops, 26.21% at 5
+hops, 0% at 6 — but the generator exposes no knob that sets it directly, and the
+task's third option presupposes router seeds are placed nodes, which they are
+not: `router_seed` only orders each node's outgoing edges.
+
+Narrowing world size was rejected on evidence rather than preference. Capping
+`MAX_NODES` at 127 yields 596/662 = 90.03% at B=128, clearing `coverage > 0.9` by
+four hundredths of a point with a one-sided 95% Wilson lower bound near 87.6%.
+That would satisfy the gate while being statistically indistinguishable from a
+failure.
+
+### Applied change
+
+`MAX_PATH_LENGTH` 6 → 4, in `read_run/generator.py`. One constant; `MIN_NODES`,
+`MAX_NODES`, `MIN_PATH_LENGTH`, `OUT_DEGREE`, and the budget set are unchanged,
+and B was not increased. `MAX_PATH_LENGTH = 5` was predicted at 89.52% and is a
+genuine miss rather than a rounding question.
+
+Measured after regeneration at gamma=0 on 2,000 screening worlds: 39.20%,
+62.25%, 83.30%, and 100.00% set-level. Proof-valid coverage, where both valid
+routes are fully decodable from the pool, is also 100.00% at B=128. B=64 reaches
+83.30%, so `select_main_budget` still returns 128.
+
+### Known consequence, recorded rather than resolved
+
+Capping at 4 removes path lengths 5 and 6. Those are the hardest traversal cases
+and precisely where an adaptive-traversal advantage over an equal-budget DIRECT
+scorer would be most expected to appear. The change therefore buys the
+preregistered coverage threshold at some cost to the experiment's power to
+discriminate between the arms.
+
+This is not treated as grounds for deviating: the 90% coverage rule is
+preregistered and the single-knob rule was specified. It is recorded so that a
+null or weak TRAV-versus-DIRECT result is interpreted against a generator whose
+hardest cases were removed, rather than being read as evidence that adaptive
+traversal does not help.
+
+A supplementary observation points the same way: before the fix, proof-valid
+coverage (69.55% at B=128) sat well below target-in-pool coverage (81.30%).
+Clearing the preregistered target-in-pool gate does not by itself guarantee a
+proof-valid answer at the same rate, although after the fix both are 100%.
+
+### Test surface
+
+`test_direct_pool_is_similarity_independent_and_gamma_invariant` asserted that no
+preregistered budget cleared 90%, encoding the blocked state as expected
+behaviour. It now asserts that selection returns the smallest candidate above the
+threshold. The blocked branch retains coverage through a separate test built on a
+synthetic below-threshold report, so the raise path is still exercised.
