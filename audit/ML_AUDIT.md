@@ -749,3 +749,165 @@ policy; it does not create a signature or grant OAuth, Drive, acquisition, or
 training authority. No OAuth consent, token exchange, Drive API access, Drive
 mutation, marker creation, source acquisition, held-out-data access,
 transformation, or training had occurred at this checkpoint.
+
+## Hugging Face public-publication checkpoint (2026-08-30)
+
+The authenticated Hugging Face account reported PRO entitlement through its
+`isPro` field. No existing Entor dataset repository was present. A new public
+dataset repository, `Kyriah/hippocampus-foundation`, was created to establish
+the intended distribution identity. Commit
+`efeed3dd9fc85dc1ec6e2991e2aaae51e6f3d347` contains only a dataset card and
+`planned-publication.v1.json`; the API reported `private: false` and the exact
+remote file set `.gitattributes`, `README.md`, and the plan. A fresh anonymous
+download reproduced the local README SHA-256
+`496ea867e75824785d73944c677a1fd07ae2ba1ad0e5da386fb4f2e8291c3c6c`
+and plan SHA-256
+`faa2c5a83c330452b17ce3cee32f74c45159cd604e709c2d1ccc79266c1fe713`.
+No corpus payload was uploaded.
+
+The current source registry names seven Wikimedia artifacts totaling
+141,447,172,673 expected bytes (131.73 GiB). None of those bytes exists in the
+workspace. Both source entries remain `admission_status: pending`; all seven
+artifact entries remain `integrity_status: unverified`; the six English
+Wikipedia publisher-checksum flags remain false; and both retained human
+assessments are `decision: pending`, allow no uses, and explicitly exclude
+`redistribute_source`. The current v4.2 report independently says
+`foundation_acquisition_authorized: false`, with source-byte, fresh publisher,
+rights, quarantine, audit, inventory, acquisition, and admission evidence
+missing. Evaluation and held-out material was neither read nor published.
+
+This attempted publication exposed a distinct authorization gap. The frozen
+source readiness policy requires acquisition, inventory, quarantine,
+transformation, embedding, and commercial-service uses, but does not require
+`redistribute_source`; the v4.2 acquisition signature binds a Drive destination
+and does not authorize a public Hugging Face mirror. Consequently neither a
+future acquisition receipt nor source admission alone can be interpreted as
+publication authority. Public reachability at the upstream publisher is also
+not a substitute for an accountable redistribution decision and recorded
+licence obligations.
+
+Payload publication must remain blocked until an additive, separately locked
+publication layer requires the complete admitted source lineage, an approved
+assessment explicitly allowing `redistribute_source`, all applicable
+attribution/notice/share-alike/privacy/takedown obligations, exact public Hub
+repository identity, a signed per-artifact publication authorization, and a
+receipt binding local source digests and sizes to the observed remote commit
+and remote large-file digests. It must reject evaluation/private families,
+unknown or extra remote files, incomplete uploads, owner/repository drift, and
+rights bound to a different source entry. This metadata-only checkpoint is not
+acquisition, admission, publication authorization, transformation, or training
+evidence.
+
+## Phase 0 v4.3 public-source execution boundary (2026-08-30)
+
+Phase 0 v4.3 and publication v1 were added as separate locked contracts. No
+frozen v4, v4.1, or v4.2 schema was edited, and legacy commands remain
+registered. The new canonical schema digests are:
+
+- Phase 0 authority policy:
+  `sha256:650b2a662964275d9bc14cdac707702255f162601cb162ca23b79e6ce6161eca`;
+- Phase 0 execution evidence:
+  `sha256:28e49b86b0ea8445219f50841b5483d10f6a2760c41d2267f7e484aa9fd83104`;
+- Phase 0 gate:
+  `sha256:56193fe202da27f7e20f82340cecfb6d70f7e38d1a822f1ba63359586bfbebd4`;
+- publication authority policy:
+  `sha256:958a7adda6b861c65d9bc2c9fa1df29d94a87d4eb80bc3c420264cd96c11332a`;
+- publication destination policy:
+  `sha256:8d52d3fe80c069d638854567d8c476abec04009cef26ca642cb5483a41636aa7`;
+- publication evidence:
+  `sha256:580c8d75ef4a09cd9f89fd5de61cce4e4a3216e7363bf9838532abda8bc684f1`;
+  and
+- publication gate:
+  `sha256:e1303afd5d1ca80219d3556d9e556b5c7229bb1fe58e108b1afc9c3019718511`.
+
+The configured destination policy has canonical instance digest
+`sha256:5732db9cdf9e9fec46a21e9c1b72a01e415917be1ccd13148900f9282a144e31`,
+which is the only new policy root activated in code. It fixes the endpoint,
+owner/repository, public dataset type, `main` revision, baseline commit,
+controlled metadata hashes and limits, all seven artifact paths, excluded
+private/evaluation path families, and exactly 10-GiB parts. It contains no
+token and supplies no human authority. The staging and publication authority
+policies remain pending with empty signer lists; both authority code roots are
+`None`.
+
+A live read-only destination observation was generated with the installed
+Hugging Face client. At `2026-08-30T14:22:01.192142Z`, authenticated and
+anonymous queries agreed on public repository
+`Kyriah/hippocampus-foundation`, head
+`efeed3dd9fc85dc1ec6e2991e2aaae51e6f3d347`, and the exact three-file metadata
+layout. The authenticated principal was `Kyriah` and the API write-capability
+check succeeded. Anonymous downloads re-established the two controlled
+metadata digests. This is a time-bounded destination observation, not rights or
+upload authority, and it does not prove that the repository remains unchanged
+after the observation.
+
+The staging path is absolute, owner-private, marker-bound, symlink-free, and
+rejects evaluation, held-out, private, licensing, and seal path families. The
+acquisition CLI takes no URL/path/size/checksum/time override. It verifies a
+short-lived detached authorization over the exact source entry, publisher
+receipt, staging identity, reproduced evaluation graph, expected bytes and
+ceiling; it then uses the existing authorization-bound resumable transfer and
+atomic promotion. Post-transfer evidence independently rehashes the artifact,
+streams its registered structural counter, and enforces causal ordering.
+
+Publication rights are deliberately additive to the legacy transformation
+assessment. Approval requires the exact use set `acquire`, `inventory`,
+`quarantine`, and `redistribute_source`, complete finding dispositions, an
+accountable policy-listed reviewer, and explicit obligations; it excludes
+transformation and training uses from that signature. This separation prevents
+an acquisition/admission decision or public upstream URL from being
+reinterpreted as redistribution authority.
+
+Before publication authority can be signed, the exact local artifact is split
+conceptually into deterministic ordered parts no larger than 10 GiB and every
+part digest is computed. The signed payload binds that complete manifest as
+well as clearance, rights, obligations, source entry, local size/SHA-1/SHA-256,
+and initial Hub head. The actual upload rechecks owner, write capability,
+anonymous visibility, head, and complete file layout immediately before its
+first mutation; uses optimistic parent commits; uploads the canonical manifest
+last; and anonymously verifies exact paths, sizes, and SHA-256 values before
+emitting completion. Hugging Face Xet hashes are not labelled SHA-256; if the
+API does not expose a real SHA-256, verification streams the anonymous object
+bytes instead. That fallback is integrity-preserving but could require another
+large read.
+
+Unknown-outcome recovery performs no upload. It requires the authorization's
+exact signed manifest and clearance, a claimed start inside the original
+authorization window, the complete exact remote file set, anonymous part
+hashes, and byte-identical canonical manifest. Prior publication receipts are
+not accepted as self-authenticating lineage: each must be paired with its exact
+manifest and the detached signed publication authorization whose derived
+receipt digest it names.
+
+Adversarial review found and corrected several pre-freeze near misses. The
+initial blocked CLI required complete publisher receipts and therefore could
+not report their absence; the gate loader now allows missing evidence only for
+reporting. Initial downstream records did not consistently enforce timestamp
+ordering; acquisition, audit, inventory, clearance, publication, recovery, and
+admission now reject rollback. The first recovery path bound the manifest but
+not the exact clearance or authorized start window; both are now required. The
+first upload path relied on an earlier destination observation until optimistic
+commit failure; it now performs a no-write live identity/visibility/head/layout
+preflight. Finally, a prior unsigned publication receipt could have advanced
+the accepted repository tip; the chain now requires its verified detached
+authorization.
+
+`audit/phase0-gate.v4.3.blocked.json` reproduces through the real v4.3 CLI from
+the two trusted registry chains with no Drive input. It contains 44 blockers:
+the detailed evaluation registry/materialization/rights/custody/quarantine
+prerequisites plus missing staging authority, acquisition, audit, inventory,
+clearance, publication, and admission. The separate
+`audit/publication-gate.v1.blocked.json` binds the live destination observation:
+destination readiness is true, while rights, obligations, clearance,
+authorization, and publication completion are false. Both reports set
+`training_authorized: false`.
+
+The registered 141,447,172,673 bytes are still absent locally. The derived plan
+contains 18 payload parts and seven manifests, but this is arithmetic over
+registered expected sizes rather than acquired-byte evidence. No source
+download, publisher refetch, policy approval, signature, held-out-data access,
+evaluation materialization, sealing, anchoring, quarantine compilation, Hub
+payload upload, transformation, model execution, training, evaluation, or Git
+push occurred during this stage. Synthetic complete-graph tests exercise the
+ready control path; they are not evidence that real rights, bytes, accounts,
+or evaluations are ready.

@@ -1,21 +1,76 @@
-# Phase 0 v4.2 clean-room runbook
+# Phase 0 v4.3 clean-room runbook
 
 Phase 0 establishes frozen contracts, storage identity, provenance, licensing,
 evaluation quarantine, immutable raw-byte inventory, source admission, and a
 mechanical readiness gate. It does not transform a graph, generate model
 examples, run an encoder, fit a model, tune a threshold, or authorize training.
 
-The active authorization boundary is `gate-v4.2`. It consumes the complete
-v4.1 evidence graph and adds a code-pinned Internal Workspace OAuth policy,
-detached authority over exact installed-client bytes, a live Drive API/DriveFS
-same-resource proof, signed per-artifact acquisition authority, and retained
-pre/post-acquisition evidence. It validates every frozen predecessor contract
-but does not import an older gate's readiness decision. `gate-v4.1`, `gate-v4`,
-and all unsuffixed or older-suffix commands remain available for reproducibility
-or as explicitly required evidence producers; they cannot by themselves
-authorize real acquisition or transformation.
+The active public-source authorization boundary is `gate-v4.3`, paired with
+`publication-gate-v1`. It reopens the complete v4.1 evidence graph, uses a
+private non-Drive staging root, and binds the exact public Hugging Face
+destination, redistribution rights, deterministic part manifest, signed
+publication authority, anonymous remote verification, and post-publication
+source admission. It does not import an older gate's readiness decision.
+`gate-v4.2`, `gate-v4.1`, `gate-v4`, and every older command remain available
+for reproducibility; none can satisfy v4.3 by itself.
 
-## Active v4.2 authority layer
+## Active v4.3 public-source layer
+
+The exact execution order, authority pauses, checked destination observation,
+and current blocked reports are maintained in `docs/NEXT_MILESTONE.md`. The
+normative controls are in `policies/PHASE_0_CONTROLS.md`.
+
+The active v4.3 routes are:
+
+- `registry validate-v4.3` for the separately locked Phase 0 v4.3 and
+  publication v1 contracts;
+- `source staging-init-v4.3` and `source staging-observe-v4.3` for the
+  public-only owner-private root;
+- `source authorization-payload-v4.3`, `source authorization-verify-v4.3`, and
+  `source acquire-v4.3` for rooted signed acquisition;
+- `source audit-v4.3`, `source count-v4.3`, and `source clearance-v4.3` for
+  independent byte, structural, rights, obligation, evaluation, and quarantine
+  evidence;
+- `licence publication-scaffold-v1` and `licence publication-verify-v1` for
+  the distinct accountable redistribution decision;
+- the `publication` namespace for destination observation, obligation
+  assembly, deterministic inventory, signed authorization, serial upload, and
+  read-only unknown-outcome recovery;
+- `source admission-v4.3` for exact complete-source admission; and
+- `publication-gate-v1` plus `gate-v4.3` for the final fail-closed reports.
+
+`source acquire-v4.3` accepts no caller URL, destination, expected size,
+checksum, or evaluation time. `publication upload-v1` accepts no token,
+endpoint, repository, local/remote path, expected size, checksum, or evaluation
+time. Both derive mutation parameters from code-pinned policy and signed
+evidence, and both use the runtime clock. The publication command performs a
+fresh owner/public/head/layout check immediately before its first remote write.
+
+The checked policies
+`policies/staging-acquisition.v4.3.pending.json` and
+`policies/hf-publication-authority.v1.pending.json` are deliberately
+non-authorizing. Their approved code roots are unset. Do not manufacture an
+approval by editing status or inserting a local fingerprint; activation needs
+an accountable reviewed successor and a separate code-root change.
+
+The current destination policy is code-pinned to canonical digest
+`sha256:5732db9cdf9e9fec46a21e9c1b72a01e415917be1ccd13148900f9282a144e31`.
+It pins `https://huggingface.co`, public dataset
+`Kyriah/hippocampus-foundation`, revision `main`, the exact metadata baseline,
+all seven source paths, and exactly 10-GiB parts. It contains no credential and
+does not authorize an upload.
+
+Prior receipts supplied to `publication observe-v1` must be ordered from the
+configured baseline and paired one-for-one with
+`--prior-publication-manifest MANIFEST` and
+`--prior-publication-authorization PAYLOAD=SIGNATURE=PUBLIC_KEY` plus the
+approved authority policy. A receipt alone cannot advance the accepted Hub
+head. Run uploads serially; never parallelize artifact commits.
+
+The remainder of this document preserves the v4.2 Drive route as a historical
+runbook. It is not the current source execution path.
+
+## Historical v4.2 authority layer
 
 ### External activation boundary
 

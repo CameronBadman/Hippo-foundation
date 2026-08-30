@@ -1,5 +1,53 @@
 # Phase 0 controls
 
+## Additive v4.3 public-source controls
+
+Phase 0 v4.3 replaces the Drive-specific source execution route for the public
+Hugging Face path; it does not alter or reinterpret any frozen v4, v4.1, or
+v4.2 artifact. The following controls are normative for v4.3:
+
+- Source and evaluation registries must reproduce as complete ordered v4.1
+  chains from the checked roots. A supplied gate report is not evidence: the
+  complete v4.1 graph is reopened and evaluated at each authority boundary.
+- A staging root is absolute, owner-owned, mode-private, symlink-free, and
+  identified by an immutable canonical marker. Evaluation, held-out, private,
+  licensing, and seal path families are forbidden there.
+- Staging acquisition authority is a detached, short-lived, per-artifact
+  signature over the exact source entry, URL digest, publisher receipt,
+  staging observation, evaluation-gate digest, expected bytes, checksum, and
+  byte ceiling. The mutation command derives every transfer parameter from
+  those bindings and uses runtime time.
+- Acquisition, byte audit, structural inventory, publication clearance,
+  publication, and admission form a digest-bound and causally ordered chain.
+  Duplicate evidence, timestamp rollback, orphan outputs, missing artifacts,
+  and changed local bytes fail closed.
+- Public-source redistribution is a separate human decision. Acquisition,
+  transformation rights, public upstream availability, or source admission
+  cannot substitute for an assessment explicitly permitting
+  `redistribute_source` and recording every applicable obligation.
+- The Hugging Face endpoint, owner, dataset repository, public visibility,
+  revision, baseline commit, controlled metadata, and seven artifact paths are
+  code-pinned. Ambient credentials prove only the current principal and live
+  write capability.
+- Publication authorization is a second detached, short-lived signature over
+  the exact clearance, rights, obligations, local bytes, deterministic 10-GiB
+  reassembly manifest, and initial repository head. No CLI option may override
+  endpoint, repository, remote path, local path, size, checksum, token, or
+  decision time during upload.
+- Immediately before its first write, publication rechecks the authenticated
+  owner, anonymous visibility, exact head, and complete remote layout. Every
+  upload uses the previous commit as its optimistic parent, the canonical
+  manifest is last, and completion requires anonymous size and SHA-256 checks
+  with no missing or extra remote paths.
+- A prior publication receipt advances destination lineage only when paired
+  with its exact signed manifest and verified detached authorization.
+  Unknown-outcome recovery is
+  read-only, is bound to the signed manifest and clearance, and accepts only a
+  start time inside the original authorization window.
+- Evaluation/private material is never a publication artifact. Phase 0 v4.3
+  may authorize the registered foundation transformation only after exact
+  publication and source admission; `training_authorized` is always false.
+
 ## Active v4 additions
 
 The v2 controls below remain frozen historical requirements. Phase 0 v4 adds

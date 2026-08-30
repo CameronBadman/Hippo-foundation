@@ -11,23 +11,23 @@ older Hippocampus implementation.
 
 ## Status
 
-Phase 0 v4.2 clean-room controls and Phase 1 v2 deterministic data-preparation
-controls are implemented locally. Phase 0 v4.2 retains the complete v4.1
-trusted-root evidence graph and adds an externally rooted Entor Workspace OAuth
-policy, signed authority over the exact installed-client bytes, a live
-same-resource proof joining the Drive API to the mounted DriveFS root through a
-canonical marker, and signed per-artifact authority for acquisition. Rooted
-downloads bind resumable partials to that signature and repeat the live proof
-before immutable promotion. Phase 0 also binds independently materialized
-evaluation receipts, publisher statements, accountable rights packets,
-explicit evaluation roles, authenticated custody anchors, the complete
-quarantine union, source-byte audits, inventories, and admission receipts.
-Phase 1 freezes
+Phase 0 v4.3 public-source controls and Phase 1 v2 deterministic
+data-preparation controls are implemented locally. V4.3 preserves the complete
+v4.1 trusted-root evaluation graph while replacing the Drive-specific source
+execution path with private local/remote staging and an exact public Hugging
+Face destination. It adds signed per-artifact staging acquisition, independent
+byte audit and structural inventory, separate human redistribution rights and
+obligation evidence, deterministic 10-GiB publication manifests, optimistic
+Hub commit locking, anonymous remote verification, and post-publication source
+admission. Phase 0 also binds independently materialized evaluation receipts,
+publisher statements, accountable rights packets, explicit evaluation roles,
+authenticated custody anchors, and the complete quarantine union. Phase 1 freezes
 graph/objective contracts, a deterministic 40,000-node sampler, complete
 neighbour-overflow accounting, development
 objective replay, and separate encoder identity/licensing readiness. The
-frozen Phase 0 v2/v3/v4/v4.1 and Phase 1 v1 contracts remain available for
-historical reproducibility; v4.2 does not delegate readiness to an older gate.
+frozen Phase 0 v2/v3/v4/v4.1/v4.2 and Phase 1 v1 contracts remain available for
+historical reproducibility; v4.3 does not accept a supplied predecessor report
+as proof and instead reopens the complete rooted evidence graph.
 
 Phase 2A and Phase 2B are also implemented locally. The preparation-only Phase
 2 CLI generates and verifies 16 open-world candidates and 32 staged-write
@@ -40,28 +40,19 @@ contract and leakage-control fixtures, not admitted corpora: they are bound
 only to a local reservation quarantine index, their rights records remain
 pending, and no predictive performance was measured.
 
-The checked real-state Phase 0 v4.2 and Phase 1 v2 gates are blocked. Phase 0 v4
-corrects evaluation roles: SocialIQA validation is development-only, the
-previously exposed EvidenceBench partition is diagnostic-only, and five other
-datasets remain confirmatory candidates. Forty-three allowlisted legal/provenance
-documents have been captured into 10 digest-bound review packets; none is a
-human approval. Every assessment remains pending, and two private confirmatory
-first-party evaluations have no external evidence documents. The installed
-Better Colab build is `0.1.dev103+ga8c1b68b5`. A user-run `colab drivemount`
-completed interactive credential propagation and mounted `/content/drive`;
-that establishes that the broad native mount works, but it does not establish
-the exact API scope, approved OAuth client, stable Drive IDs, marker identity,
-or v4.2 authority. The exact-scope provider and v4.2 observer are implemented.
-An administrator-confirmed Internal project and mechanically validated protected
-Desktop client are now available, and the exact approved-policy digest is
-activated in code. No signed authority or live v4.2 proof exists. The checked
-pending policy remains the reproducible blocked-report input. Phase 0 also lacks
-fresh publisher receipts and verified source bytes, a pinned evaluation
-successor, pinned-entry rights approvals, materialization receipts, sealed
-evaluation envelopes with GPG-signed independently anchored access logs, the
-complete Phase 0 v4 quarantine union, structural inventories,
-and admission receipts. Phase 1 consequently
-lacks a ready Phase 0 gate and its sample, graph, and objective manifests.
+The checked real-state Phase 0 v4.3, publication v1, and Phase 1 v2 gates are
+blocked. The pinned public dataset currently contains exactly three metadata
+files at the configured baseline; a fresh authenticated/anonymous observation
+proved the intended account can write and anonymous users can read, but no
+corpus byte was uploaded. The source registry describes seven Wikimedia
+artifacts totaling 141,447,172,673 bytes; none is present in this workspace.
+Both v4.3 authority policies remain pending and code-unpinned. The project still
+lacks fresh publisher receipts, verified source bytes, a pinned evaluation
+successor, accountable rights approvals, materialization receipts, sealed
+evaluation envelopes with independently signed access-log anchors, the complete
+quarantine union, staging/acquisition evidence, structural inventories,
+publication clearances and receipts, and admissions. Phase 1 consequently lacks
+a ready Phase 0 gate and its sample, graph, and objective manifests.
 
 There is no training command or ML runtime dependency. Every Phase 0, Phase 1,
 and Phase 2 artifact mechanically sets `training_authorized` to `false`. The
@@ -132,7 +123,7 @@ forced into a binary accept/reject outcome.
 - [Phase 1 data-preparation runbook](docs/PHASE_1_RUNBOOK.md)
 - [Phase 2A procedural runbook](docs/PHASE_2A_RUNBOOK.md)
 - [Phase 2B staged-write runbook](docs/PHASE_2B_RUNBOOK.md)
-- [Next milestone: external evidence firewall](docs/NEXT_MILESTONE.md)
+- [Next milestone: public-source execution](docs/NEXT_MILESTONE.md)
 - [Machine-learning integrity audit](audit/ML_AUDIT.md)
 - [Verification record](audit/VERIFICATION.md)
 
@@ -147,35 +138,29 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Retain the exact activated v4.2 policy digest. The project, Internal audience,
-   and protected installed client are administrator-confirmed or mechanically
-   checked as documented in the audit. The signing keys remain in online
-   passphrase-protected staging under an explicit interim exception and must
-   not be represented as offline. Do not commit the client secret or ADC.
-2. Create the canonical marker, upload those exact bytes once to the registered
-   lake root, and bind its file ID and digest into the signed OAuth authority.
-   In one durable Better Colab CPU session, use `drive-auth authorize` with the
-   protected approved client and manually complete `colab drivemount
-   --read-only`. Then generate both the legacy human-observed storage record and
-   the independent v4.2 API/DriveFS marker proof. A broad default mount is not a
-   substitute.
-3. Fetch fresh publisher statements after Drive binding and create one receipt
-   per registered artifact.
-4. Pin all evaluation assets, adapters or generators, independent-oracle
+1. Pin all evaluation assets, adapters or generators, independent-oracle
    artifacts, dependency units, and custodian keys in one successor registry.
-5. Rebind the retained rights captures to the pinned entries, then have an
+2. Rebind the retained rights captures to the pinned entries, then have an
    accountable human resolve or reject every blocking finding; do not convert a
-   pending scaffold into an approval mechanically.
-6. Materialize every evaluation, seal confirmatory envelopes to the custodian's
+   pending scaffold into an approval mechanically. Perform a separate review
+   explicitly covering public source redistribution and its obligations.
+3. Materialize every evaluation, seal confirmatory envelopes to the custodian's
    offline public key, externally anchor each materialization-bound access log,
    create the evidence-backed final registry successor, and compile the public
    quarantine union.
-7. Audit the existing lake from raw bytes. For each registered acquisition
-   target, obtain a fresh detached signature over its exact registry entry,
-   storage identity, expected bytes, and byte ceiling. Use only `source
-   acquire-v4.2`, then re-audit and build structural inventories and admission
-   receipts.
-8. After a ready v4.2 transformation report exists, add the separately versioned
+4. Refresh all seven publisher receipts, approve and code-pin the separate
+   staging and publication authority policies, and initialize a private
+   public-only staging root.
+5. Obtain a short-lived detached signature for each exact artifact, use only
+   `source acquire-v4.3`, then independently audit and structurally inventory
+   the staged bytes. The 102.35-GB Wikidata transfer requires explicit approval
+   at execution time.
+6. Complete publication obligations and clear each artifact. Inventory its
+   deterministic parts, obtain a separate short-lived publication signature,
+   and use only `publication upload-v1`. Publish serially and retain every
+   signed authorization and anonymously verified receipt.
+7. Admit each complete source and reproduce `publication-gate-v1` and
+   `gate-v4.3`. After a ready v4.3 transformation report exists, add the separately versioned
    raw-source consumer and Phase 1 v3 input gate. Then run data preparation on
-   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.2,
+   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.3,
    and no Phase 1 readiness report authorizes training.

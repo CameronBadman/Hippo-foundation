@@ -1,0 +1,52 @@
+{
+  "authorization_ready": false,
+  "blockers": [
+    {
+      "code": "authorization_missing",
+      "subject_id": "Kyriah/hippocampus-foundation",
+      "subject_kind": "publication_v1"
+    },
+    {
+      "code": "clearance_missing",
+      "subject_id": "Kyriah/hippocampus-foundation",
+      "subject_kind": "publication_v1"
+    },
+    {
+      "code": "obligations_missing",
+      "subject_id": "Kyriah/hippocampus-foundation",
+      "subject_kind": "publication_v1"
+    },
+    {
+      "code": "publication_complete_missing",
+      "subject_id": "Kyriah/hippocampus-foundation",
+      "subject_kind": "publication_v1"
+    },
+    {
+      "code": "rights_missing",
+      "subject_id": "Kyriah/hippocampus-foundation",
+      "subject_kind": "publication_v1"
+    }
+  ],
+  "clearance_ready": false,
+  "contracts_frozen": true,
+  "destination_ready": true,
+  "evaluated_at": "2026-08-30T14:22:01.192142Z",
+  "evidence_bindings": [
+    {
+      "kind": "destination_observation",
+      "sha256": "sha256:b1a84d2070b11295177442d4845ac89ecfda80946737728193bc660299e3edb0",
+      "subject_id": "Kyriah/hippocampus-foundation"
+    },
+    {
+      "kind": "destination_policy",
+      "sha256": "sha256:5732db9cdf9e9fec46a21e9c1b72a01e415917be1ccd13148900f9282a144e31",
+      "subject_id": "hippocampus-foundation-hf-destination-v1"
+    }
+  ],
+  "gate_id": "hf-public-source-publication-v1",
+  "obligations_ready": false,
+  "publication_complete": false,
+  "rights_ready": false,
+  "schema_version": "1.0.0",
+  "training_authorized": false
+}

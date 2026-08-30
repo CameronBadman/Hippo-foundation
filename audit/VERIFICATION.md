@@ -1,6 +1,69 @@
-# Phase 0 v4.2, Phase 1 v2, Phase 2A, and Phase 2B verification record
+# Phase 0 v4.3, Phase 1 v2, Phase 2A, and Phase 2B verification record
 
-Verification date: 2026-08-29
+Verification date: 2026-08-30
+
+## Phase 0 v4.3 and publication v1 verification (2026-08-30)
+
+- All 216 tests passed in 401.71 seconds. The final focused
+  v4.3/publication/no-training run passed 10 tests in 34.76 seconds.
+- Repository-wide `ruff check .`, `ruff format --check .`, `uv lock --check`,
+  `git diff --check`, and `python -m compileall -q src scripts tests` passed.
+  Ruff reported 102 files already formatted, and the lock resolves 48 packages.
+- All eight frozen v4 schemas and both frozen v4.1 schemas retain their exact
+  historical digests. The additive v4.3 schema locks are:
+  - authority policy:
+    `sha256:650b2a662964275d9bc14cdac707702255f162601cb162ca23b79e6ce6161eca`;
+  - execution evidence:
+    `sha256:28e49b86b0ea8445219f50841b5483d10f6a2760c41d2267f7e484aa9fd83104`;
+    and
+  - gate:
+    `sha256:56193fe202da27f7e20f82340cecfb6d70f7e38d1a822f1ba63359586bfbebd4`.
+- The publication v1 locks are:
+  - authority policy:
+    `sha256:958a7adda6b861c65d9bc2c9fa1df29d94a87d4eb80bc3c420264cd96c11332a`;
+  - destination policy:
+    `sha256:8d52d3fe80c069d638854567d8c476abec04009cef26ca642cb5483a41636aa7`;
+  - evidence:
+    `sha256:580c8d75ef4a09cd9f89fd5de61cce4e4a3216e7363bf9838532abda8bc684f1`;
+    and
+  - gate:
+    `sha256:e1303afd5d1ca80219d3556d9e556b5c7229bb1fe58e108b1afc9c3019718511`.
+- A live read-only Hub observation independently checked authenticated write
+  capability, owner identity, anonymous visibility, the exact baseline commit,
+  the exact three-file layout, and controlled metadata hashes. It contains no
+  credential. No remote mutation occurred during this verification.
+- `audit/phase0-gate.v4.3.blocked.json` reproduces byte-for-byte through the
+  real CLI from the checked source/evaluation roots without Drive evidence. It
+  contains 44 structured blockers and retains `training_authorized: false`.
+  `audit/publication-gate.v1.blocked.json` also reproduces exactly: destination
+  readiness is true, while rights, obligations, clearance, authorization, and
+  publication completion are false.
+- Adversarial tests reject staging links/private families, forged roots and
+  wrapper digests, missing evaluation materialization, missing evidence
+  families, timestamp rollback at every downstream stage, destination layout
+  drift before the first write, extra remote files, manifest mutation, wrong
+  recovery clearance, recovery outside the signed window, and prior
+  publication receipts lacking either their exact manifest or detached signed
+  authorization. A synthetic complete graph reaches transformation readiness
+  while training remains false; removing each new family blocks it.
+- Deterministic part tests cover the exact 10-GiB boundary and one-byte
+  overflow. Registered sizes derive 18 payload parts for the seven artifacts.
+  No test treats those synthetic/registered bytes as real acquisition evidence.
+- `uv build` produced an sdist with SHA-256
+  `e2ceaa8708f9ad534498aa05e40e76abbd8608d7182c28611547f80edc7bf217`
+  and a wheel with SHA-256
+  `3e272bf1b9e75c968ec3c4e33c074f5e93ecac6cde6b9089c07e8ed963ea7ee8`.
+  Wheel inspection found all v4.3/publication modules and all seven new locked
+  schemas.
+- The wheel and 40 resolved runtime packages installed into a fresh Python
+  3.12 environment. Imports resolved from that environment's `site-packages`;
+  the packaged CLI reproduced the historical v4 lock, both new lock sets, all
+  new command namespaces, and both checked blocked reports byte-for-byte with
+  exit status 2.
+- No source acquisition, publisher refetch, policy approval, signature,
+  held-out-data access, materialization, seal, anchor, quarantine compilation,
+  payload upload, transformation, model execution, training, evaluation, or
+  Git push was performed during v4.3 implementation and verification.
 
 ## Phase 0 v4.2 policy activation verification (2026-08-29)
 

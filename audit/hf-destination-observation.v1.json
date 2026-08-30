@@ -1,0 +1,37 @@
+{
+  "anonymous_readable": true,
+  "contains_credentials": false,
+  "destination_policy_sha256": "sha256:5732db9cdf9e9fec46a21e9c1b72a01e415917be1ccd13148900f9282a144e31",
+  "endpoint": "https://huggingface.co",
+  "files": [
+    {
+      "bytes": 2504,
+      "path": ".gitattributes",
+      "sha256": null,
+      "storage_kind": "git"
+    },
+    {
+      "bytes": 2404,
+      "path": "README.md",
+      "sha256": "sha256:496ea867e75824785d73944c677a1fd07ae2ba1ad0e5da386fb4f2e8291c3c6c",
+      "storage_kind": "git"
+    },
+    {
+      "bytes": 5764,
+      "path": "planned-publication.v1.json",
+      "sha256": "sha256:faa2c5a83c330452b17ce3cee32f74c45159cd604e709c2d1ccc79266c1fe713",
+      "storage_kind": "git"
+    }
+  ],
+  "head_commit": "efeed3dd9fc85dc1ec6e2991e2aaae51e6f3d347",
+  "observed_at": "2026-08-30T14:22:01.192142Z",
+  "principal": "Kyriah",
+  "record_kind": "hf_destination_observation",
+  "repo_id": "Kyriah/hippocampus-foundation",
+  "repo_type": "dataset",
+  "revision": "main",
+  "schema_version": "1.0.0",
+  "training_authorized": false,
+  "visibility": "public",
+  "write_authorized": true
+}
