@@ -25,6 +25,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "hf-phase0": "hippocampus_foundation.phase0.cli:main",
         "hf-phase1": "hippocampus_foundation.phase1.cli:main",
         "hf-phase2": "hippocampus_foundation.phase2.cli:main",
+        "hf-read-run": "hippocampus_foundation.read_run.cli:main",
     }
 
     parser = build_phase0_parser()
