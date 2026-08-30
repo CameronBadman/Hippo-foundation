@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import math
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any
 
@@ -21,6 +21,12 @@ from .io import model_input_bytes
 from .oracle import independently_solve
 
 GAMMA_TOLERANCE = 0.03
+# Amendment 02: the 90% coverage threshold is a control against DIRECT losing
+# on pool construction rather than on scoring. Beyond this depth, coverage loss
+# is the mechanism under measurement rather than a confound, so the threshold is
+# reported there but not gated on.
+DECONFOUNDED_MAX_HOPS = 4
+DECONFOUNDED_STRATUM = "hops_2_4"
 ONE_SIDED_95_Z = 1.6448536269514722
 MAX_PROBE_EXCESS = 0.01
 
@@ -140,6 +146,42 @@ def _structural_projection(visible: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def target_hop_distance(episode: GeneratedEpisode) -> int:
+    """BFS hops from the traversal root to the farthest target node.
+
+    This is the depth the structural pool must actually reach. It is not the
+    planted path length: background edges create shortcuts, so a length-6 route
+    can put its targets far closer than six hops.
+    """
+
+    adjacency: dict[int, list[int]] = defaultdict(list)
+    for edge in episode.visible["edges"]:
+        adjacency[edge["source"]].append(edge["target"])
+    start = episode.visible["start_node"]
+    distance = {start: 0}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        for target in adjacency[node]:
+            if target not in distance:
+                distance[target] = distance[node] + 1
+                queue.append(target)
+    unreachable = len(episode.visible["nodes"]) + 1
+    return max(
+        distance.get(node, unreachable) for node in episode.hidden["target_nodes"]
+    )
+
+
+def coverage_stratum(hops: int) -> str:
+    """Name the reporting stratum for a farthest-target hop distance."""
+
+    if hops <= DECONFOUNDED_MAX_HOPS:
+        return DECONFOUNDED_STRATUM
+    if hops == 5:
+        return "hops_5"
+    return "hops_6_plus"
+
+
 def direct_pool_invariance_gate(
     episodes_by_gamma: dict[float, Sequence[GeneratedEpisode]],
 ) -> dict[str, Any]:
@@ -153,8 +195,19 @@ def direct_pool_invariance_gate(
     coverage_counts = {
         budget: {gamma: 0 for gamma in GAMMA_BUCKETS} for budget in BUDGET_CANDIDATES
     }
+    strata = (DECONFOUNDED_STRATUM, "hops_5", "hops_6_plus")
+    stratum_counts = {
+        stratum: {
+            budget: {gamma: 0 for gamma in GAMMA_BUCKETS}
+            for budget in BUDGET_CANDIDATES
+        }
+        for stratum in strata
+    }
+    stratum_totals = dict.fromkeys(strata, 0)
     baseline = episodes_by_gamma[GAMMA_BUCKETS[0]]
     for index, base in enumerate(baseline):
+        stratum = coverage_stratum(target_hop_distance(base))
+        stratum_totals[stratum] += 1
         structural_sha256 = canonical_sha256(_structural_projection(base.visible))
         base_targets = set(base.hidden["target_nodes"])
         for gamma in GAMMA_BUCKETS[1:]:
@@ -185,6 +238,7 @@ def direct_pool_invariance_gate(
                 indicator = set(episode.hidden["target_nodes"]) <= reached
                 indicators.append(indicator)
                 coverage_counts[budget][gamma] += indicator
+                stratum_counts[stratum][budget][gamma] += indicator
             if len(set(indicators)) != 1:
                 raise IntegrityGateError(
                     "DIRECT target-in-pool indicator changed across gamma"
@@ -197,11 +251,28 @@ def direct_pool_invariance_gate(
         }
         for budget in BUDGET_CANDIDATES
     }
+    coverage_by_stratum = {
+        stratum: {
+            str(budget): {
+                f"{gamma:.1f}": (
+                    stratum_counts[stratum][budget][gamma] / stratum_totals[stratum]
+                    if stratum_totals[stratum]
+                    else None
+                )
+                for gamma in GAMMA_BUCKETS
+            }
+            for budget in BUDGET_CANDIDATES
+        }
+        for stratum in strata
+    }
     return {
         "gate": "direct_pool_invariance",
         "passed": True,
         "episode_count_per_gamma": denominator,
         "coverage": coverage,
+        "coverage_by_stratum": coverage_by_stratum,
+        "episode_count_by_stratum": stratum_totals,
+        "gated_stratum": DECONFOUNDED_STRATUM,
     }
 
 
@@ -581,9 +652,20 @@ def assert_world_family_disjoint(
 def select_main_budget(pool_gate: dict[str, Any]) -> int:
     if pool_gate.get("gate") != "direct_pool_invariance" or not pool_gate.get("passed"):
         raise IntegrityGateError("budget selection requires a passed pool gate")
+    # Amendment 02: gate on the de-confounded stratum only. Applying the
+    # threshold to the aggregate deletes the depth regime the experiment exists
+    # to measure, because there coverage loss is the mechanism, not a confound.
+    try:
+        stratum = pool_gate["coverage_by_stratum"][DECONFOUNDED_STRATUM]
+    except KeyError as exc:
+        raise IntegrityGateError(
+            "budget selection requires per-stratum coverage under Amendment 02"
+        ) from exc
+    if not pool_gate.get("episode_count_by_stratum", {}).get(DECONFOUNDED_STRATUM):
+        raise IntegrityGateError("de-confounded stratum is empty")
     for budget in BUDGET_CANDIDATES:
-        coverage = pool_gate["coverage"][str(budget)]["0.0"]
-        if coverage > 0.9:
+        coverage = stratum[str(budget)]["0.0"]
+        if coverage is not None and coverage > 0.9:
             return budget
     raise IntegrityGateError(
         "no preregistered budget exceeds 90% DIRECT target-in-pool coverage"

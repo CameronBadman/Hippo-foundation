@@ -24,6 +24,7 @@ from hippocampus_foundation.read_run.evaluation import (
     score_prediction,
 )
 from hippocampus_foundation.read_run.gates import (
+    DECONFOUNDED_STRATUM,
     dire_gate,
     direct_pool_invariance_gate,
     dual_oracle_gate,
@@ -186,26 +187,71 @@ def test_direct_pool_is_similarity_independent_and_gamma_invariant() -> None:
     assert report["passed"] is True
     for values in report["coverage"].values():
         assert len(set(values.values())) == 1
-    # Amendment 01 capped MAX_PATH_LENGTH at 4, so a preregistered budget now
-    # clears the 90% threshold. Selection must still return the smallest such
-    # candidate rather than simply the largest budget.
+    # Amendment 02: coverage is reported per stratum and never aggregated away,
+    # and every stratum stays gamma-invariant.
+    for stratum in report["coverage_by_stratum"].values():
+        for values in stratum.values():
+            assert len(set(values.values())) == 1
+    assert report["gated_stratum"] == DECONFOUNDED_STRATUM
+    assert sum(report["episode_count_by_stratum"].values()) == 60
+
+    # Selection gates on the de-confounded stratum only. The aggregate stays
+    # below the threshold here, which is exactly the case Amendment 02 exists
+    # for: gating on it would delete the deep stratum rather than de-confound.
+    gated = report["coverage_by_stratum"][DECONFOUNDED_STRATUM]
     selected = select_main_budget(report)
     assert selected in BUDGET_CANDIDATES
-    assert report["coverage"][str(selected)]["0.0"] > 0.9
+    assert gated[str(selected)]["0.0"] > 0.9
     assert all(
-        report["coverage"][str(budget)]["0.0"] <= 0.9
+        gated[str(budget)]["0.0"] <= 0.9
         for budget in BUDGET_CANDIDATES
         if budget < selected
     )
+
+
+def test_budget_selection_ignores_the_coverage_limited_strata() -> None:
+    # A deep stratum with zero coverage must not block selection, and must not
+    # be silently folded into the gated number either.
+    report = {
+        "gate": "direct_pool_invariance",
+        "passed": True,
+        "gated_stratum": DECONFOUNDED_STRATUM,
+        "episode_count_by_stratum": {
+            DECONFOUNDED_STRATUM: 1518,
+            "hops_5": 412,
+            "hops_6_plus": 70,
+        },
+        "coverage_by_stratum": {
+            DECONFOUNDED_STRATUM: {
+                "16": {f"{gamma:.1f}": 0.31 for gamma in GAMMA_BUCKETS},
+                "32": {f"{gamma:.1f}": 0.54 for gamma in GAMMA_BUCKETS},
+                "64": {f"{gamma:.1f}": 0.80 for gamma in GAMMA_BUCKETS},
+                "128": {f"{gamma:.1f}": 1.0 for gamma in GAMMA_BUCKETS},
+            },
+            "hops_5": {
+                str(budget): {f"{gamma:.1f}": 0.0 for gamma in GAMMA_BUCKETS}
+                for budget in BUDGET_CANDIDATES
+            },
+            "hops_6_plus": {
+                str(budget): {f"{gamma:.1f}": 0.0 for gamma in GAMMA_BUCKETS}
+                for budget in BUDGET_CANDIDATES
+            },
+        },
+    }
+    assert select_main_budget(report) == 128
 
 
 def test_budget_selection_still_blocks_when_no_candidate_clears_threshold() -> None:
     blocked = {
         "gate": "direct_pool_invariance",
         "passed": True,
-        "coverage": {
-            str(budget): {f"{gamma:.1f}": 0.5 for gamma in GAMMA_BUCKETS}
-            for budget in BUDGET_CANDIDATES
+        "gated_stratum": DECONFOUNDED_STRATUM,
+        "episode_count_by_stratum": {DECONFOUNDED_STRATUM: 1518},
+        "coverage_by_stratum": {
+            DECONFOUNDED_STRATUM: {
+                str(budget): {f"{gamma:.1f}": 0.5 for gamma in GAMMA_BUCKETS}
+                for budget in BUDGET_CANDIDATES
+            }
         },
     }
     with pytest.raises(IntegrityGateError, match="no preregistered budget"):
@@ -477,11 +523,15 @@ def test_reports_require_all_preregistered_runs_and_paired_fairness() -> None:
             {
                 "gate": "direct_pool_invariance",
                 "passed": True,
-                "coverage": {
-                    "16": {f"{gamma:.1f}": 0.5 for gamma in GAMMA_BUCKETS},
-                    "32": {f"{gamma:.1f}": 0.8 for gamma in GAMMA_BUCKETS},
-                    "64": {f"{gamma:.1f}": 0.95 for gamma in GAMMA_BUCKETS},
-                    "128": {f"{gamma:.1f}": 0.99 for gamma in GAMMA_BUCKETS},
+                "gated_stratum": DECONFOUNDED_STRATUM,
+                "episode_count_by_stratum": {DECONFOUNDED_STRATUM: 1518},
+                "coverage_by_stratum": {
+                    DECONFOUNDED_STRATUM: {
+                        "16": {f"{gamma:.1f}": 0.5 for gamma in GAMMA_BUCKETS},
+                        "32": {f"{gamma:.1f}": 0.8 for gamma in GAMMA_BUCKETS},
+                        "64": {f"{gamma:.1f}": 0.95 for gamma in GAMMA_BUCKETS},
+                        "128": {f"{gamma:.1f}": 0.99 for gamma in GAMMA_BUCKETS},
+                    }
                 },
             }
         ],

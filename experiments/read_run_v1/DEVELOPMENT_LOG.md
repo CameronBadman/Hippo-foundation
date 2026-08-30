@@ -116,7 +116,7 @@ not: `router_seed` only orders each node's outgoing edges.
 
 Narrowing world size was rejected on evidence rather than preference. Capping
 `MAX_NODES` at 127 yields 596/662 = 90.03% at B=128, clearing `coverage > 0.9` by
-four hundredths of a point with a one-sided 95% Wilson lower bound near 87.6%.
+four hundredths of a point with a one-sided 95% Wilson lower bound of 87.95%.
 That would satisfy the gate while being statistically indistinguishable from a
 failure.
 
@@ -158,3 +158,77 @@ preregistered budget cleared 90%, encoding the blocked state as expected
 behaviour. It now asserts that selection returns the smallest candidate above the
 threshold. The blocked branch retains coverage through a separate test built on a
 synthetic below-threshold report, so the raise path is still exercised.
+
+## 2026-08-31 — Amendment 02: gate 7 re-scoped, path-length cap reverted
+
+Amendment 01's cap was reverted. `MAX_PATH_LENGTH` is back at its frozen value
+of 6 and no generator constant is amended. The full reasoning is in
+[`PREREGISTRATION_AMENDMENT_02.md`](PREREGISTRATION_AMENDMENT_02.md).
+
+### The previous entry's fix was the wrong remedy
+
+The diagnosis in the previous entry was correct — path length dominates coverage
+loss — but the remedy was not. Coverage loss at depth is not a confound. At 5–6
+hops DIRECT structurally cannot see the target while TRAV can still reach it,
+which is the asymmetry the experiment exists to measure. Gate 7's threshold
+exists to stop DIRECT losing on pool construction rather than on scoring;
+applied to this cause it deletes the comparison instead of de-confounding it.
+
+The previous entry recorded this cost accurately but treated the preregistered
+rule as binding on the generator. The rule's scope was the thing to fix.
+
+### Measured strata, at the restored path length range
+
+| Stratum | n | B=16 | B=32 | B=64 | B=128 |
+|---|---|---|---|---|---|
+| 2–4 hops | 1518 | 30.96% | 53.82% | 79.64% | 100.00% |
+| 5 hops | 412 | 0.00% | 0.00% | 0.00% | 26.21% |
+| 6 hops | 70 | 0.00% | 0.00% | 0.00% | 0.00% |
+
+The de-confounded stratum is exactly 100.00% at B=128 and 79.64% at B=64, so
+B=128 is selected — the same value the aggregate rule would have picked had it
+cleared. The aggregate over all strata is 81.30%, which is why the unscoped rule
+blocked.
+
+The 5-hop and 6-hop strata are reported separately rather than pooled. At 6 hops
+DIRECT has zero coverage at every preregistered budget, so that cell is an empty
+comparison rather than a coverage-limited curve; pooling it with the 26.21% at
+5 hops would conceal that.
+
+### Implementation
+
+`direct_pool_invariance_gate` now emits `coverage_by_stratum`,
+`episode_count_by_stratum`, and `gated_stratum` beside the aggregate.
+`select_main_budget` reads the gated stratum and raises when it is missing or
+empty, so a pre-amendment report cannot satisfy the new rule by accident. Strata
+are assigned by BFS hop distance to the farthest target, not by planted path
+length, because background edges create shortcuts that put length-6 routes as
+close as 2 hops.
+
+Three tests encoded the aggregate contract and were updated: the invariance test
+now asserts gamma-invariance within every stratum, and a new test confirms that a
+zero-coverage deep stratum neither blocks selection nor folds into the gated
+number.
+
+### A generation run was invalidated by operator sequencing
+
+The official-scale P0 run for the capped configuration was still generating when
+`MAX_PATH_LENGTH` was reverted. Later buckets in that run would have been drawn
+from different code than earlier ones, which would have produced a mixed-config
+dataset and tripped the gamma-pairing check. The run was killed and its 1.3 GiB
+of partial output deleted rather than repaired.
+
+The cost is one information item: the seven-gate outcome for the capped
+configuration was never recorded. That configuration is abandoned, so the loss is
+small, but it is recorded here because the sequencing error is the reusable
+lesson — generator constants must not be edited while a generation run is in
+flight.
+
+### Authorization boundary clarified
+
+The READ-run P0 report sets `training_authorized` to `true` when all seven gates
+pass, which authorizes this experiment's sweep only. This is a different schema
+from the Phase 0, Phase 1, and Phase 2 artifacts, whose `training_authorized` is
+mechanically `false` and remains pinned by `tests/test_no_training_surface.py`.
+The two must not be conflated. No holdout has been opened and no accuracy has
+been measured.

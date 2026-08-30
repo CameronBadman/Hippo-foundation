@@ -26,9 +26,10 @@ MAX_NODES = 256
 MIN_RELATIONS = 8
 MAX_RELATIONS = 16
 MIN_PATH_LENGTH = 2
-# Amendment 01: capped from 6 after the stratified coverage diagnostic showed
-# path length, not world size, drives the DIRECT target-in-pool deficit.
-MAX_PATH_LENGTH = 4
+# Amendment 01 capped this at 4; Amendment 02 reverted it to the frozen value.
+# The cap removed exactly the 5-6 hop regime the experiment exists to measure.
+# Gate 7 is now scoped per stratum instead of narrowing the generator.
+MAX_PATH_LENGTH = 6
 OUT_DEGREE = 3
 ASSERTION_COUNT = 4
 MAX_GENERATION_ATTEMPTS = 128
