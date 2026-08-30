@@ -1,0 +1,54 @@
+{
+  "abstain_fraction": 0.25,
+  "assertion_count": 4,
+  "budget_candidates": [16, 32, 64, 128],
+  "budget_selection": {
+    "gamma": 0.0,
+    "minimum_direct_target_in_pool_coverage_exclusive": 0.9,
+    "rule": "smallest_passing_budget",
+    "selected_main_budget": null
+  },
+  "data": {
+    "development_count_per_gamma": 150000,
+    "final_holdout_count_per_gamma": 15000,
+    "gamma_buckets": [0.0, 0.1, 0.2, 0.3, 0.4],
+    "maximum_nodes": 256,
+    "maximum_path_length": 6,
+    "maximum_relation_types": 16,
+    "minimum_nodes": 64,
+    "minimum_path_length": 2,
+    "minimum_relation_types": 8,
+    "screening_count_per_gamma": 2000,
+    "splits_world_disjoint": true,
+    "worlds_paired_across_gamma": true
+  },
+  "decision": {
+    "gamma_0_absolute_mean_gap_pp_maximum": 1.0,
+    "gamma_04_mean_gap_pp_minimum": 5.0,
+    "null_absolute_mean_gap_pp_maximum": 2.0,
+    "require_complete_seed_range_separation_at_gamma_04": true,
+    "seed_range_exact_permutation_p_one_sided": 0.05
+  },
+  "direct_pool": {
+    "construction": "structural_breadth_first",
+    "joint_one_shot_scoring": true,
+    "per_episode_gamma_indicator_identity_required": true,
+    "query_similarity_forbidden": true
+  },
+  "frozen_at": "2026-08-30T15:35:42Z",
+  "heldout_seed_sha256": "sha256:6183dc36b8a9fededaee99db385013d33785bc75de531937e65115d6d770c663",
+  "model_seeds": [1729, 2718, 3141],
+  "parameter_count_relative_difference_exclusive_maximum": 0.01,
+  "preregistration_id": "hippocampus-read-run-v1",
+  "probe": {
+    "abstain_majority_chance": 0.75,
+    "confidence": 0.95,
+    "evaluation_count_per_gamma": 30000,
+    "fit_count_per_gamma": 120000,
+    "maximum_upper_bound_excess_pp": 1.0,
+    "non_abstain_chance": 0.06666666666666667,
+    "non_abstain_evaluation_count_per_gamma": 22500
+  },
+  "schema_version": "1.0.0",
+  "training_authorized": false
+}
