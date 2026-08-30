@@ -6,9 +6,12 @@ No single dataset contains the required behaviour. Large natural corpora supply
 breadth, deterministic transformations supply scalable objectives, and smaller
 gold datasets shape particular reasoning and evidence decisions.
 
-This document is a future curriculum design, not authorization to train. The
-current implementation stops at Phase 1 data preparation, and both mechanical
-gates hard-code `training_authorized: false`.
+This document remains a future external-data curriculum, not authorization to
+train on those sources. The active READ experiment is a separate local
+procedural run governed by its frozen preregistration and seven-gate P0 report.
+Its training command is fail-closed until those gates and a committed code
+freeze pass; none has done so yet. The frozen Phase 0/Phase 1 external-data
+gates continue to hard-code `training_authorized: false`.
 
 The evidence-backed role and lineage review is recorded in
 [`audit/DATASET_REVIEW.md`](../audit/DATASET_REVIEW.md). It corrects two

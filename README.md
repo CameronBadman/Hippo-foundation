@@ -11,6 +11,27 @@ older Hippocampus implementation.
 
 ## Status
 
+The active milestone is now the frozen, one-week synthetic READ experiment in
+[`experiments/read_run_v1/PREREGISTRATION.md`](experiments/read_run_v1/PREREGISTRATION.md).
+It asks whether learned adaptive traversal beats an equal-capacity,
+equal-examined-edge DIRECT scorer, and whether the gap grows with empirically
+measured greedy-wrongness. All worlds are generated locally; no external
+corpus, Drive mount, Hub payload, rights decision, or custody ceremony is
+needed. Phase 0 v4.4 and public-source execution are parked, not deleted.
+
+The READ implementation now includes separated visible/hidden deterministic
+streams, a causally separate oracle, seven pre-training integrity gates, a
+query-similarity-independent structural DIRECT pool, identical 10,257,937
+parameter model classes for both arms, fixed-step training, proof-valid
+exact-set scoring, and the frozen four-way decision rule. Only small synthetic
+implementation fixtures have run. No official split, final holdout, model,
+training update, or accuracy result exists yet. The observed prototype DIRECT
+coverage remains below the preregistered 90% main-run threshold and is recorded
+without suppression in
+[`experiments/read_run_v1/DEVELOPMENT_LOG.md`](experiments/read_run_v1/DEVELOPMENT_LOG.md).
+
+### Parked foundation programme
+
 Phase 0 v4.3 public-source controls and Phase 1 v2 deterministic
 data-preparation controls are implemented locally. V4.3 preserves the complete
 v4.1 trusted-root evaluation graph while replacing the Drive-specific source
@@ -113,6 +134,8 @@ forced into a binary accept/reject outcome.
 
 ## Source-of-truth documents
 
+- [Frozen READ-run preregistration](experiments/read_run_v1/PREREGISTRATION.md)
+- [READ-run execution guide](experiments/read_run_v1/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Data and training strategy](docs/DATA_AND_TRAINING.md)
 - [Programme roadmap](docs/ROADMAP.md)
@@ -138,29 +161,14 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Pin all evaluation assets, adapters or generators, independent-oracle
-   artifacts, dependency units, and custodian keys in one successor registry.
-2. Rebind the retained rights captures to the pinned entries, then have an
-   accountable human resolve or reject every blocking finding; do not convert a
-   pending scaffold into an approval mechanically. Perform a separate review
-   explicitly covering public source redistribution and its obligations.
-3. Materialize every evaluation, seal confirmatory envelopes to the custodian's
-   offline public key, externally anchor each materialization-bound access log,
-   create the evidence-backed final registry successor, and compile the public
-   quarantine union.
-4. Refresh all seven publisher receipts, approve and code-pin the separate
-   staging and publication authority policies, and initialize a private
-   public-only staging root.
-5. Obtain a short-lived detached signature for each exact artifact, use only
-   `source acquire-v4.3`, then independently audit and structurally inventory
-   the staged bytes. The 102.35-GB Wikidata transfer requires explicit approval
-   at execution time.
-6. Complete publication obligations and clear each artifact. Inventory its
-   deterministic parts, obtain a separate short-lived publication signature,
-   and use only `publication upload-v1`. Publish serially and retain every
-   signed authorization and anonymously verified receipt.
-7. Admit each complete source and reproduce `publication-gate-v1` and
-   `gate-v4.3`. After a ready v4.3 transformation report exists, add the separately versioned
-   raw-source consumer and Phase 1 v3 input gate. Then run data preparation on
-   admitted, quarantine-cleared records. Frozen Phase 1 v2 cannot consume v4.3,
-   and no Phase 1 readiness report authorizes training.
+1. Generate the five 150,000-episode train buckets and five independently
+   seeded 2,000-episode screening buckets from the committed private seed.
+2. Run gamma measurement, gold-swap, nuisance-probe, DiRe, dual-oracle,
+   double-execution, and DIRECT-pool-invariance gates. Retain failures.
+3. If all seven pass, commit and freeze the exact code/configuration, then run
+   the 16 Day-3 budget-screening jobs and report every result.
+4. Stop if no budget clears 90% structural target coverage. Otherwise generate
+   the final holdout once and execute all 30 fixed main runs.
+5. Apply the preregistered decision without changing thresholds, arms, seeds,
+   metrics, or reporting. Only after that result should the parked external-data
+   programme be reconsidered.

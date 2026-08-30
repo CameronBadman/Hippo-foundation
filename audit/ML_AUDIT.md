@@ -911,3 +911,73 @@ payload upload, transformation, model execution, training, evaluation, or Git
 push occurred during this stage. Synthetic complete-graph tests exercise the
 ready control path; they are not evidence that real rights, bytes, accounts,
 or evaluations are ready.
+
+## Preregistered synthetic READ pivot (2026-08-31)
+
+The external-data Phase 0 v4.4 proposal is parked. It is not represented as
+complete and none of its proposed authority, custody, rights, materialization,
+or quarantine evidence was manufactured. Two flaws motivating the parked work
+remain verified against executable v4.1 code: materialization rehashes an
+adapter and oracle but accepts caller-supplied output records rather than
+executing either program, and the public quarantine representation exposes
+exact identifiers plus dictionary-testable hashes/fingerprints. Passing the
+legacy synthetic graph therefore is not evidence of executed adapter/oracle
+agreement or membership privacy.
+
+The active question is narrower and directly measurable: whether adaptive
+learned traversal improves proof-valid exact-set retrieval over an
+equal-capacity, non-adaptive scorer at the same number of scored edges, and
+whether that gap changes with empirical greedy-wrongness. The frozen
+preregistration defines prediction time, visible information, unit of analysis,
+population, world-family split unit, primary and stratified metrics, costs of
+errors, negative and positive controls, seed-level decision rule, and stop
+conditions. It excludes external corpora, text encoders, WRITE, mutation, RL,
+and LLM judges.
+
+The data path separates model-visible graphs from hidden labels, targets,
+teacher actions, routes, gamma measurements, split identities, and oracle
+state. Labels use exactly 25% ABSTAIN and balance the remaining 75% across the
+15 non-empty four-assertion sets. Every episode contains two valid endpoints;
+non-abstaining endpoints agree and ABSTAIN endpoints conflict, avoiding a
+candidate-count shortcut. Train and screening schedules are domain-separated;
+final holdout generation additionally requires the committed seed preimage,
+seven-gate P0 evidence, and a source/config freeze.
+
+The generator and oracle use different algorithms: construction truth comes
+from a forward recursive path enumerator, while the oracle reconstructs
+relation-constrained reachability backwards from visible bytes. Automated
+checks currently establish exact agreement on focused synthetic cases,
+gold-swap byte noninterference, query-similarity-independent DIRECT pools,
+DiRe disconnection, exact ABSTAIN balance, proof-required scoring, and
+fresh-process byte determinism. These are implementation checks, not evidence
+that the official P0 gates or hypothesis pass.
+
+An adversarial check falsified the first convenient design assumption before
+any model existed. With four outgoing edges per node, the 2,000-world
+development probe produced perfectly gamma-invariant DIRECT target coverage
+but only 71.55% at B=128. Reducing background degree to three raised the gamma-0
+prototype estimate to 82.25%, still below the preregistered greater-than-90%
+selection threshold. Both failed observations are retained in the development
+log. The implementation does not use query similarity, labels, target identity,
+valid routes, or gamma to repair the pool. If committed official evidence also
+fails, the 30-run main sweep must not occur.
+
+No official train or screening split, final holdout, P0 authorization, code
+freeze, trained model, optimizer update, checkpoint, prediction, loss curve,
+accuracy, threshold selection, or hypothesis decision exists at this
+checkpoint. A temporary CPU-only smoke check instantiated the shared model
+class once per arm, confirmed 10,257,937 trainable parameters and identical
+initial state at the paired seed, and completed forward/backward passes on a
+synthetic batch. That check establishes executable tensor and gradient paths;
+it is not a training result or evidence about the hypothesis.
+
+An adversarial evidence-lineage review also found and corrected a pre-execution
+gate defect. The initial double-execution validator matched only split, gamma,
+and episode count; it did not bind the supplied replay record to the exact
+screening bytes consumed by P0. Dataset consumers also opened manifests without
+first rehashing both compressed streams. The corrected implementation checks
+public/private manifest agreement, stream sizes and hashes, the frozen seed
+commitment for every official root, and exact equality between all four replay
+artifact digests and the consumed screening root. A forged replay digest now
+fails mechanically. The flaw was found before official data generation or any
+model result, so no reported measurement depends on the weaker path.

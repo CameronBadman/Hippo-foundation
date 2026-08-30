@@ -1,4 +1,21 @@
-# Next milestone: execute the public-source path through Hugging Face
+# Next milestone: run the preregistered local READ comparison
+
+## Active status (2026-08-31)
+
+The public-source and Phase 0 v4.4 path below is parked, not deleted. The active
+milestone is the one-week, local-only READ experiment frozen in
+[`experiments/read_run_v1/PREREGISTRATION.md`](../experiments/read_run_v1/PREREGISTRATION.md).
+It tests the load-bearing traversal claim before spending time or authority on
+external corpora.
+
+The next execution boundary is to generate the five train and screening gamma
+buckets, run all seven P0 gates, and report the structural budget-selection
+result. No final holdout or training opens before those gates and a committed
+code/config freeze. If no candidate budget exceeds 90% DIRECT target-in-pool
+coverage, the main sweep stops. The exact commands and evidence order are in
+[`experiments/read_run_v1/README.md`](../experiments/read_run_v1/README.md).
+
+## Parked public-source milestone
 
 ## Outcome
 
