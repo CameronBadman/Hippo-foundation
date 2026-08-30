@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/publication/v1/gate.schema.json",
+  "title": "Hugging Face publication gate v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "gate_id", "evaluated_at", "contracts_frozen",
+    "destination_ready", "rights_ready", "obligations_ready", "clearance_ready",
+    "authorization_ready", "publication_complete", "blockers", "evidence_bindings",
+    "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "gate_id": { "const": "hf-public-source-publication-v1" },
+    "evaluated_at": { "$ref": "#/$defs/timestamp" },
+    "contracts_frozen": { "type": "boolean" },
+    "destination_ready": { "type": "boolean" },
+    "rights_ready": { "type": "boolean" },
+    "obligations_ready": { "type": "boolean" },
+    "clearance_ready": { "type": "boolean" },
+    "authorization_ready": { "type": "boolean" },
+    "publication_complete": { "type": "boolean" },
+    "blockers": { "type": "array", "items": { "$ref": "#/$defs/blocker" } },
+    "evidence_bindings": { "type": "array", "items": { "$ref": "#/$defs/binding" } },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "blocker": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "subject_kind", "subject_id"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "subject_kind": { "type": "string", "minLength": 1 },
+        "subject_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "binding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "subject_id", "sha256"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "subject_id": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

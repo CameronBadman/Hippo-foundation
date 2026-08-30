@@ -1,0 +1,11 @@
+{
+  "maximum_publication_hours": 24,
+  "maximum_rights_days": 365,
+  "policy_id": "hippocampus-foundation-publication-authority-v1",
+  "publication_signing_key_fingerprints": [],
+  "record_kind": "publication_authority_policy",
+  "rights_signing_key_fingerprints": [],
+  "schema_version": "1.0.0",
+  "status": "pending",
+  "training_authorized": false
+}

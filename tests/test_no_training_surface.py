@@ -17,6 +17,7 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     assert project["dependencies"] == [
         "google-api-python-client>=2.179,<3",
         "google-auth>=2.40,<3",
+        "huggingface-hub>=1.29,<2",
         "jsonschema>=4.23,<5",
         "rfc8785>=0.1.4,<1",
     ]
@@ -44,7 +45,10 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
         "gate-v4",
         "gate-v4.1",
         "gate-v4.2",
+        "gate-v4.3",
         "gate-v1",
+        "publication",
+        "publication-gate-v1",
     }
     assert not ({"train", "fit", "optimize", "model"} & set(top_level_choices))
 
@@ -226,6 +230,62 @@ def test_runtime_dependencies_and_cli_expose_governance_only() -> None:
     assert {"--url", "--destination", "--expected-bytes", "--checksum"}.isdisjoint(
         gate_v4_2_options
     )
+
+    acquire_v4_3_parser = source_choices["acquire-v4.3"]
+    acquire_v4_3_options = {
+        option
+        for action in acquire_v4_3_parser._actions
+        for option in action.option_strings
+    }
+    assert {
+        "--url",
+        "--destination",
+        "--expected-bytes",
+        "--checksum",
+        "--evaluated-at",
+    }.isdisjoint(acquire_v4_3_options)
+    assert {
+        "--source-registry",
+        "--evaluation-registry",
+        "--publisher",
+        "--materialization",
+        "--seal-v4",
+        "--anchor-v4",
+        "--staging-observation",
+        "--authorization",
+    }.issubset(acquire_v4_3_options)
+
+    publication_parser = top_level_choices["publication"]
+    publication_choices = next(
+        action.choices
+        for action in publication_parser._actions
+        if getattr(action, "choices", None)
+    )
+    upload_options = {
+        option
+        for action in publication_choices["upload-v1"]._actions
+        for option in action.option_strings
+    }
+    assert {
+        "--token",
+        "--endpoint",
+        "--repo-id",
+        "--remote-path",
+        "--local-path",
+        "--expected-bytes",
+        "--checksum",
+        "--evaluated-at",
+    }.isdisjoint(upload_options)
+    assert {
+        "--destination-policy",
+        "--source-registry",
+        "--evaluation-registry",
+        "--rights",
+        "--clearance",
+        "--manifest",
+        "--authorization",
+        "--staging-observation",
+    }.issubset(upload_options)
 
     evaluation_parser = top_level_choices["evaluation"]
     evaluation_choices = next(

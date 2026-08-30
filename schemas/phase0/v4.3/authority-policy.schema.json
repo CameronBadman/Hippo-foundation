@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.3/authority-policy.schema.json",
+  "title": "Phase 0 v4.3 staging acquisition authority policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "record_kind", "policy_id", "status",
+    "acquisition_signing_key_fingerprints", "maximum_authority_hours",
+    "required_evaluation_gate_id", "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "4.3.0" },
+    "record_kind": { "const": "staging_acquisition_authority_policy" },
+    "policy_id": { "$ref": "#/$defs/id" },
+    "status": { "enum": ["pending", "approved"] },
+    "acquisition_signing_key_fingerprints": {
+      "type": "array", "uniqueItems": true,
+      "items": { "$ref": "#/$defs/fingerprint" }
+    },
+    "maximum_authority_hours": {
+      "type": "integer", "minimum": 1, "maximum": 168
+    },
+    "required_evaluation_gate_id": {
+      "const": "phase0-external-evidence-firewall-v4.1"
+    },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+    "fingerprint": { "type": "string", "pattern": "^[0-9A-F]{40,64}$" }
+  }
+}

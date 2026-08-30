@@ -1,0 +1,74 @@
+{
+  "artifact_paths": [
+    {
+      "artifact_id": "wikidata-20260720-all-json-bz2",
+      "path": "sources/raw/wikidata/2026-07-20/wikidata-20260720-all.json.bz2"
+    },
+    {
+      "artifact_id": "enwiki-20260801-redirect-sql-gz",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-redirect.sql.gz"
+    },
+    {
+      "artifact_id": "enwiki-20260801-linktarget-sql-gz",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-linktarget.sql.gz"
+    },
+    {
+      "artifact_id": "enwiki-20260801-page-sql-gz",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-page.sql.gz"
+    },
+    {
+      "artifact_id": "enwiki-20260801-categorylinks-sql-gz",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-categorylinks.sql.gz"
+    },
+    {
+      "artifact_id": "enwiki-20260801-pagelinks-sql-gz",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-pagelinks.sql.gz"
+    },
+    {
+      "artifact_id": "enwiki-20260801-pages-articles-xml-bz2",
+      "path": "sources/raw/wikipedia-en/2026-08-01/enwiki-20260801-pages-articles.xml.bz2"
+    }
+  ],
+  "baseline_commit": "efeed3dd9fc85dc1ec6e2991e2aaae51e6f3d347",
+  "endpoint": "https://huggingface.co",
+  "excluded_path_prefixes": [
+    ".git/",
+    "audit/",
+    "debug/",
+    "evaluations/",
+    "heldout/",
+    "licensing/",
+    "private/",
+    "seals/"
+  ],
+  "maximum_part_bytes": 10737418240,
+  "metadata_paths": [
+    {
+      "maximum_bytes": 1048576,
+      "path": ".gitattributes",
+      "platform_managed": true,
+      "sha256": null
+    },
+    {
+      "maximum_bytes": 1048576,
+      "path": "README.md",
+      "platform_managed": false,
+      "sha256": "sha256:496ea867e75824785d73944c677a1fd07ae2ba1ad0e5da386fb4f2e8291c3c6c"
+    },
+    {
+      "maximum_bytes": 1048576,
+      "path": "planned-publication.v1.json",
+      "platform_managed": false,
+      "sha256": "sha256:faa2c5a83c330452b17ce3cee32f74c45159cd604e709c2d1ccc79266c1fe713"
+    }
+  ],
+  "policy_id": "hippocampus-foundation-hf-destination-v1",
+  "record_kind": "hf_destination_policy",
+  "repo_id": "Kyriah/hippocampus-foundation",
+  "repo_type": "dataset",
+  "revision": "main",
+  "schema_version": "1.0.0",
+  "status": "configured",
+  "training_authorized": false,
+  "visibility": "public"
+}

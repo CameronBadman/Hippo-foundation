@@ -1,0 +1,10 @@
+{
+  "acquisition_signing_key_fingerprints": [],
+  "maximum_authority_hours": 24,
+  "policy_id": "hippocampus-foundation-staging-acquisition-v4.3",
+  "record_kind": "staging_acquisition_authority_policy",
+  "required_evaluation_gate_id": "phase0-external-evidence-firewall-v4.1",
+  "schema_version": "4.3.0",
+  "status": "pending",
+  "training_authorized": false
+}

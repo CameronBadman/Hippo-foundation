@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/phase0/v4.3/execution-evidence.schema.json",
+  "title": "Phase 0 v4.3 staging, acquisition, audit, and clearance evidence",
+  "oneOf": [
+    { "$ref": "#/$defs/stagingObservation" },
+    { "$ref": "#/$defs/acquisitionAuthorizationPayload" },
+    { "$ref": "#/$defs/acquisitionAuthorizationReceipt" },
+    { "$ref": "#/$defs/acquisitionReceipt" },
+    { "$ref": "#/$defs/artifactAudit" },
+    { "$ref": "#/$defs/structuralInventory" },
+    { "$ref": "#/$defs/publicationClearance" },
+    { "$ref": "#/$defs/sourceAdmission" }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256hex": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "fingerprint": { "type": "string", "pattern": "^[0-9A-F]{40,64}$" },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+\\-]{0,255}$" },
+    "path": {
+      "type": "string", "minLength": 1, "maxLength": 4096,
+      "pattern": "^(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "inventoryItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "kind", "bytes", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "kind": { "enum": ["marker", "artifact", "partial", "resume_binding"] },
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "sha256": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "stagingObservation": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "observation_id", "observed_at",
+        "root_path", "root_path_sha256", "marker_sha256", "device", "inode",
+        "available_bytes", "inventory", "contains_evaluation_content",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_observation" },
+        "observation_id": { "$ref": "#/$defs/id" },
+        "observed_at": { "$ref": "#/$defs/timestamp" },
+        "root_path": { "type": "string", "pattern": "^/", "maxLength": 4096 },
+        "root_path_sha256": { "$ref": "#/$defs/digest" },
+        "marker_sha256": { "$ref": "#/$defs/digest" },
+        "device": { "type": "string", "pattern": "^[0-9]+$" },
+        "inode": { "type": "string", "pattern": "^[0-9]+$" },
+        "available_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "inventory": { "type": "array", "items": { "$ref": "#/$defs/inventoryItem" } },
+        "contains_evaluation_content": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionAuthorizationPayload": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authorization_id", "authority_policy_sha256",
+        "source_registry_sha256", "artifact_id", "artifact_entry_sha256",
+        "publisher_receipt_sha256", "staging_observation_sha256",
+        "evaluation_gate_sha256", "source_url_sha256", "expected_bytes",
+        "publisher_sha1", "byte_ceiling", "authorized_at", "valid_until",
+        "authorizer_id", "signing_key_fingerprint", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_acquisition_authorization_payload" },
+        "authorization_id": { "$ref": "#/$defs/id" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "publisher_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "staging_observation_sha256": { "$ref": "#/$defs/digest" },
+        "evaluation_gate_sha256": { "$ref": "#/$defs/digest" },
+        "source_url_sha256": { "$ref": "#/$defs/digest" },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "publisher_sha1": { "$ref": "#/$defs/sha1" },
+        "byte_ceiling": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "authorized_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "authorizer_id": { "$ref": "#/$defs/id" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionAuthorizationReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "authorization_id", "authority_policy_sha256",
+        "payload_sha256", "signature_sha256", "public_key_sha256",
+        "signing_key_fingerprint", "source_registry_sha256", "artifact_id",
+        "artifact_entry_sha256", "publisher_receipt_sha256",
+        "staging_observation_sha256", "evaluation_gate_sha256", "expected_bytes",
+        "publisher_sha1", "byte_ceiling", "authorized_at", "valid_until",
+        "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_acquisition_authorization_receipt" },
+        "authorization_id": { "$ref": "#/$defs/id" },
+        "authority_policy_sha256": { "$ref": "#/$defs/digest" },
+        "payload_sha256": { "$ref": "#/$defs/digest" },
+        "signature_sha256": { "$ref": "#/$defs/digest" },
+        "public_key_sha256": { "$ref": "#/$defs/digest" },
+        "signing_key_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "publisher_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "staging_observation_sha256": { "$ref": "#/$defs/digest" },
+        "evaluation_gate_sha256": { "$ref": "#/$defs/digest" },
+        "expected_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "publisher_sha1": { "$ref": "#/$defs/sha1" },
+        "byte_ceiling": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "authorized_at": { "$ref": "#/$defs/timestamp" },
+        "valid_until": { "$ref": "#/$defs/timestamp" },
+        "training_authorized": { "const": false }
+      }
+    },
+    "acquisitionReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "artifact_id", "source_registry_sha256",
+        "artifact_entry_sha256", "publisher_receipt_sha256",
+        "authorization_receipt_sha256", "staging_observation_sha256",
+        "destination_relative_path", "bytes", "sha1", "sha256", "started_at",
+        "completed_at", "complete", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_acquisition_receipt" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "publisher_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "authorization_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "staging_observation_sha256": { "$ref": "#/$defs/digest" },
+        "destination_relative_path": { "$ref": "#/$defs/path" },
+        "bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "sha1": { "$ref": "#/$defs/sha1" },
+        "sha256": { "$ref": "#/$defs/sha256hex" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "completed_at": { "$ref": "#/$defs/timestamp" },
+        "complete": { "const": true },
+        "training_authorized": { "const": false }
+      }
+    },
+    "artifactAudit": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "artifact_id", "source_registry_sha256",
+        "artifact_entry_sha256", "acquisition_receipt_sha256", "staging_observation_sha256",
+        "bytes", "sha1", "sha256", "device", "inode", "mtime_ns", "audited_at",
+        "verified", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_artifact_audit" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "acquisition_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "staging_observation_sha256": { "$ref": "#/$defs/digest" },
+        "bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "sha1": { "$ref": "#/$defs/sha1" },
+        "sha256": { "$ref": "#/$defs/sha256hex" },
+        "device": { "type": "string", "pattern": "^[0-9]+$" },
+        "inode": { "type": "string", "pattern": "^[0-9]+$" },
+        "mtime_ns": { "type": "string", "pattern": "^[0-9]+$" },
+        "audited_at": { "$ref": "#/$defs/timestamp" },
+        "verified": { "const": true },
+        "training_authorized": { "const": false }
+      }
+    },
+    "structuralInventory": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "artifact_id", "source_registry_sha256",
+        "artifact_audit_sha256", "artifact_sha256", "artifact_bytes", "counter_kind",
+        "counter_version", "started_at", "completed_at", "complete", "parse_errors",
+        "rejected_records", "counters", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "staging_structural_inventory" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_audit_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_bytes": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "counter_kind": { "enum": ["wikipedia_xml", "mediawiki_sql", "wikidata_json", "conceptnet_assertions"] },
+        "counter_version": { "const": "hf-stream-counter-v4" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "completed_at": { "$ref": "#/$defs/timestamp" },
+        "complete": { "const": true },
+        "parse_errors": { "const": 0 },
+        "rejected_records": { "const": 0 },
+        "counters": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+        },
+        "training_authorized": { "const": false }
+      }
+    },
+    "publicationClearance": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "artifact_id", "source_registry_sha256",
+        "artifact_entry_sha256", "artifact_audit_sha256", "inventory_sha256",
+        "publisher_receipt_sha256", "rights_receipt_sha256", "obligations_sha256",
+        "evaluation_gate_sha256", "quarantine_index_sha256", "cleared_at", "ready",
+        "foundation_transform_authorized", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "artifact_publication_clearance" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_entry_sha256": { "$ref": "#/$defs/digest" },
+        "artifact_audit_sha256": { "$ref": "#/$defs/digest" },
+        "inventory_sha256": { "$ref": "#/$defs/digest" },
+        "publisher_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "rights_receipt_sha256": { "$ref": "#/$defs/digest" },
+        "obligations_sha256": { "$ref": "#/$defs/digest" },
+        "evaluation_gate_sha256": { "$ref": "#/$defs/digest" },
+        "quarantine_index_sha256": { "$ref": "#/$defs/digest" },
+        "cleared_at": { "$ref": "#/$defs/timestamp" },
+        "ready": { "const": true },
+        "foundation_transform_authorized": { "const": false },
+        "training_authorized": { "const": false }
+      }
+    },
+    "sourceAdmission": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "record_kind", "source_id", "source_registry_sha256",
+        "source_entry_sha256", "clearance_sha256s", "publication_receipt_sha256s",
+        "decision", "assessed_at", "assessor", "training_authorized"
+      ],
+      "properties": {
+        "schema_version": { "const": "4.3.0" },
+        "record_kind": { "const": "hf_source_admission_receipt" },
+        "source_id": { "$ref": "#/$defs/id" },
+        "source_registry_sha256": { "$ref": "#/$defs/digest" },
+        "source_entry_sha256": { "$ref": "#/$defs/digest" },
+        "clearance_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "publication_receipt_sha256s": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } },
+        "decision": { "const": "admitted" },
+        "assessed_at": { "$ref": "#/$defs/timestamp" },
+        "assessor": { "$ref": "#/$defs/id" },
+        "training_authorized": { "const": false }
+      }
+    }
+  }
+}

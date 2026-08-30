@@ -63,6 +63,7 @@ from .canonical import (
     load_json,
     sha256_bytes,
 )
+from .cli_v4_3 import add_v4_3_commands
 from .drive_access_v4_2 import (
     make_drive_identity_marker,
     observe_drive_access_from_adc,
@@ -3536,6 +3537,12 @@ def build_parser() -> argparse.ArgumentParser:
     gate_v1.add_argument("--evaluated-at", required=True)
     gate_v1.add_argument("--output")
     gate_v1.set_defaults(handler=_gate_v1)
+    add_v4_3_commands(
+        commands=commands,
+        registry_commands=registry_commands,
+        source_commands=source_commands,
+        licence_commands=licence_commands,
+    )
     return parser
 
 

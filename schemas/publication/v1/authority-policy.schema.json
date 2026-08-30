@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://entor.net/schemas/hippocampus-foundation/publication/v1/authority-policy.schema.json",
+  "title": "Publication rights and upload authority policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "record_kind", "policy_id", "status",
+    "rights_signing_key_fingerprints", "publication_signing_key_fingerprints",
+    "maximum_rights_days", "maximum_publication_hours", "training_authorized"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_kind": { "const": "publication_authority_policy" },
+    "policy_id": { "$ref": "#/$defs/id" },
+    "status": { "enum": ["pending", "approved"] },
+    "rights_signing_key_fingerprints": {
+      "type": "array", "uniqueItems": true,
+      "items": { "$ref": "#/$defs/fingerprint" }
+    },
+    "publication_signing_key_fingerprints": {
+      "type": "array", "uniqueItems": true,
+      "items": { "$ref": "#/$defs/fingerprint" }
+    },
+    "maximum_rights_days": { "type": "integer", "minimum": 1, "maximum": 365 },
+    "maximum_publication_hours": { "type": "integer", "minimum": 1, "maximum": 72 },
+    "training_authorized": { "const": false }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+    "fingerprint": { "type": "string", "pattern": "^[0-9A-F]{40,64}$" }
+  }
+}
