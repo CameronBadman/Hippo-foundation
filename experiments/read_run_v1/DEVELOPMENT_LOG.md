@@ -232,3 +232,62 @@ from the Phase 0, Phase 1, and Phase 2 artifacts, whose `training_authorized` is
 mechanically `false` and remains pinned by `tests/test_no_training_surface.py`.
 The two must not be conflated. No holdout has been opened and no accuracy has
 been measured.
+
+## 2026-08-31 — official-scale P0 passed under Amendment 02
+
+All seven P0 gates passed on the official screening and train domains. The
+machine-readable report is committed at `audit/read-run-p0.v1.passed.json`.
+
+`blockers: []`, `selected_main_budget: 128`, `holdout_opened: false`.
+`screening_training_authorized` and `training_authorized` are both `true`, which
+authorizes E1 for this experiment only. Phase 0, Phase 1, and Phase 2 artifacts
+remain mechanically `false` and pinned by `tests/test_no_training_surface.py`.
+
+| Gate | Result |
+|---|---|
+| 1 gamma_measured_not_declared | pass |
+| 2 gold_swap_noninterference | pass |
+| 3 shortcut_probes | pass |
+| 4 dire_control | pass |
+| 5 dual_oracle_agreement | pass |
+| 6 double_execution | pass |
+| 7 direct_pool_invariance | pass |
+
+### Amendment 02 stratification at official scale
+
+| Stratum | n | B=16 | B=32 | B=64 | B=128 |
+|---|---|---|---|---|---|
+| `hops_2_4` (gated) | 1518 | 30.96% | 53.82% | 79.64% | 100.00% |
+| `hops_5` | 412 | 0.00% | 0.00% | 0.00% | 26.21% |
+| `hops_6_plus` | 70 | 0.00% | 0.00% | 0.00% | 0.00% |
+| aggregate (reported, not gated) | 2000 | 23.50% | 40.85% | 60.45% | 81.30% |
+
+Every value reproduces the 2,000-world prediction exactly, including the 81.30%
+aggregate that would have blocked the sweep under the unscoped rule. B=128 is
+selected from the gated stratum, and is evidence-selected from the coverage
+curve rather than from any accuracy measurement.
+
+### Gamma invariance
+
+Coverage is bit-identical across all five gamma buckets in all three strata at
+all four budgets — sixty of sixty rows. The preregistered stop condition on
+gamma-correlated pool construction is cleared on official data rather than on a
+sample.
+
+### Runtime calibration
+
+P0 took 4 hours 7 minutes (13:05:12 to 17:12:06) single-threaded. Successive
+estimates during the run were 30–90 minutes, then ~15:25, then 16:25–17:00, then
+18:00–18:30. The first three were too optimistic and the last too pessimistic.
+
+This is recorded as calibration data rather than as a correction. The error came
+from extrapolating byte throughput measured during cheap gates into gates that
+compute `_features` on every episode, where throughput falls from about
+414 MB/min to about 152 MB/min. Future estimates should be derived per gate from
+its per-episode cost, not from an aggregate rate.
+
+The measured decomposition is on record for that purpose: the dual oracle costs
+0.36 ms per episode and `_features` 0.58 ms, while reading and decompressing an
+episode costs 2.27 ms, so P0 is I/O-bound rather than oracle-bound, and
+`shortcut_probe_gate_streaming` traverses each split four times where one pass
+would do.
