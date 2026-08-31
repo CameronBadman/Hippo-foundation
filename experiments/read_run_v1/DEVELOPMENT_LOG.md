@@ -291,3 +291,62 @@ The measured decomposition is on record for that purpose: the dual oracle costs
 episode costs 2.27 ms, so P0 is I/O-bound rather than oracle-bound, and
 `shortcut_probe_gate_streaming` traverses each split four times where one pass
 would do.
+
+## 2026-08-31 — two withdrawals recorded before training
+
+Both items below were withdrawn on evidence before any training run. The full
+reasoning is in
+[`PREREGISTRATION_AMENDMENT_03.md`](PREREGISTRATION_AMENDMENT_03.md).
+
+### The aggregator check is withdrawn and will not be run
+
+The planned max-versus-current aggregation ablation rested on an argument from
+the neural algorithmic reasoning literature: max beats sum because sum's output
+magnitude grows with neighbourhood size as graphs scale. That requires
+aggregation width to track node count.
+
+Neither precondition holds in this model. There is no sum aggregation —
+`forward_direct` uses `contextual.mean(dim=1)` and both arms summarise with a
+softmax-normalised weighted sum, whose magnitude does not grow with width — and
+the aggregation width is the fixed budget B, not the node count. The failure
+mode the ablation was designed to detect cannot occur here.
+
+### E2 as size generalization is withdrawn
+
+Amendment 01 §4 assumed one-shot pool coverage degrades as node count grows at
+fixed budget. The official stratification contradicts it: coverage tracks hop
+distance and B, not node count, and is flat across all four budgets and all five
+gamma buckets. Sweeping node count at fixed B would have swept an axis the
+measured quantity does not vary along.
+
+It is replaced by depth generalization: train on `hops_2_4`, evaluate
+inference-only at 5, 6, 7 and 8 hops at B=128, and test whether adaptive
+expansion crosses a reachability boundary that one-shot expansion structurally
+cannot.
+
+### The replacement cannot run on current data
+
+Measured on the official screening domain, farthest-target hop distance reaches a
+maximum of 6: 412 episodes at 2 hops, 536 at 3, 570 at 4, 412 at 5, 70 at 6, and
+**zero at 7 or 8**. `MAX_PATH_LENGTH` is 6 and background shortcuts only reduce
+hop distance, so no deeper episode can exist.
+
+Depths 7 and 8 therefore require raising `MAX_PATH_LENGTH` past its frozen value,
+a fresh generation, and a fresh seven-gate P0 run. This is deferred until E1
+reports, because E1's outcome decides whether E2 happens at all.
+
+### Deep strata are descriptive only for E1
+
+Oversampling the deep strata was considered and declined for E1. It would void
+the committed P0 report and require regenerating every bucket, and it would buy
+nothing, because E1 attaches decision rules only to `hops_2_4`, where n = 1,518
+and coverage is already 100%.
+
+The 5-hop and 6-hop strata are accordingly **descriptive only** in E1 and carry
+no decision rule. At n = 70 the 6-hop interval is ±11.7pp on a single rate and
+±16.6pp on a between-arm difference, which is an observation, not a measurement.
+
+If E2 runs it needs a new generation anyway, so oversampling is designed into
+that generation instead: a target of 800 episodes per depth at 5, 6, 7 and 8
+hops gives ±5pp on the between-arm difference, the width at which the expected
+reachability boundary is resolvable rather than suggestive.
