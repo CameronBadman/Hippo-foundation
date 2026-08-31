@@ -379,6 +379,14 @@ def build_read_model(config: dict[str, Any]) -> Any:
                     torch.stack(chosen_representations),
                     state.index_select(0, mover_selector),
                 )
+                # Under autocast the cell returns the autocast dtype while
+                # `state` still carries the dtype the query encoder produced,
+                # and `index_copy` requires both to match. The serial path
+                # simply rebinds `state`, so it adopts the cell's dtype on the
+                # first update; every episode is a mover on the first
+                # iteration, so promoting the whole tensor reproduces that.
+                if state.dtype != updated.dtype:
+                    state = state.to(updated.dtype)
                 state = state.index_copy(0, mover_selector, updated)
 
             representations = torch.stack(

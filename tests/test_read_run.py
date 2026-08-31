@@ -607,3 +607,40 @@ def test_batched_trav_matches_the_serial_traversal() -> None:
     reference_logits = torch.cat([item["logits"] for item in serial], dim=0)
     assert torch.allclose(reference_logits, batched["logits"], atol=1e-4)
     assert (reference_logits.argmax(-1) == batched["logits"].argmax(-1)).all()
+
+
+def test_batched_trav_runs_under_the_autocast_training_configuration() -> None:
+    """The batched traversal must work in the dtype regime training uses.
+
+    `train_arm` wraps the forward pass in `torch.autocast(bfloat16)` on CUDA,
+    where the query encoder and the state cell can return different dtypes.
+    The batched path keeps one state tensor for the whole microbatch and must
+    reconcile them; the serial path never had to, because it rebinds `state`
+    per episode. An equivalence test that only runs in fp32 does not exercise
+    this, which is exactly how a dtype fault reached a sweep.
+    """
+
+    torch = pytest.importorskip("torch")
+    import json
+
+    from hippocampus_foundation.read_run.model import build_read_model
+
+    config = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments/read_run_v1/training-config.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    episodes = [_episode(index, 0.2, (index % 15) + 1) for index in range(4)]
+    visible = [episode.visible for episode in episodes]
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    dtype = torch.bfloat16 if device == "cuda" else torch.float32
+
+    torch.manual_seed(1729)
+    model = build_read_model(config).to(device).eval()
+    with torch.no_grad(), torch.autocast(device_type=device, dtype=dtype):
+        batched = model.forward_trav_batched(visible, 16)
+        serial = [model._forward_trav_one(item, 16) for item in visible]
+
+    assert [item["edge_ids"][0] for item in serial] == batched["edge_ids"]
+    assert batched["logits"].shape[0] == len(visible)
