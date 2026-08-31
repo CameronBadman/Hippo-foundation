@@ -350,3 +350,44 @@ If E2 runs it needs a new generation anyway, so oversampling is designed into
 that generation instead: a target of 800 episodes per depth at 5, 6, 7 and 8
 hops gives ±5pp on the between-arm difference, the width at which the expected
 reachability boundary is resolvable rather than suggestive.
+
+## 2026-09-01 — E1 executed and voided by its own negative control
+
+All 30 preregistered main runs completed with zero failures under code freeze
+`07d18b39…` at commit `112fcb0`. The result is in
+[`results/E1.md`](results/E1.md) and `audit/read-run-e1.v1.void.json`.
+
+**The run is void.** At gamma=0 in the gated `hops_2_4` stratum the arms differ
+by 28.49 percentage points against a 1.00-point threshold. gamma=0 is the regime
+with no greedy-wrongness, where adaptive traversal should confer no advantage;
+disagreement there means the arms are not comparable and the sweep measured an
+implementation asymmetry rather than the effect it was built to test.
+
+DIRECT collapsed to a constant predictor, emitting class 0 on 14,991 of 15,000
+holdout episodes and only five distinct classes in total. Its exact-set accuracy
+of 0.0002 is roughly 300× below the 1/15 chance level, which is the signature of
+a degenerate constant predictor rather than a weak learner; a model that merely
+failed to learn would sit at chance. TRAV was not stable either: across gamma its
+accuracy runs 28.51%, 38.01%, 6.85%, 24.91%, 23.11%, with no monotone structure,
+where the preregistered hypothesis expected the gap to grow with gamma.
+
+Nothing was tuned in response. The holdout was opened once under this freeze and
+is spent; a retry needs a new generation, a fresh P0, and a new holdout, and is a
+new experiment rather than a continuation.
+
+### Two failures on the way to this result, both recorded
+
+An earlier sweep lost all 15 TRAV runs to a dtype fault: under
+`torch.autocast(bfloat16)` the state cell returns a different dtype than the
+query encoder, and the batched traversal's `index_copy` requires them to match.
+The equivalence test that gated the batching ran fp32 on CPU and never exercised
+the regime training uses. The test now runs under autocast on the training
+device. The 15 DIRECT runs from that sweep were discarded **unread** so that
+nothing downstream was informed by them, and the holdout was regenerated under a
+corrected freeze — all ten streams verified byte-identical to their pre-fix
+digests, since `generator.py` was untouched, so no re-roll was possible.
+
+Runtime estimates were repeatedly wrong in both directions across P0 and E1.
+Measured figures for future planning: DIRECT 15.3 min per run, TRAV 73.3 min per
+run, both at concurrency 3 on one RTX 5070 Ti, with the whole 30-run sweep taking
+7 hours 50 minutes.

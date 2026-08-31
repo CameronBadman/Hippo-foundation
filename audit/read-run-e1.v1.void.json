@@ -1,0 +1,603 @@
+{
+  "decision_rule_stratum": "hops_2_4",
+  "descriptive_only_strata": [
+    "hops_5",
+    "hops_6_plus"
+  ],
+  "direct_collapse": {
+    "distinct_classes_predicted": 5,
+    "note": "DIRECT emitted class 0 on 14991 of 15000 holdout episodes in the inspected run",
+    "predicted_class_0_fraction": 0.9994
+  },
+  "evaluated_at": "2026-09-01",
+  "negative_control": {
+    "direct_correct": 7,
+    "direct_total": 25707,
+    "gamma": 0.0,
+    "observed_gap_pp": 28.49,
+    "passed": false,
+    "stratum": "hops_2_4",
+    "threshold_pp": 1.0,
+    "trav_correct": 7330,
+    "trav_total": 25707
+  },
+  "record_kind": "read_run_e1_result",
+  "runs": [
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.2502666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.00035555555555555557,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.0,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.0,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.2502,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.0002666666666666667,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25006666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 8.888888888888889e-05,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25006666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 8.888888888888889e-05,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25006666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 8.888888888888889e-05,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.0,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6850666666666667,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.24913333333333335,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.0019555555555555554,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.0,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6936,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.00017777777777777779,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6941333333333334,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25006666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 8.888888888888889e-05,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6938666666666666,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.2501333333333333,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.00035555555555555557,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6936,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.24993333333333334,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 8.888888888888889e-05,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.6925333333333333,
+      "arm": "DIRECT",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.25006666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.0007111111111111111,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.6938666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.312,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.4199333333333333,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.26826666666666665,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.43546666666666667,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.37146666666666667,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.4417333333333333,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.30266666666666664,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.5097333333333334,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.45386666666666664,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.2803333333333333,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.06408888888888889,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.5182666666666667,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.39813333333333334,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.46926666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.3131555555555556,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.4802666666666667,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.30186666666666667,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.4066,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 1729,
+      "non_abstain_exact_set_accuracy": 0.24266666666666667,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.4090666666666667,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.3058666666666667,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.35986666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.19315555555555555,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.4225333333333333,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.30373333333333336,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.3960666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.2256,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.3974,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.5573333333333333,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.2624666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.020533333333333334,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.5667333333333333,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.5725333333333333,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.26486666666666664,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.02808888888888889,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.5882,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.3136,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.3434,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 2718,
+      "non_abstain_exact_set_accuracy": 0.1592,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.408,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.2664,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.3586666666666667,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.0,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.20186666666666667,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.42046666666666666,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.44533333333333336,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.5047333333333334,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.1,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.35644444444444445,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.5133333333333333,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.4056,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.29013333333333335,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.2,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.07235555555555556,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.453,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.3565333333333333,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.39726666666666666,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.3,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.23457777777777777,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.4530666666666667,
+      "split": "holdout",
+      "stage": "main"
+    },
+    {
+      "abstain_accuracy": 0.2704,
+      "arm": "TRAV",
+      "budget": 128,
+      "class_only_accuracy_not_primary": 0.3248,
+      "code_freeze_sha256": "sha256:07d18b39486e5d2a67a78284f1bd0547c03eb842b44b06637b5ac5743f14dea9",
+      "episode_count": 15000,
+      "gamma": 0.4,
+      "model_seed": 3141,
+      "non_abstain_exact_set_accuracy": 0.13297777777777778,
+      "p0_report_sha256": "sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6",
+      "proof_valid_fraction": 0.348,
+      "split": "holdout",
+      "stage": "main"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "stratified_exact_set": {
+    "DIRECT|0.0|hops_2_4": {
+      "correct": 7,
+      "total": 25707
+    },
+    "DIRECT|0.0|hops_5": {
+      "correct": 0,
+      "total": 6786
+    },
+    "DIRECT|0.0|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "DIRECT|0.1|hops_2_4": {
+      "correct": 2,
+      "total": 25707
+    },
+    "DIRECT|0.1|hops_5": {
+      "correct": 0,
+      "total": 6786
+    },
+    "DIRECT|0.1|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "DIRECT|0.2|hops_2_4": {
+      "correct": 4,
+      "total": 25707
+    },
+    "DIRECT|0.2|hops_5": {
+      "correct": 0,
+      "total": 6786
+    },
+    "DIRECT|0.2|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "DIRECT|0.3|hops_2_4": {
+      "correct": 26,
+      "total": 25707
+    },
+    "DIRECT|0.3|hops_5": {
+      "correct": 0,
+      "total": 6786
+    },
+    "DIRECT|0.3|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "DIRECT|0.4|hops_2_4": {
+      "correct": 9,
+      "total": 25707
+    },
+    "DIRECT|0.4|hops_5": {
+      "correct": 0,
+      "total": 6786
+    },
+    "DIRECT|0.4|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "TRAV|0.0|hops_2_4": {
+      "correct": 7330,
+      "total": 25707
+    },
+    "TRAV|0.0|hops_5": {
+      "correct": 127,
+      "total": 6786
+    },
+    "TRAV|0.0|hops_6_plus": {
+      "correct": 5,
+      "total": 1257
+    },
+    "TRAV|0.1|hops_2_4": {
+      "correct": 9770,
+      "total": 25707
+    },
+    "TRAV|0.1|hops_5": {
+      "correct": 173,
+      "total": 6786
+    },
+    "TRAV|0.1|hops_6_plus": {
+      "correct": 10,
+      "total": 1257
+    },
+    "TRAV|0.2|hops_2_4": {
+      "correct": 1762,
+      "total": 25707
+    },
+    "TRAV|0.2|hops_5": {
+      "correct": 4,
+      "total": 6786
+    },
+    "TRAV|0.2|hops_6_plus": {
+      "correct": 0,
+      "total": 1257
+    },
+    "TRAV|0.3|hops_2_4": {
+      "correct": 6403,
+      "total": 25707
+    },
+    "TRAV|0.3|hops_5": {
+      "correct": 72,
+      "total": 6786
+    },
+    "TRAV|0.3|hops_6_plus": {
+      "correct": 3,
+      "total": 1257
+    },
+    "TRAV|0.4|hops_2_4": {
+      "correct": 5941,
+      "total": 25707
+    },
+    "TRAV|0.4|hops_5": {
+      "correct": 73,
+      "total": 6786
+    },
+    "TRAV|0.4|hops_6_plus": {
+      "correct": 3,
+      "total": 1257
+    }
+  },
+  "training_authorized_phase012": false,
+  "verdict": "VOID",
+  "verdict_reason": "preregistered negative control failed: arms differ by 28.49pp in the hops_2_4 stratum at gamma=0, against a 1.00pp threshold"
+}
