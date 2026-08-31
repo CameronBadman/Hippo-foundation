@@ -72,6 +72,18 @@ The maximum depth present is 6. `MAX_PATH_LENGTH` is 6, which bounds the planted
 route, and background edges create shortcuts that only ever *reduce* hop
 distance. No episode at 7 or 8 hops can exist under the current generator.
 
+**The ceiling is structural, not a sampling limit.** `MAX_PATH_LENGTH` bounds the
+planted route and background shortcuts only ever shorten the realised hop
+distance, so no quantity of additional generation under the current constant will
+ever produce a 7-hop episode. Depth 6 is the hard maximum of this distribution,
+not its sparse tail.
+
+It follows that any future generation reaching 7 and 8 hops is **a different data
+distribution, not more of the same**. Such a run is a new dataset requiring its
+own seven-gate P0 report, and its results must not be read as an extension of E1
+or compared to E1's numbers as though drawn from one population. This is stated
+explicitly so that a later E2 is not mistaken for a continuation of E1.
+
 E2 as specified in §3 therefore cannot run on any data the frozen generator
 produces. Reaching depths 7 and 8 requires raising `MAX_PATH_LENGTH` past its
 frozen value of 6, which amends `PREREGISTRATION.md` §6 and requires a fresh

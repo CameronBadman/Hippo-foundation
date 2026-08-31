@@ -242,17 +242,161 @@ def build_read_model(config: dict[str, Any]) -> Any:
             logits = self.answer_head(torch.cat([state, summary], dim=-1))
             return {"logits": logits, "scores": scores, "edge_ids": [all_ids]}
 
+        def forward_trav_batched(
+            self, visible_batch: list[dict[str, Any]], budget: int
+        ) -> dict[str, Any]:
+            """Lockstep TRAV traversal across the whole microbatch.
+
+            Semantically identical to running `_forward_trav_one` per episode.
+            Every operation in this model is independent across the batch
+            dimension, so batching changes only the order of floating-point
+            reductions, never which edges are expanded or chosen. Expansion
+            groups have different widths per episode, so short rows are padded
+            with an already-present edge id and excluded by an attention
+            key-padding mask; masked positions contribute exactly zero softmax
+            weight, leaving real positions unchanged.
+
+            The per-episode selection rule, including its
+            `(score, -edge_id)` tie-break on the detached score, is preserved
+            exactly and still runs in Python on scalars.
+            """
+
+            count = len(visible_batch)
+            query = self._query(visible_batch)
+            state = query
+            adjacency: list[dict[int, list[dict[str, int]]]] = []
+            for visible in visible_batch:
+                by_source: dict[int, list[dict[str, int]]] = defaultdict(list)
+                for edge in visible["edges"]:
+                    by_source[edge["source"]].append(edge)
+                for values in by_source.values():
+                    values.sort(
+                        key=lambda edge: _structural_order(visible["router_seed"], edge)
+                    )
+                adjacency.append(by_source)
+
+            expanded: list[set[int]] = [set() for _ in range(count)]
+            scored: list[set[int]] = [set() for _ in range(count)]
+            pending: list[dict[int, tuple[Any, float]]] = [{} for _ in range(count)]
+            all_ids: list[list[int]] = [[] for _ in range(count)]
+            all_representations: list[list[Any]] = [[] for _ in range(count)]
+            all_scores: list[list[Any]] = [[] for _ in range(count)]
+            current = [visible["start_node"] for visible in visible_batch]
+
+            while any(len(all_ids[i]) < budget for i in range(count)):
+                groups: dict[int, list[int]] = {}
+                for index in range(count):
+                    if len(all_ids[index]) >= budget:
+                        continue
+                    node = current[index]
+                    if node in expanded[index]:
+                        continue
+                    fresh = [
+                        edge["edge_id"]
+                        for edge in adjacency[index][node]
+                        if edge["edge_id"] not in scored[index]
+                    ][: budget - len(all_ids[index])]
+                    expanded[index].add(node)
+                    if fresh:
+                        groups[index] = fresh
+
+                if groups:
+                    order = sorted(groups)
+                    width = max(len(groups[index]) for index in order)
+                    padded = [
+                        groups[index]
+                        + [groups[index][-1]] * (width - len(groups[index]))
+                        for index in order
+                    ]
+                    selector = torch.tensor(order, dtype=torch.long, device=self.device)
+                    encoded = self._edge_batch(
+                        [visible_batch[index] for index in order],
+                        padded,
+                        query.index_select(0, selector),
+                    )
+                    padding_mask = torch.zeros(
+                        len(order), width, dtype=torch.bool, device=self.device
+                    )
+                    for row, index in enumerate(order):
+                        if len(groups[index]) < width:
+                            padding_mask[row, len(groups[index]) :] = True
+                    contextual, _weights = self.joint_attention(
+                        encoded,
+                        encoded,
+                        encoded,
+                        key_padding_mask=(
+                            padding_mask if bool(padding_mask.any()) else None
+                        ),
+                    )
+                    scores = self._scores(
+                        contextual,
+                        state.index_select(0, selector),
+                        query.index_select(0, selector),
+                    )
+                    detached = scores.detach().tolist()
+                    for row, index in enumerate(order):
+                        for offset, edge_id in enumerate(groups[index]):
+                            representation = contextual[row, offset]
+                            score = scores[row, offset]
+                            pending[index][edge_id] = (
+                                representation,
+                                detached[row][offset],
+                            )
+                            all_ids[index].append(edge_id)
+                            all_representations[index].append(representation)
+                            all_scores[index].append(score)
+                            scored[index].add(edge_id)
+
+                movers = []
+                for index in range(count):
+                    if len(all_ids[index]) >= budget:
+                        continue
+                    if not pending[index]:
+                        raise TrainingBlocked(
+                            "TRAV exhausted its frontier before consuming the "
+                            "edge budget"
+                        )
+                    movers.append(index)
+                if not movers:
+                    break
+
+                chosen_representations = []
+                for index in movers:
+                    chosen_id = max(
+                        pending[index],
+                        key=lambda edge_id, i=index: (
+                            pending[i][edge_id][1],
+                            -edge_id,
+                        ),
+                    )
+                    representation, _score = pending[index].pop(chosen_id)
+                    chosen_representations.append(representation)
+                    current[index] = visible_batch[index]["edges"][chosen_id]["target"]
+                mover_selector = torch.tensor(
+                    movers, dtype=torch.long, device=self.device
+                )
+                updated = self.state_cell(
+                    torch.stack(chosen_representations),
+                    state.index_select(0, mover_selector),
+                )
+                state = state.index_copy(0, mover_selector, updated)
+
+            representations = torch.stack(
+                [torch.stack(values) for values in all_representations]
+            )
+            scores = torch.stack([torch.stack(values) for values in all_scores])
+            pooling = torch.softmax(scores, dim=1).unsqueeze(-1)
+            summary = (representations * pooling).sum(dim=1)
+            logits = self.answer_head(torch.cat([state, summary], dim=-1))
+            return {"logits": logits, "scores": scores, "edge_ids": all_ids}
+
         def forward_trav(
             self, visible_batch: list[dict[str, Any]], budget: int
         ) -> dict[str, Any]:
-            outputs = [
-                self._forward_trav_one(visible, budget) for visible in visible_batch
-            ]
-            return {
-                "logits": torch.cat([item["logits"] for item in outputs], dim=0),
-                "scores": torch.cat([item["scores"] for item in outputs], dim=0),
-                "edge_ids": [item["edge_ids"][0] for item in outputs],
-            }
+            # `_forward_trav_one` is retained as the executable specification
+            # for this path; `test_batched_trav_matches_the_serial_traversal`
+            # pins the batched implementation to it.
+            return self.forward_trav_batched(visible_batch, budget)
 
         def forward(
             self, visible_batch: list[dict[str, Any]], *, arm: str, budget: int

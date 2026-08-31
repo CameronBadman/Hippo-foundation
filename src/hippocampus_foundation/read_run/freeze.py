@@ -70,6 +70,29 @@ def _repository_commit() -> str:
     return value
 
 
+# The order in which the batched TRAV path was adopted is what makes it the
+# reference implementation rather than an arbitrary swap, so the sequence is
+# recorded in the freeze itself rather than only in prose.
+IMPLEMENTATION_PROVENANCE = {
+    "trav_batched_forward": {
+        "specification": "EqualCapacityReadModel._forward_trav_one",
+        "selected_on": "wall_clock_only",
+        "gated_on": "identical_traversal_decisions_against_the_specification",
+        "selected_before_any_accuracy_existed": True,
+        "numeric_difference": "float32_reassociation_only",
+        "arms_frozen_before_holdout_opened": True,
+    }
+}
+
+# A failure here means the batched implementation has drifted from the serial
+# specification it was gated against. That invalidates E1 results themselves,
+# not merely continuous integration: every accuracy number under this freeze was
+# produced by the batched path on the strength of that equivalence.
+INVALIDATING_TESTS = [
+    "tests/test_read_run.py::test_batched_trav_matches_the_serial_traversal",
+]
+
+
 def create_code_freeze(*, p0_report: dict[str, Any], frozen_at: str) -> dict[str, Any]:
     contracts = validate_preregistration()
     if p0_report.get("record_kind") != "read_run_p0_report":
@@ -92,6 +115,8 @@ def create_code_freeze(*, p0_report: dict[str, Any], frozen_at: str) -> dict[str
         "p0_report_sha256": canonical_sha256(p0_report),
         "selected_main_budget": p0_report["selected_main_budget"],
         "holdout_opened": False,
+        "implementation_provenance": IMPLEMENTATION_PROVENANCE,
+        "invalidating_tests": INVALIDATING_TESTS,
     }
 
 
@@ -112,6 +137,8 @@ def validate_code_freeze(
         "p0_report_sha256",
         "selected_main_budget",
         "holdout_opened",
+        "implementation_provenance",
+        "invalidating_tests",
     }
     if set(freeze) != required or freeze["record_kind"] != "read_run_code_freeze":
         raise IntegrityGateError("code-freeze fields differ from the fixed contract")
