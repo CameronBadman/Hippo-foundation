@@ -136,9 +136,11 @@ is 1/15 = 6.67%.
    1.00pp absolute margin. The margin is the resolution scale the frozen
    preregistration already uses for its negative control, carried over rather than
    invented; it stops the Wilson rule from being satisfiable by a hair at large n.
-   At the screening cell size of roughly 1,140 episodes, the Wilson condition
-   alone requires about `p̂ = 7.90%`, so it binds first at that n and the absolute
-   margin binds at larger n.
+   The screening cell is exactly **1,124 episodes** — 2,000 per gamma bucket, 75%
+   non-abstain by construction, of which 1,124 fall in `hops_2_4` (322 at
+   `hops_5`, 54 at `hops_6_plus`). At that n the Wilson condition requires 89
+   correct, `p̂ = 7.92%`, so it binds first here and the absolute margin binds
+   only at larger n.
 2. **Distinct classes.** At least **8** distinct predicted classes.
 3. **Entropy floor.** Shannon entropy of the empirical predicted-label
    distribution at least **1.00 nats** — an effective support of `e^1.00 ≈ 2.72`
