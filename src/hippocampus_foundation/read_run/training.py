@@ -24,9 +24,9 @@ from .freeze import load_and_validate_code_freeze
 from .gates import select_main_budget
 from .generator import GeneratedEpisode
 from .io import (
-    model_input_bytes,
     read_generated_split,
     validate_generated_split_artifacts,
+    validate_model_input_fields,
 )
 from .model import build_read_model, require_torch, trainable_parameter_count
 
@@ -236,7 +236,7 @@ def train_arm(
             for _ in range(accumulation):
                 episodes = next(batches)
                 for episode in episodes:
-                    model_input_bytes(episode)
+                    validate_model_input_fields(episode)
                 context = (
                     torch.autocast(device_type="cuda", dtype=torch.bfloat16)
                     if use_bf16
@@ -482,7 +482,7 @@ def evaluate_checkpoint(
             )
 
     for episode in read_generated_split(dataset_root):
-        model_input_bytes(episode)
+        validate_model_input_fields(episode)
         pending.append(episode)
         if len(pending) == microbatch:
             score_batch(pending)

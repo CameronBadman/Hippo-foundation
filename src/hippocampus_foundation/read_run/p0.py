@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import multiprocessing
+from collections.abc import Callable, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from itertools import islice
 from pathlib import Path
 from typing import Any
@@ -133,6 +135,106 @@ def _double_execution_record(
     )
 
 
+DEFAULT_P0_WORKERS = 1
+
+
+def _unit_gamma(
+    train_root: Path, screen_root: Path, gamma: float
+) -> tuple[list[dict[str, Any]], str | None]:
+    checks: list[dict[str, Any]] = []
+    for split, root in (("train", train_root), ("screen", screen_root)):
+        try:
+            result = gamma_measurement_gate(
+                read_generated_split(root), requested_gamma=gamma
+            )
+        except IntegrityGateError as exc:
+            return checks, str(exc)
+        result["split"] = split
+        checks.append(result)
+    return checks, None
+
+
+def _unit_probe(
+    train_root: Path,
+    gamma: float,
+    fit_stop: int,
+    train_count: int,
+    expected_fit: int,
+    expected_evaluation: int,
+    dire: bool,
+) -> tuple[dict[str, Any] | None, str | None]:
+    runner = (
+        dire_shortcut_probe_gate_streaming if dire else shortcut_probe_gate_streaming
+    )
+    try:
+        result = runner(
+            fit_factory=_slice_factory(train_root, 0, fit_stop),
+            evaluation_factory=_slice_factory(train_root, fit_stop, train_count),
+            expected_fit_count=expected_fit,
+            expected_evaluation_count=expected_evaluation,
+        )
+    except IntegrityGateError as exc:
+        return None, str(exc)
+    result["gamma"] = gamma
+    return result, None
+
+
+def _unit_oracle(root: Path) -> dict[str, Any]:
+    return _capture_gate(
+        "dual_oracle_agreement", lambda: dual_oracle_gate(read_generated_split(root))
+    )
+
+
+def _unit_gold(screen_root: Path) -> tuple[dict[str, Any] | None, str | None]:
+    try:
+        return gold_swap_noninterference_gate(
+            list(read_generated_split(screen_root))
+        ), None
+    except IntegrityGateError as exc:
+        return None, str(exc)
+
+
+def _unit_disjoint(
+    train_root: Path, screen_root: Path
+) -> tuple[dict[str, Any] | None, str | None]:
+    try:
+        return _world_disjoint(train_root, screen_root), None
+    except IntegrityGateError as exc:
+        return None, str(exc)
+
+
+_UNIT_DISPATCH: dict[str, Callable[..., Any]] = {
+    "gamma": _unit_gamma,
+    "probe": _unit_probe,
+    "oracle": _unit_oracle,
+    "gold": _unit_gold,
+    "disjoint": _unit_disjoint,
+}
+
+
+def _run_unit(spec: tuple[str, tuple[Any, ...]]) -> Any:
+    kind, arguments = spec
+    return _UNIT_DISPATCH[kind](*arguments)
+
+
+def _run_units(specs: Sequence[tuple[str, tuple[Any, ...]]], workers: int) -> list[Any]:
+    """Evaluate independent gate units, always returning them in submission order.
+
+    Determinism comes from the ordering here, not from completion order: each
+    unit reads its own split from disk and returns a plain result record, so the
+    assembled report cannot depend on how the pool schedules them.
+    """
+
+    if workers <= 1:
+        return [_run_unit(spec) for spec in specs]
+    # "spawn", not the default fork: a forked child of a multi-threaded parent
+    # can deadlock, and a P0 unit runs for minutes, so a fresh interpreter's
+    # start-up cost is not worth the hazard.
+    context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=workers, mp_context=context) as pool:
+        return list(pool.map(_run_unit, specs))
+
+
 def evaluate_p0(
     *,
     train_roots: dict[float, Path],
@@ -140,8 +242,20 @@ def evaluate_p0(
     double_execution_records: list[dict[str, Any]],
     evaluated_at: str,
     strict_counts: bool = True,
+    workers: int = DEFAULT_P0_WORKERS,
 ) -> dict[str, Any]:
-    """Evaluate all seven gates and return a report even when one blocks."""
+    """Evaluate all seven gates and return a report even when one blocks.
+
+    `workers` only changes how the independent per-gamma units are scheduled.
+    Every unit reads its own split and the results are assembled in submission
+    order, so the report is byte-identical at any width; if any unit reports a
+    blocker the affected gate is recomputed serially, so the early-termination
+    semantics of a failing gate are the original code's, not a reimplementation.
+    The cost of that guarantee is that a blocked gate is evaluated twice, and
+    that every gamma runs even where the serial code would have stopped at the
+    first failure. A blocked P0 is therefore slower than a passing one, which is
+    the right way round.
+    """
 
     contracts = validate_preregistration()
     expected_seed_commitment = (
@@ -176,24 +290,62 @@ def evaluate_p0(
         for gamma in GAMMA_BUCKETS
     }
 
+    fit_stop = train_count - train_count // 5
+    expected_fit = 120_000 if strict_counts else fit_stop
+    expected_evaluation = 30_000 if strict_counts else train_count - fit_stop
+    specs: list[tuple[str, tuple[Any, ...]]] = []
+    for gamma in GAMMA_BUCKETS:
+        specs.append(("gamma", (train_roots[gamma], screen_roots[gamma], gamma)))
+    for dire in (False, True):
+        for gamma in GAMMA_BUCKETS:
+            specs.append(
+                (
+                    "probe",
+                    (
+                        train_roots[gamma],
+                        gamma,
+                        fit_stop,
+                        train_count,
+                        expected_fit,
+                        expected_evaluation,
+                        dire,
+                    ),
+                )
+            )
+    for gamma in GAMMA_BUCKETS:
+        specs.append(("oracle", (train_roots[gamma],)))
+    for gamma in GAMMA_BUCKETS:
+        specs.append(("gold", (screen_roots[gamma],)))
+    specs.append(("disjoint", (train_roots[0.0], screen_roots[0.0])))
+    scheduled = _run_units(specs, workers)
+    unit_gamma = scheduled[0:5]
+    unit_probe = scheduled[5:10]
+    unit_dire = scheduled[10:15]
+    unit_oracle = scheduled[15:20]
+    unit_gold = scheduled[20:25]
+    unit_disjoint = scheduled[25]
+
     gamma_checks = []
     gamma_failed: str | None = None
-    for gamma in GAMMA_BUCKETS:
-        for split, root in (
-            ("train", train_roots[gamma]),
-            ("screen", screen_roots[gamma]),
-        ):
-            try:
-                result = gamma_measurement_gate(
-                    read_generated_split(root), requested_gamma=gamma
-                )
-                result["split"] = split
-                gamma_checks.append(result)
-            except IntegrityGateError as exc:
-                gamma_failed = str(exc)
+    if all(failure is None for _checks, failure in unit_gamma):
+        gamma_checks = [check for checks, _failure in unit_gamma for check in checks]
+    else:
+        for gamma in GAMMA_BUCKETS:
+            for split, root in (
+                ("train", train_roots[gamma]),
+                ("screen", screen_roots[gamma]),
+            ):
+                try:
+                    result = gamma_measurement_gate(
+                        read_generated_split(root), requested_gamma=gamma
+                    )
+                    result["split"] = split
+                    gamma_checks.append(result)
+                except IntegrityGateError as exc:
+                    gamma_failed = str(exc)
+                    break
+            if gamma_failed:
                 break
-        if gamma_failed:
-            break
     gate_1 = {
         "gate": "gamma_measured_not_declared",
         "passed": gamma_failed is None,
@@ -203,6 +355,15 @@ def evaluate_p0(
         gate_1["failure"] = gamma_failed
 
     def gold_checks() -> dict[str, Any]:
+        if all(failure is None for _check, failure in unit_gold) and (
+            unit_disjoint[1] is None
+        ):
+            return {
+                "gate": "gold_swap_noninterference",
+                "passed": True,
+                "checks": [check for check, _failure in unit_gold],
+                "split_disjointness": unit_disjoint[0],
+            }
         checks = [
             gold_swap_noninterference_gate(screen[gamma]) for gamma in GAMMA_BUCKETS
         ]
@@ -218,24 +379,26 @@ def evaluate_p0(
 
     probe_checks = []
     probe_failure: str | None = None
-    fit_stop = train_count - train_count // 5
-    for gamma in GAMMA_BUCKETS:
-        try:
-            result = shortcut_probe_gate_streaming(
-                fit_factory=_slice_factory(train_roots[gamma], 0, fit_stop),
-                evaluation_factory=_slice_factory(
-                    train_roots[gamma], fit_stop, train_count
-                ),
-                expected_fit_count=(120_000 if strict_counts else fit_stop),
-                expected_evaluation_count=(
-                    30_000 if strict_counts else train_count - fit_stop
-                ),
-            )
-            result["gamma"] = gamma
-            probe_checks.append(result)
-        except IntegrityGateError as exc:
-            probe_failure = str(exc)
-            break
+    if all(failure is None for _check, failure in unit_probe):
+        probe_checks = [check for check, _failure in unit_probe]
+    else:
+        for gamma in GAMMA_BUCKETS:
+            try:
+                result = shortcut_probe_gate_streaming(
+                    fit_factory=_slice_factory(train_roots[gamma], 0, fit_stop),
+                    evaluation_factory=_slice_factory(
+                        train_roots[gamma], fit_stop, train_count
+                    ),
+                    expected_fit_count=(120_000 if strict_counts else fit_stop),
+                    expected_evaluation_count=(
+                        30_000 if strict_counts else train_count - fit_stop
+                    ),
+                )
+                result["gamma"] = gamma
+                probe_checks.append(result)
+            except IntegrityGateError as exc:
+                probe_failure = str(exc)
+                break
     gate_3 = {
         "gate": "shortcut_probes",
         "passed": probe_failure is None,
@@ -246,23 +409,26 @@ def evaluate_p0(
 
     dire_checks = []
     dire_failure: str | None = None
-    for gamma in GAMMA_BUCKETS:
-        try:
-            result = dire_shortcut_probe_gate_streaming(
-                fit_factory=_slice_factory(train_roots[gamma], 0, fit_stop),
-                evaluation_factory=_slice_factory(
-                    train_roots[gamma], fit_stop, train_count
-                ),
-                expected_fit_count=(120_000 if strict_counts else fit_stop),
-                expected_evaluation_count=(
-                    30_000 if strict_counts else train_count - fit_stop
-                ),
-            )
-            result["gamma"] = gamma
-            dire_checks.append(result)
-        except IntegrityGateError as exc:
-            dire_failure = str(exc)
-            break
+    if all(failure is None for _check, failure in unit_dire):
+        dire_checks = [check for check, _failure in unit_dire]
+    else:
+        for gamma in GAMMA_BUCKETS:
+            try:
+                result = dire_shortcut_probe_gate_streaming(
+                    fit_factory=_slice_factory(train_roots[gamma], 0, fit_stop),
+                    evaluation_factory=_slice_factory(
+                        train_roots[gamma], fit_stop, train_count
+                    ),
+                    expected_fit_count=(120_000 if strict_counts else fit_stop),
+                    expected_evaluation_count=(
+                        30_000 if strict_counts else train_count - fit_stop
+                    ),
+                )
+                result["gamma"] = gamma
+                dire_checks.append(result)
+            except IntegrityGateError as exc:
+                dire_failure = str(exc)
+                break
     gate_4 = {
         "gate": "dire_control",
         "passed": dire_failure is None,
@@ -271,15 +437,18 @@ def evaluate_p0(
     if dire_failure:
         gate_4["failure"] = dire_failure
 
-    oracle_operations = []
-    for gamma in GAMMA_BUCKETS:
-        oracle_operations.extend(
-            [
+    oracle_operations: list[Callable[[], dict[str, Any]]] = []
+    for index, gamma in enumerate(GAMMA_BUCKETS):
+        if all(result["passed"] for result in unit_oracle):
+            oracle_operations.append(lambda index=index: unit_oracle[index])
+        else:
+            oracle_operations.append(
                 lambda gamma=gamma: dual_oracle_gate(
                     read_generated_split(train_roots[gamma])
-                ),
-                lambda gamma=gamma: dual_oracle_gate(iter(screen[gamma])),
-            ]
+                )
+            )
+        oracle_operations.append(
+            lambda gamma=gamma: dual_oracle_gate(iter(screen[gamma]))
         )
     gate_5 = _aggregate_gate("dual_oracle_agreement", oracle_operations)
 

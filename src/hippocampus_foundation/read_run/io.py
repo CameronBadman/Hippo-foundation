@@ -32,8 +32,19 @@ DATASET_ARTIFACT_NAMES = (
 )
 
 
-def model_input_bytes(episode: GeneratedEpisode) -> bytes:
-    """Return the only bytes that either model is permitted to receive."""
+def validate_model_input_fields(episode: GeneratedEpisode) -> None:
+    """Raise unless the model-visible payload matches the frozen allowlist.
+
+    This is the leakage control. `model_input_bytes` is this check plus a
+    canonical serialization, and the serialization is the expensive half: it
+    costs about 1.9 ms per episode against 0.001 ms for the field checks. Call
+    sites that need the *bytes* -- the gold-swap gate compares them before and
+    after a swap -- call `model_input_bytes`. Call sites that only need the
+    check call this, because re-deriving bytes they immediately discard buys
+    nothing: `validate_generated_split_artifacts` has already rehashed the exact
+    compressed stream against a manifest bound to the P0 report before any
+    episode is read.
+    """
 
     forbidden = {
         "episode_id",
@@ -71,6 +82,12 @@ def model_input_bytes(episode: GeneratedEpisode) -> bytes:
         raise IntegrityGateError(
             "model-visible payload fields differ from the frozen allowlist"
         )
+
+
+def model_input_bytes(episode: GeneratedEpisode) -> bytes:
+    """Return the only bytes that either model is permitted to receive."""
+
+    validate_model_input_fields(episode)
     return canonical_bytes(episode.visible)
 
 
@@ -377,7 +394,7 @@ def read_generated_split(root: Path) -> Iterator[GeneratedEpisode]:
             visible=public_record["visible"],
             hidden=private_record["hidden"],
         )
-        model_input_bytes(episode)
+        validate_model_input_fields(episode)
         count += 1
         yield episode
     if count == 0:

@@ -177,6 +177,7 @@ def _p0(args: argparse.Namespace) -> int:
         screen_roots=screen,
         double_execution_records=doubles,
         evaluated_at=_require_timestamp(args.evaluated_at, "--evaluated-at"),
+        workers=args.workers,
         strict_counts=not args.test_mode,
     )
     _write_json(Path(args.output), report, mode=0o644)
@@ -320,6 +321,7 @@ def build_parser() -> argparse.ArgumentParser:
     p0.add_argument("--screen", action="append", required=True, metavar="GAMMA=PATH")
     p0.add_argument("--double-execution", action="append", required=True)
     p0.add_argument("--evaluated-at", required=True)
+    p0.add_argument("--workers", type=int, default=1)
     p0.add_argument("--output", required=True)
     p0.add_argument("--test-mode", action="store_true")
     p0.set_defaults(handler=_p0)

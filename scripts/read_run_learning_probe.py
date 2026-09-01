@@ -38,7 +38,10 @@ from hippocampus_foundation.read_run.evaluation import (
     score_prediction,
 )
 from hippocampus_foundation.read_run.gates import coverage_stratum, target_hop_distance
-from hippocampus_foundation.read_run.io import model_input_bytes, read_generated_split
+from hippocampus_foundation.read_run.io import (
+    read_generated_split,
+    validate_model_input_fields,
+)
 from hippocampus_foundation.read_run.model import build_read_model, require_torch
 from hippocampus_foundation.read_run.training import (
     _batches,
@@ -78,7 +81,7 @@ def load_screening(root: Path) -> list[Any]:
 
     episodes = []
     for episode in read_generated_split(root):
-        model_input_bytes(episode)
+        validate_model_input_fields(episode)
         episodes.append((episode, coverage_stratum(target_hop_distance(episode))))
     return episodes
 
@@ -252,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
             for _ in range(accumulation):
                 episodes = next(batches)
                 for episode in episodes:
-                    model_input_bytes(episode)
+                    validate_model_input_fields(episode)
                 context = (
                     torch.autocast(device_type="cuda", dtype=torch.bfloat16)
                     if use_bf16

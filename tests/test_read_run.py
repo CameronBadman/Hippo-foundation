@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -45,6 +46,7 @@ from hippocampus_foundation.read_run.io import (
     model_input_bytes,
     read_generated_split,
     validate_generated_split_artifacts,
+    validate_model_input_fields,
     write_generated_split,
 )
 from hippocampus_foundation.read_run.model import (
@@ -53,6 +55,7 @@ from hippocampus_foundation.read_run.model import (
     trainable_parameter_count,
 )
 from hippocampus_foundation.read_run.oracle import independently_solve
+from hippocampus_foundation.read_run.p0 import _run_units, evaluate_p0
 from hippocampus_foundation.read_run.reports import main_report, screening_report
 from hippocampus_foundation.read_run.reproducibility import (
     double_execution_gate,
@@ -644,3 +647,108 @@ def test_batched_trav_runs_under_the_autocast_training_configuration() -> None:
 
     assert [item["edge_ids"][0] for item in serial] == batched["edge_ids"]
     assert batched["logits"].shape[0] == len(visible)
+
+
+def test_field_validation_matches_the_serializing_check_exactly() -> None:
+    """`validate_model_input_fields` must accept and reject exactly what
+    `model_input_bytes` does.
+
+    This is load-bearing, not a style test. The training and evaluation loops
+    now call the cheap check instead of the serializing one, so if the two ever
+    diverge, a payload that `model_input_bytes` would have refused could reach a
+    model. That is the leakage control this experiment rests on, and a failure
+    here invalidates any run made under the divergence, not just CI.
+    """
+
+    episode = _episode()
+    assert validate_model_input_fields(episode) is None
+    assert model_input_bytes(episode)
+
+    missing = copy.deepcopy(episode)
+    del missing.visible["edges"]
+    extra = copy.deepcopy(episode)
+    extra.visible["unexpected"] = 1
+    cases = [missing, extra]
+    for field in (
+        "episode_id",
+        "gold_assertion_mask",
+        "target_nodes",
+        "valid_routes",
+        "measured_gamma",
+    ):
+        leaked = copy.deepcopy(episode)
+        leaked.visible[field] = episode.hidden.get(field, 1)
+        cases.append(leaked)
+
+    for case in cases:
+        with pytest.raises(IntegrityGateError) as cheap:
+            validate_model_input_fields(case)
+        with pytest.raises(IntegrityGateError) as serializing:
+            model_input_bytes(case)
+        assert str(cheap.value) == str(serializing.value)
+
+
+def test_parallel_p0_scheduling_is_byte_identical_to_serial(tmp_path: Path) -> None:
+    """Gate width must not change a single byte of the report.
+
+    `workers` is a scheduling choice, not a contract change: every unit reads
+    its own split and results are assembled in submission order. This is the
+    check that keeps that true, and it is load-bearing in the same way the
+    batched-traversal equivalence test is -- a divergence here would mean a P0
+    report whose contents depend on how a process pool happened to schedule.
+    """
+
+    train_roots = {}
+    screen_roots = {}
+    screen_seed = bytes(range(32, 64))
+    for gamma in GAMMA_BUCKETS:
+        for label, roots, seed in (
+            ("train", train_roots, TEST_SEED),
+            ("screen", screen_roots, screen_seed),
+        ):
+            destination = tmp_path / f"{label}-{gamma:.1f}"
+            write_generated_split(
+                master_seed=seed,
+                split="test-fixture",
+                count=200,
+                gamma=gamma,
+                destination=destination,
+            )
+            roots[gamma] = destination
+
+    # Gate 6 needs fresh-process evidence this test deliberately does not
+    # supply, and the shortcut probes are noisy at fixture scale. The report is
+    # still emitted with those blockers recorded, which is the contract, and
+    # every gate that passes here took the scheduled path rather than the
+    # serial fallback.
+    def report(workers: int) -> dict[str, Any]:
+        return evaluate_p0(
+            train_roots=train_roots,
+            screen_roots=screen_roots,
+            double_execution_records=[],
+            evaluated_at="2026-01-01T00:00:00Z",
+            strict_counts=False,
+            workers=workers,
+        )
+
+    serial = report(1)
+    passed = [item["gate"] for item in serial["gates"] if item["passed"]]
+    assert "double_execution" in serial["blockers"]
+    assert {
+        "gamma_measured_not_declared",
+        "gold_swap_noninterference",
+        "dual_oracle_agreement",
+        "direct_pool_invariance",
+    } <= set(passed)
+    for workers in (2, 4):
+        assert canonical_sha256(report(workers)) == canonical_sha256(serial)
+
+    # The probe gates block at fixture scale, so the report above exercises
+    # their serial fallback rather than their scheduled path. Compare those
+    # units directly so both paths are covered.
+    specs: list[tuple[str, tuple[Any, ...]]] = [
+        ("probe", (train_roots[gamma], gamma, 160, 200, 160, 40, dire))
+        for dire in (False, True)
+        for gamma in GAMMA_BUCKETS
+    ]
+    assert _run_units(specs, 1) == _run_units(specs, 4)
