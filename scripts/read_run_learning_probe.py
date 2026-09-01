@@ -168,6 +168,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--model-seed", type=int, default=1729)
     parser.add_argument("--eval-every", type=int, default=500)
     parser.add_argument(
+        "--save-checkpoint",
+        action="store_true",
+        help="save model weights at completion for a downstream inference-only "
+        "diagnostic; off by default because most probe runs are never inspected "
+        "after their loss curve is read",
+    )
+    parser.add_argument(
         "--eval-at",
         type=int,
         nargs="*",
@@ -331,6 +338,25 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         log.close()
         screen_log.close()
+    if args.save_checkpoint:
+        # Diagnostic-only weights, not an official checkpoint: it carries none
+        # of `training.py`'s receipt/freeze/P0 bindings and must never be loaded
+        # by `evaluate_checkpoint`, which would refuse it on the missing fields
+        # anyway. Shaped closely enough to the real checkpoint (same field
+        # names for arm/stage/model_seed/budget) that a diagnostic script can
+        # treat it uniformly with an official one if that's ever convenient.
+        torch.save(
+            {
+                "state_dict": model.state_dict(),
+                "arm": args.arm,
+                "stage": "diagnostic",
+                "model_seed": args.model_seed,
+                "budget": args.budget,
+                "update_count": args.updates,
+                "training_config_sha256": contracts["training_config_sha256"],
+            },
+            output / "checkpoint.pt",
+        )
     return 0
 
 
