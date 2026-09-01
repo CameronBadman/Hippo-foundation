@@ -168,7 +168,7 @@ def train_arm(
     p0_report_path: Path,
     code_freeze_path: Path,
     output_root: Path,
-    config_version: str = "v1",
+    run_version: int = 1,
 ) -> dict[str, Any]:
     """Run the fixed optimizer schedule and retain every update loss."""
 
@@ -178,19 +178,19 @@ def train_arm(
         raise TrainingBlocked("run stage must be screening or main")
     if model_seed not in {1729, 2718, 3141}:
         raise TrainingBlocked("model seed is not preregistered")
-    contracts = validate_preregistration(version=config_version)
+    contracts = validate_preregistration(run_version=run_version)
     config = contracts["training_config"]
     p0_report = load_json(p0_report_path)
     if not isinstance(p0_report, dict):
         raise TrainingBlocked("P0 report must be an object")
     freeze = load_and_validate_code_freeze(
-        code_freeze_path, p0_report_path=p0_report_path, config_version=config_version
+        code_freeze_path, p0_report_path=p0_report_path, run_version=run_version
     )
     _validate_training_gate(p0_report, budget=budget, stage=stage)
     dataset_manifest = _validate_training_dataset(
         train_root,
         p0_report=p0_report,
-        expected_seed_commitment=contracts["preregistration"]["heldout_seed_sha256"],
+        expected_seed_commitment=contracts["heldout_seed_sha256"],
     )
     if output_root.exists() or output_root.is_symlink():
         raise TrainingBlocked("refusing to overwrite a training run")
@@ -348,9 +348,9 @@ def evaluate_checkpoint(
     expected_split: str,
     code_freeze_path: Path | None = None,
     p0_report_path: Path | None = None,
-    config_version: str = "v1",
+    run_version: int = 1,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    contracts = validate_preregistration(version=config_version)
+    contracts = validate_preregistration(run_version=run_version)
     config = contracts["training_config"]
     receipt = load_json(receipt_path)
     if (
@@ -366,11 +366,11 @@ def evaluate_checkpoint(
     if not isinstance(p0, dict):
         raise IntegrityGateError("P0 report must be an object")
     freeze = load_and_validate_code_freeze(
-        code_freeze_path, p0_report_path=p0_report_path, config_version=config_version
+        code_freeze_path, p0_report_path=p0_report_path, run_version=run_version
     )
     _public, manifest, _artifacts = validate_generated_split_artifacts(
         dataset_root,
-        expected_seed_commitment=contracts["preregistration"]["heldout_seed_sha256"],
+        expected_seed_commitment=contracts["heldout_seed_sha256"],
     )
     if manifest.get("split") != expected_split:
         raise IntegrityGateError("evaluation dataset split differs from the request")

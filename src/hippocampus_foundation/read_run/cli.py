@@ -94,10 +94,10 @@ def _require_timestamp(value: str | None, label: str) -> str:
 
 
 def _generate(args: argparse.Namespace) -> int:
-    contracts = validate_preregistration()
+    contracts = validate_preregistration(run_version=args.run_version)
     seed = read_master_seed(Path(args.seed_file))
     commitment = seed_commitment(seed)
-    expected_commitment = contracts["preregistration"]["heldout_seed_sha256"]
+    expected_commitment = contracts["heldout_seed_sha256"]
     if not args.test_mode and commitment != expected_commitment:
         raise ReadRunError("seed differs from the frozen preregistration commitment")
     if args.count % 20:
@@ -149,9 +149,9 @@ def _double_execute(args: argparse.Namespace) -> int:
             "official double execution requires 2,000 screening episodes"
         )
     if not args.test_mode:
-        contracts = validate_preregistration()
+        contracts = validate_preregistration(run_version=args.run_version)
         seed = read_master_seed(Path(args.seed_file))
-        if seed_commitment(seed) != contracts["preregistration"]["heldout_seed_sha256"]:
+        if seed_commitment(seed) != contracts["heldout_seed_sha256"]:
             raise ReadRunError(
                 "seed differs from the frozen preregistration commitment"
             )
@@ -178,6 +178,7 @@ def _p0(args: argparse.Namespace) -> int:
         double_execution_records=doubles,
         evaluated_at=_require_timestamp(args.evaluated_at, "--evaluated-at"),
         workers=args.workers,
+        run_version=args.run_version,
         strict_counts=not args.test_mode,
     )
     _write_json(Path(args.output), report, mode=0o644)
@@ -190,7 +191,7 @@ def _freeze(args: argparse.Namespace) -> int:
     result = create_code_freeze(
         p0_report=p0,
         frozen_at=_require_timestamp(args.frozen_at, "--frozen-at"),
-        config_version=args.config_version,
+        run_version=args.run_version,
     )
     _write_json(Path(args.output), result, mode=0o644)
     _emit(result)
@@ -207,7 +208,7 @@ def _train(args: argparse.Namespace) -> int:
         p0_report_path=Path(args.p0_report),
         code_freeze_path=Path(args.code_freeze),
         output_root=Path(args.output),
-        config_version=args.config_version,
+        run_version=args.run_version,
     )
     _emit(receipt)
     return 0
@@ -226,7 +227,7 @@ def _evaluate(args: argparse.Namespace) -> int:
         expected_split=args.split,
         code_freeze_path=(Path(args.code_freeze) if args.code_freeze else None),
         p0_report_path=(Path(args.p0_report) if args.p0_report else None),
-        config_version=args.config_version,
+        run_version=args.run_version,
     )
     _write_json(output / "summary.json", summary, mode=0o600)
     prediction_path = output / "predictions.jsonl"
@@ -295,7 +296,12 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     contracts = commands.add_parser("contracts")
-    contracts.set_defaults(handler=lambda _args: _emit(validate_preregistration()) or 0)
+    contracts.add_argument("--run-version", type=int, default=1, choices=[1, 2])
+    contracts.set_defaults(
+        handler=lambda args: (
+            _emit(validate_preregistration(run_version=args.run_version)) or 0
+        )
+    )
 
     generate = commands.add_parser("generate")
     generate.add_argument(
@@ -309,6 +315,7 @@ def build_parser() -> argparse.ArgumentParser:
     generate.add_argument("--p0-report")
     generate.add_argument("--opened-at")
     generate.add_argument("--test-mode", action="store_true")
+    generate.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     generate.set_defaults(handler=_generate)
 
     double = commands.add_parser("double-execute")
@@ -317,6 +324,7 @@ def build_parser() -> argparse.ArgumentParser:
     double.add_argument("--count", default=2_000, type=int)
     double.add_argument("--output")
     double.add_argument("--test-mode", action="store_true")
+    double.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     double.set_defaults(handler=_double_execute)
 
     p0 = commands.add_parser("p0")
@@ -327,13 +335,14 @@ def build_parser() -> argparse.ArgumentParser:
     p0.add_argument("--workers", type=int, default=1)
     p0.add_argument("--output", required=True)
     p0.add_argument("--test-mode", action="store_true")
+    p0.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     p0.set_defaults(handler=_p0)
 
     freeze = commands.add_parser("freeze")
     freeze.add_argument("--p0-report", required=True)
     freeze.add_argument("--frozen-at", required=True)
     freeze.add_argument("--output", required=True)
-    freeze.add_argument("--config-version", default="v1", choices=["v1", "v2"])
+    freeze.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     freeze.set_defaults(handler=_freeze)
 
     train = commands.add_parser("train")
@@ -345,7 +354,7 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--p0-report", required=True)
     train.add_argument("--code-freeze", required=True)
     train.add_argument("--output", required=True)
-    train.add_argument("--config-version", default="v1", choices=["v1", "v2"])
+    train.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     train.set_defaults(handler=_train)
 
     evaluate = commands.add_parser("evaluate")
@@ -356,7 +365,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--code-freeze", required=True)
     evaluate.add_argument("--p0-report", required=True)
     evaluate.add_argument("--output", required=True)
-    evaluate.add_argument("--config-version", default="v1", choices=["v1", "v2"])
+    evaluate.add_argument("--run-version", type=int, default=1, choices=[1, 2])
     evaluate.set_defaults(handler=_evaluate)
 
     decision = commands.add_parser("decision")

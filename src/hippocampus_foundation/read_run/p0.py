@@ -243,6 +243,7 @@ def evaluate_p0(
     evaluated_at: str,
     strict_counts: bool = True,
     workers: int = DEFAULT_P0_WORKERS,
+    run_version: int = 1,
 ) -> dict[str, Any]:
     """Evaluate all seven gates and return a report even when one blocks.
 
@@ -257,9 +258,9 @@ def evaluate_p0(
     the right way round.
     """
 
-    contracts = validate_preregistration()
+    contracts = validate_preregistration(run_version=run_version)
     expected_seed_commitment = (
-        contracts["preregistration"]["heldout_seed_sha256"] if strict_counts else None
+        contracts["heldout_seed_sha256"] if strict_counts else None
     )
     train_count = (
         150_000

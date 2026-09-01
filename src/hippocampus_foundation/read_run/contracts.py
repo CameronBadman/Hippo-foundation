@@ -23,7 +23,22 @@ FROZEN_TRAINING_CONFIG_SHA256 = (
 # learnability probe supplies its single new value under Amendment 05 §2.
 # Until then a v2 request is refused rather than silently falling back to v1.
 FROZEN_TRAINING_CONFIG_V2_SHA256: str | None = None
-TRAINING_CONFIG_VERSIONS = ("v1", "v2")
+# Set when `heldout-seed.v2.json` is created, in the same ceremony that writes the
+# new 32-byte master seed. E1's holdout was opened once under freeze 07d18b39 and
+# is spent, so E1-v2 needs a seed the frozen preregistration cannot name.
+FROZEN_HELDOUT_SEED_V2_SHA256: str | None = None
+RUN_VERSIONS = (1, 2)
+HELDOUT_SEED_V2_FIELDS = frozenset(
+    {
+        "schema_version",
+        "record_kind",
+        "seed_version",
+        "heldout_seed_sha256",
+        "supersedes",
+        "bound_preregistration_json_sha256",
+        "frozen_at",
+    }
+)
 
 
 def contract_directory() -> Path:
@@ -37,19 +52,25 @@ def contract_directory() -> Path:
 
 
 def validate_preregistration(
-    root: Path | None = None, *, version: str = "v1"
+    root: Path | None = None, *, run_version: int = 1
 ) -> dict[str, Any]:
-    """Verify the frozen preregistration and return the requested training config.
+    """Verify the frozen preregistration and resolve one run version.
 
-    The v1 digests are checked on every call whatever `version` asks for: a v2
-    run must still be running against an unmodified frozen preregistration. Only
-    which training configuration is *returned* changes, and the returned
-    `training_config_sha256` identifies it, so a receipt written under one
-    version cannot be evaluated under the other.
+    A run version selects a *pair* — a training configuration and a held-out seed
+    commitment — rather than each independently. Two separate version parameters
+    would admit four states, two of which must never occur on an official path: a
+    v2 configuration with the spent v1 seed, or a v1 configuration with the fresh
+    seed. Resolving both from one number makes those combinations unconstructible
+    rather than merely forbidden.
+
+    v1's three digests are re-checked on every call whatever version is asked
+    for. A v2 run is a new seed and a new update count against an *unmodified*
+    preregistration; the scientific commitment did not change, only the
+    credential proving the holdout was fixed before evaluation.
     """
 
-    if version not in TRAINING_CONFIG_VERSIONS:
-        raise IntegrityGateError("training configuration version is not preregistered")
+    if run_version not in RUN_VERSIONS:
+        raise IntegrityGateError("run version is not preregistered")
     directory = (
         root / "experiments" / "read_run_v1"
         if root is not None
@@ -78,9 +99,16 @@ def validate_preregistration(
         raise IntegrityGateError("preregistration document changed after the freeze")
     if observed_training_config != FROZEN_TRAINING_CONFIG_SHA256:
         raise IntegrityGateError("training configuration changed after it was locked")
-    if version == "v2":
-        if FROZEN_TRAINING_CONFIG_V2_SHA256 is None:
-            raise IntegrityGateError("training configuration v2 is not frozen yet")
+    heldout_seed_sha256 = value["heldout_seed_sha256"]
+    heldout_seed_record_sha256 = None
+    if run_version == 2:
+        # Both halves activate together or neither does. A partial activation
+        # would pair one version's configuration with the other's seed, which is
+        # the state this function exists to make unconstructible.
+        if FROZEN_TRAINING_CONFIG_V2_SHA256 is None or (
+            FROZEN_HELDOUT_SEED_V2_SHA256 is None
+        ):
+            raise IntegrityGateError("run version 2 is not frozen yet")
         training_config = load_json(directory / "training-config.v2.json")
         if not isinstance(training_config, dict):
             raise IntegrityGateError("training configuration must be an object")
@@ -89,10 +117,29 @@ def validate_preregistration(
             raise IntegrityGateError(
                 "training configuration changed after it was locked"
             )
+        seed_record = load_json(directory / "heldout-seed.v2.json")
+        if not isinstance(seed_record, dict):
+            raise IntegrityGateError("held-out seed record must be an object")
+        heldout_seed_record_sha256 = canonical_sha256(seed_record)
+        if heldout_seed_record_sha256 != FROZEN_HELDOUT_SEED_V2_SHA256:
+            raise IntegrityGateError("held-out seed record changed after it was locked")
+        if set(seed_record) != HELDOUT_SEED_V2_FIELDS:
+            raise IntegrityGateError("held-out seed record fields differ")
+        if seed_record["bound_preregistration_json_sha256"] != observed_json:
+            raise IntegrityGateError(
+                "held-out seed record is bound to another preregistration"
+            )
+        if seed_record["supersedes"] != value["heldout_seed_sha256"]:
+            raise IntegrityGateError(
+                "held-out seed record supersedes another commitment"
+            )
+        heldout_seed_sha256 = seed_record["heldout_seed_sha256"]
     return {
         "preregistration": value,
         "training_config": training_config,
-        "training_config_version": version,
+        "run_version": run_version,
+        "heldout_seed_sha256": heldout_seed_sha256,
+        "heldout_seed_record_sha256": heldout_seed_record_sha256,
         "preregistration_json_sha256": observed_json,
         "preregistration_markdown_sha256": observed_document,
         "training_config_sha256": observed_training_config,

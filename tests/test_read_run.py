@@ -24,6 +24,7 @@ from hippocampus_foundation.read_run.evaluation import (
     decode_best_routes,
     score_prediction,
 )
+from hippocampus_foundation.read_run.freeze import validate_code_freeze
 from hippocampus_foundation.read_run.gates import (
     DECONFOUNDED_STRATUM,
     dire_gate,
@@ -754,33 +755,45 @@ def test_parallel_p0_scheduling_is_byte_identical_to_serial(tmp_path: Path) -> N
     assert _run_units(specs, 1) == _run_units(specs, 4)
 
 
-def test_training_config_v2_is_additive_and_refused_until_frozen() -> None:
-    """The v2 path must not exist until its config does, and must never
-    silently fall back to v1.
+def test_run_version_two_activates_as_a_pair_and_never_partially() -> None:
+    """A run version resolves a (training config, held-out seed) pair.
 
-    A fallback would let a run claim a v2 budget while training under v1's
-    `update_count`, which is the exact confusion the version-additive
-    convention exists to prevent. v1's digests are also re-checked on every v2
-    call, so a v2 run cannot proceed against an edited preregistration.
+    Two independent version parameters would admit four states, two of which
+    must never occur on an official path: a v2 configuration with the spent v1
+    seed, or a v1 configuration with the fresh seed. Resolving both from one
+    number makes those combinations unconstructible rather than merely
+    forbidden, and this test pins that property.
     """
 
     from hippocampus_foundation.read_run import contracts as contracts_module
 
     v1 = validate_preregistration()
-    assert v1["training_config_version"] == "v1"
+    assert v1["run_version"] == 1
     assert v1["training_config_sha256"] == FROZEN_TRAINING_CONFIG_SHA256
+    assert v1["preregistration_json_sha256"] == FROZEN_PREREGISTRATION_JSON_SHA256
+    assert (
+        v1["preregistration_markdown_sha256"] == FROZEN_PREREGISTRATION_MARKDOWN_SHA256
+    )
+    assert v1["heldout_seed_sha256"] == v1["preregistration"]["heldout_seed_sha256"]
+    assert v1["heldout_seed_record_sha256"] is None
 
-    with pytest.raises(IntegrityGateError, match="version is not preregistered"):
-        validate_preregistration(version="v3")
+    with pytest.raises(IntegrityGateError, match="run version is not preregistered"):
+        validate_preregistration(run_version=3)
 
-    if contracts_module.FROZEN_TRAINING_CONFIG_V2_SHA256 is None:
-        with pytest.raises(IntegrityGateError, match="v2 is not frozen yet"):
-            validate_preregistration(version="v2")
+    config_frozen = contracts_module.FROZEN_TRAINING_CONFIG_V2_SHA256 is not None
+    seed_frozen = contracts_module.FROZEN_HELDOUT_SEED_V2_SHA256 is not None
+    if not (config_frozen and seed_frozen):
+        # No partial activation: one half frozen without the other is still a
+        # refusal, not a half-resolved run.
+        with pytest.raises(IntegrityGateError, match="not frozen yet"):
+            validate_preregistration(run_version=2)
         return
 
-    v2 = validate_preregistration(version="v2")
-    assert v2["training_config_version"] == "v2"
+    v2 = validate_preregistration(run_version=2)
+    assert v2["run_version"] == 2
+    assert v2["preregistration_json_sha256"] == FROZEN_PREREGISTRATION_JSON_SHA256
     assert v2["training_config_sha256"] != v1["training_config_sha256"]
+    assert v2["heldout_seed_sha256"] != v1["heldout_seed_sha256"]
     differing = {
         key
         for key in set(v1["training_config"]["training"])
@@ -791,3 +804,50 @@ def test_training_config_v2_is_additive_and_refused_until_frozen() -> None:
     assert differing == {"update_count"}, differing
     for section in ("model", "fairness", "selection"):
         assert v1["training_config"][section] == v2["training_config"][section]
+
+
+def test_code_freeze_field_sets_are_exact_in_both_run_versions() -> None:
+    """Presence-dispatch must not become a fallback.
+
+    A freeze that carries `run_version` is held to the v2 exact set; one that
+    does not is held to the v1 exact set, unchanged, so freezes written before
+    run versions existed stay readable. Because both branches are exact matches
+    and the v2 set is a strict superset, a v1-shaped freeze smuggling a v2 field
+    fails the v1 match and a v2 freeze missing its seed binding fails the v2 one.
+    """
+
+    contracts = validate_preregistration()
+    inventory_freeze = {
+        "schema_version": "1.0.0",
+        "record_kind": "read_run_code_freeze",
+        "frozen_at": "2026-01-01T00:00:00Z",
+        "git_commit": "0" * 40,
+        "source_inventory": [],
+        "source_inventory_sha256": "sha256:" + "0" * 64,
+        "preregistration_json_sha256": contracts["preregistration_json_sha256"],
+        "preregistration_markdown_sha256": contracts["preregistration_markdown_sha256"],
+        "training_config_sha256": contracts["training_config_sha256"],
+        "p0_report_sha256": "sha256:" + "0" * 64,
+        "selected_main_budget": 128,
+        "holdout_opened": False,
+        "implementation_provenance": {},
+        "invalidating_tests": [],
+    }
+
+    # A v1-shaped freeze carrying a v2 field fails the v1 exact match.
+    smuggled = copy.deepcopy(inventory_freeze)
+    smuggled["heldout_seed_record_sha256"] = "sha256:" + "1" * 64
+    with pytest.raises(IntegrityGateError, match="fields differ from the fixed"):
+        validate_code_freeze(smuggled)
+
+    # A freeze declaring run_version=2 is refused when validated as v1.
+    mismatched = copy.deepcopy(inventory_freeze)
+    mismatched["run_version"] = 2
+    mismatched["heldout_seed_record_sha256"] = "sha256:" + "1" * 64
+    with pytest.raises(IntegrityGateError, match="another run version"):
+        validate_code_freeze(mismatched)
+
+    # A v1 freeze still fails only on its source inventory, proving the v1 exact
+    # set is unchanged by this feature rather than merely permissive.
+    with pytest.raises(IntegrityGateError, match="source changed after code freeze"):
+        validate_code_freeze(inventory_freeze)

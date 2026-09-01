@@ -94,9 +94,9 @@ INVALIDATING_TESTS = [
 
 
 def create_code_freeze(
-    *, p0_report: dict[str, Any], frozen_at: str, config_version: str = "v1"
+    *, p0_report: dict[str, Any], frozen_at: str, run_version: int = 1
 ) -> dict[str, Any]:
-    contracts = validate_preregistration(version=config_version)
+    contracts = validate_preregistration(run_version=run_version)
     if p0_report.get("record_kind") != "read_run_p0_report":
         raise IntegrityGateError("code freeze requires a READ-run P0 report")
     if not p0_report.get("screening_training_authorized"):
@@ -104,7 +104,17 @@ def create_code_freeze(
     if p0_report.get("selected_main_budget") not in {None, 16, 32, 64, 128}:
         raise IntegrityGateError("code freeze has an invalid coverage-selected budget")
     inventory = _source_inventory()
+    versioned: dict[str, Any] = {}
+    if run_version != 1:
+        # Presence-dispatched: a v1 freeze keeps the exact field set it always
+        # had, and a later run version adds its own bindings rather than
+        # widening one universal set. See `validate_code_freeze`.
+        versioned = {
+            "run_version": run_version,
+            "heldout_seed_record_sha256": contracts["heldout_seed_record_sha256"],
+        }
     return {
+        **versioned,
         "schema_version": "1.0.0",
         "record_kind": "read_run_code_freeze",
         "frozen_at": frozen_at,
@@ -126,9 +136,14 @@ def validate_code_freeze(
     freeze: dict[str, Any],
     *,
     p0_report: dict[str, Any] | None = None,
-    config_version: str = "v1",
+    run_version: int = 1,
 ) -> None:
-    contracts = validate_preregistration(version=config_version)
+    contracts = validate_preregistration(run_version=run_version)
+    # Two exact sets, dispatched on whether the record carries `run_version`, so
+    # that freezes written before this change stay readable. Both branches are
+    # exact matches and the v2 set is a strict superset of the v1 set, so a
+    # v1-shaped freeze smuggling v2 fields fails the v1 match and a v2 freeze
+    # missing its seed binding fails the v2 match. There is no fallback path.
     required = {
         "schema_version",
         "record_kind",
@@ -145,8 +160,16 @@ def validate_code_freeze(
         "implementation_provenance",
         "invalidating_tests",
     }
+    if "run_version" in freeze:
+        required = required | {"run_version", "heldout_seed_record_sha256"}
     if set(freeze) != required or freeze["record_kind"] != "read_run_code_freeze":
         raise IntegrityGateError("code-freeze fields differ from the fixed contract")
+    if freeze.get("run_version", 1) != run_version:
+        raise IntegrityGateError("code freeze was written for another run version")
+    if run_version != 1 and (
+        freeze["heldout_seed_record_sha256"] != contracts["heldout_seed_record_sha256"]
+    ):
+        raise IntegrityGateError("code-freeze binding changed: heldout seed record")
     inventory = _source_inventory()
     if freeze["source_inventory"] != inventory or freeze[
         "source_inventory_sha256"
@@ -167,7 +190,7 @@ def validate_code_freeze(
 
 
 def load_and_validate_code_freeze(
-    path: Path, *, p0_report_path: Path | None = None, config_version: str = "v1"
+    path: Path, *, p0_report_path: Path | None = None, run_version: int = 1
 ) -> dict[str, Any]:
     value = load_json(path)
     if not isinstance(value, dict):
@@ -177,5 +200,5 @@ def load_and_validate_code_freeze(
         p0 = load_json(p0_report_path)
         if not isinstance(p0, dict):
             raise IntegrityGateError("P0 report must be an object")
-    validate_code_freeze(value, p0_report=p0, config_version=config_version)
+    validate_code_freeze(value, p0_report=p0, run_version=run_version)
     return value
