@@ -63,15 +63,19 @@ completed so far). Checkpoint `U_i` (for `i >= 3`) is **qualifying** when:
 - `acc(U_{i-1}) - acc(U_{i-2}) <= 1.00` pp.
 
 **The arm's plateau point is the smallest qualifying `U_i` such that every
-checkpoint from `U_i` to `U_n` is also qualifying.** Equivalently: walk backward
-from the most recent checkpoint; the plateau point is the start of the unbroken
-qualifying streak that reaches the end.
+checkpoint from `U_i` to `U_n` is also qualifying, provided that run contains at
+least 3 checkpoints** (equivalently, spans at least 1,000 updates from `U_i` to
+`U_n`; see the correction below). Equivalently: walk backward from the most
+recent checkpoint; the plateau point is the start of the unbroken qualifying
+streak that reaches the end, if that streak is long enough to be evidence of
+settling rather than a short coincidence.
 
-**If no such `U_i` exists — the most recent checkpoint itself is not
-qualifying, or the qualifying streak reaching it is empty — the arm has not
-plateaued within its measured range**, and Amendment 04 §4's extension rule
-applies: the probe is extended and the test re-applied to the longer range,
-never extrapolated. This is TRAV's present state.
+**If no such `U_i` exists — the most recent checkpoint is not qualifying, the
+qualifying streak reaching it is empty, or that streak is shorter than the
+3-checkpoint minimum — the arm has not plateaued within its measured range**,
+and Amendment 04 §4's extension rule applies: the probe is extended and the
+test re-applied to the longer range, never extrapolated. This is TRAV's present
+state.
 
 ### Why not simply the last element of the qualifying set
 
@@ -111,13 +115,44 @@ the arm has been sitting in a settled regime continuously up to the present,
 which is a property of the curve's shape and is stable to how much further the
 probe happens to run past the point where settling began.
 
+### Correction: a minimum run length, added while TRAV is still unresolved
+
+§2 as first written had a residual hole. An unbroken run is only evidence of
+settling if there is enough of it — a run of exactly two checkpoints reaching
+the end of measurement is the 4,500 false positive again in a different shape,
+since two qualifying checkpoints is exactly what §2's per-checkpoint test
+already requires as a minimum to fire even once. Requiring the run to *reach the
+end* fixed the "broken and resumed" failure mode; it did nothing about a run
+that is merely short.
+
+**Added: an unbroken qualifying run must contain at least 3 checkpoints**
+(equivalently, span at least 1,000 updates from its first checkpoint to the
+most recent) to be read as a plateau. A run of 1 or 2 checkpoints reaching the
+end of the measured range does not qualify, and Amendment 04 §4's extension
+rule applies exactly as it does for no run at all.
+
+This is stated now, while TRAV's outcome under it is unknown, for the same
+reason the rest of this amendment was: resolving it after TRAV produces a
+run would make the minimum a fact about that run rather than a rule. Applied
+identically to both arms — DIRECT is rechecked, not exempted:
+
+| | run | checkpoints | span |
+|---|---|---|---|
+| DIRECT | `{7500, 8000, 8500, 9000, 9376}` | 5 | 1,876 updates |
+
+DIRECT clears the minimum by a wide margin either way it is stated (5 ≥ 3
+checkpoints; 1,876 ≥ 1,000 updates), so this addition changes nothing for
+DIRECT and costs nothing to state. Its purpose is entirely prospective, for
+whatever run TRAV eventually produces.
+
 ## 3. Applied to both arms
 
 **DIRECT**, under §2: the qualifying checkpoints in its full range are
-`{7500, 8000, 8500, 9000, 9376}`, an unbroken run reaching the end. Its plateau
-point is **7,500** — unchanged from Amendment 05's reading, because DIRECT's
-case is exactly the one both definitions were designed to agree on: a real,
-sustained settling rather than a lucky pair.
+`{7500, 8000, 8500, 9000, 9376}`, an unbroken run of 5 checkpoints spanning
+1,876 updates, clearing the minimum-run-length correction with margin. Its
+plateau point is **7,500** — unchanged from Amendment 05's reading, because
+DIRECT's case is exactly the one both definitions were designed to agree on: a
+real, sustained settling rather than a lucky pair.
 
 **TRAV**, under §2: no unbroken qualifying run currently reaches its last
 measured checkpoint (5,500). TRAV **has not plateaued** within its measured
