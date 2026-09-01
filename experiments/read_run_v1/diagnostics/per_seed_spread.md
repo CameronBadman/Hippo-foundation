@@ -86,12 +86,39 @@ for gamma=0.2 needs to be sought.
 **One qualification, stated because it cuts the other way.** The gamma=0.2 dip
 is present in all three seeds: 8.41%, 2.70% and 9.45% are each below their
 gamma=0 counterparts of 34.64%, 24.96% and 25.94%. Three-for-three agreement is
-not what pure noise most often looks like, and the honest statement is that the
-scatter fully accounts for the *magnitude* of the series' irregularity while
-leaving the *sign* consistency at gamma=0.2 unexplained. It is not pursued: the
-per-update logs show both arms finishing near uniform with TRAV's gradient norm
-still rising, so no cell on this page is a converged measurement of anything,
-and a mechanism fitted to it would be fitted to noise in a void run.
+not what pure noise looks like, so the scatter accounts for the *magnitude* of
+the series' irregularity but not for the *sign* consistency at gamma=0.2.
+
+**The per-update logs supply the mechanism, and it is convergence rate.** Mean
+`answer_loss` over each run's last 100 updates, grouped by gamma:
+
+| gamma | TRAV `L(1172)`, three seeds |
+|---|---|
+| 0.0 | 2.2432, 2.3102, 2.3830 |
+| 0.1 | 1.8705, 2.1871, 2.2244 |
+| **0.2** | **2.4720, 2.5138, 2.5372** |
+| 0.3 | 1.9676, 2.3297, 2.5369 |
+| 0.4 | 2.3367, 2.3810, 2.4091 |
+
+All three gamma=0.2 runs sit above all three gamma=0 runs. Final loss and
+exact-set accuracy are computed from different quantities — one from training
+batches, one from held-out scoring — and they agree that gamma=0.2 is TRAV's
+slowest bucket. That is a second, independent measurement of the same effect
+rather than a restatement of the first.
+
+DIRECT, by contrast, shows **no gamma structure at all**: its fifteen `L(1172)`
+values sort perfectly by model seed, with all five s3141 runs below all five
+s1729 runs below all five s2718 runs, and gamma nowhere in the ordering. That is
+what an arm which has not learned a function of its input looks like, and it
+makes the gamma=0.2 effect specific to TRAV.
+
+The effect is therefore about how fast TRAV converges at gamma=0.2, not about
+the data or the metric. It is **not** evidence of a gamma mechanism in the sense
+the experiment was designed to test, because no cell on this page is a converged
+measurement: both arms finish near uniform and TRAV's gradient norm is still
+rising. Its practical consequence is recorded in Amendment 04 §4 — a budget
+chosen from a gamma=0 probe may undertrain the gamma=0.2 cell, so E1-v2 must
+report per-gamma final loss and flag any cell that never left uniform.
 
 ## Degeneracy signature, `hops_2_4`, gamma=0, non-abstain
 

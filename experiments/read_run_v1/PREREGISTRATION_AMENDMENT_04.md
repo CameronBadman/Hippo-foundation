@@ -118,11 +118,70 @@ Let `L(U)` be the mean training `answer_loss` over updates in the window
 `L(U-500) - L(U) < 0.02` nats — improvement over the preceding 500 updates has
 fallen below 0.02 nats.
 
-**The E1-v2 budget** is the smallest multiple of 100 at which **both** arms have
-plateaued, read from the probe curves and applied identically to all 30 runs.
+**The E1-v2 budget** is the smallest **evaluated checkpoint** at which **both**
+arms have plateaued, read from the probe curves and applied identically to all 30
+runs. Checkpoints are 100, 250, and every 500 thereafter; no value between them
+is selectable, because no value between them is measured.
 
-If either arm has not plateaued by the end of its probe run, no budget is
-selected, and the recovery stops for redesign rather than extrapolating the curve.
+### The budget may not be placed where an arm was never observed
+
+The probe runs DIRECT to 9,376 updates and TRAV to 4,688. If DIRECT plateaus past
+4,688, the joint rule would otherwise select a point at which **no TRAV
+measurement exists**, and TRAV is the arm whose gradient norm nearly tripled over
+E1 and was still rising at cutoff. Committing 30 runs to an unobserved TRAV
+regime is the same class of guess that voided E1, so it is ruled out in advance:
+
+1. If both arms have plateaued at or before 4,688, the smallest such checkpoint is
+   the budget.
+2. If DIRECT plateaus only beyond 4,688, **no budget is selected from this
+   probe.** TRAV's probe is extended to at least DIRECT's plateau checkpoint and
+   the rule is re-applied to the extended curves. The cost is one additional
+   probe run and it is paid rather than extrapolated.
+3. If DIRECT has not plateaued by 9,376, the problem is not the budget and the
+   recovery stops for redesign.
+
+The budget is read from **model seed 1729 only**, which is the probe's seed. That
+precision limit is disclosed rather than assumed away: at E1's cutoff the three
+seeds' gamma=0 `L(1172)` values spanned 2.2432 to 2.3830, a 0.1398-nat spread.
+The spread should narrow at a plateau, where the curve is by definition flat, but
+it is not measured for the other two seeds and no claim is made that it vanishes.
+
+### Gamma coverage of the probe, and what it cannot see
+
+The probe runs at gamma=0 only. E1's per-update logs show that **gamma=0.2 is
+TRAV's slowest bucket**, on two measures that are independent of one another:
+
+| gamma | TRAV `L(1172)`, three seeds |
+|---|---|
+| 0.0 | 2.2432, 2.3102, 2.3830 |
+| 0.1 | 1.8705, 2.1871, 2.2244 |
+| **0.2** | **2.4720, 2.5138, 2.5372** |
+| 0.3 | 1.9676, 2.3297, 2.5369 |
+| 0.4 | 2.3367, 2.3810, 2.4091 |
+
+All three gamma=0.2 runs sit above all three gamma=0 runs, and gamma=0.2 is also
+the cell with TRAV's lowest exact-set accuracy. DIRECT shows no gamma structure
+whatever — its fifteen `L(1172)` values sort perfectly by model seed, all five
+s3141 runs below all five s1729 runs below all five s2718 runs — which is what an
+arm that has not learned a function of its input looks like, and which makes the
+gamma=0.2 effect TRAV-specific and about convergence *rate*, not about the data.
+
+A budget read from a gamma=0 probe may therefore still undertrain the gamma=0.2
+cell, and gamma=0.2 is inside the reported curve. The probe as scoped cannot see
+this, so the rule is stated here instead:
+
+**E1-v2 reports the per-gamma final loss for every run, and any gamma whose
+`L(U_final)` fails criterion (L) is flagged in the results as a cell that did not
+leave uniform.** Such a cell is reported with that flag attached and is not
+quoted as a measured accuracy for that gamma. This is a reporting requirement,
+not a licence to re-select the budget per gamma, which §3 forbids.
+
+Applied retrospectively to E1, the flag would have fired on **all fifteen DIRECT
+runs** and on seven of the fifteen TRAV runs: all three at gamma=0.2, two of
+three at gamma=0.4, and one of three at each of gamma=0.0 and gamma=0.3. Only
+gamma=0.1 has all three TRAV runs below the line. The flag is therefore not a
+formality; on the void run it would have suppressed twenty-two of the thirty
+cells.
 
 ## 5. Learner gate
 
