@@ -1,0 +1,140 @@
+{
+  "direct_pool_vs_available_divergence": {
+    "degree": {
+      "kl_divergence": 0.0,
+      "total_variation": 0.0
+    },
+    "global_position": {
+      "kl_divergence": 0.014868487377183829,
+      "total_variation": 0.0749238278525157
+    },
+    "hop_distance": {
+      "kl_divergence": 1.0130983727445158,
+      "total_variation": 0.586289631967944
+    },
+    "local_rank": {
+      "kl_divergence": 6.119597933360553e-05,
+      "total_variation": 0.005208333333333343
+    },
+    "relation": {
+      "kl_divergence": 1.7088932166541883e-05,
+      "total_variation": 0.002225676655593547
+    }
+  },
+  "populations": {
+    "available": {
+      "fit_edges": 488397,
+      "probes": {
+        "degree": {
+          "accuracy": 0.9837708810629676,
+          "buckets_at_or_above_30_fit_examples": 1,
+          "constant_baseline_accuracy": 0.9837708810629676,
+          "correct": 471484,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 0.9945430707950326,
+          "n": 479262,
+          "wilson_upper_bound": 0.9840683786076792
+        },
+        "global_position": {
+          "accuracy": 0.9837708810629676,
+          "buckets_at_or_above_30_fit_examples": 48,
+          "constant_baseline_accuracy": 0.9837708810629676,
+          "correct": 471484,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.2708638146052968,
+          "n": 479262,
+          "wilson_upper_bound": 0.9840683786076792
+        },
+        "hop_distance": {
+          "accuracy": 0.9837708810629676,
+          "buckets_at_or_above_30_fit_examples": 11,
+          "constant_baseline_accuracy": 0.9837708810629676,
+          "correct": 471484,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 3.535777299939081,
+          "n": 479262,
+          "wilson_upper_bound": 0.9840683786076792
+        },
+        "local_rank": {
+          "accuracy": 0.9837708810629676,
+          "buckets_at_or_above_30_fit_examples": 3,
+          "constant_baseline_accuracy": 0.9837708810629676,
+          "correct": 471484,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.0264623143458562,
+          "n": 479262,
+          "wilson_upper_bound": 0.9840683786076792
+        },
+        "relation": {
+          "accuracy": 0.9837708810629676,
+          "buckets_at_or_above_30_fit_examples": 16,
+          "constant_baseline_accuracy": 0.9837708810629676,
+          "correct": 471484,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.0940077016996417,
+          "n": 479262,
+          "wilson_upper_bound": 0.9840683786076792
+        }
+      },
+      "score_edges": 479262,
+      "target_assertion_base_rate": 0.016229118937032355
+    },
+    "direct_pool": {
+      "fit_edges": 128000,
+      "probes": {
+        "degree": {
+          "accuracy": 0.9749765625,
+          "buckets_at_or_above_30_fit_examples": 1,
+          "constant_baseline_accuracy": 0.9749765625,
+          "correct": 124797,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.012488292226038,
+          "n": 128000,
+          "wilson_upper_bound": 0.9756846987814107
+        },
+        "global_position": {
+          "accuracy": 0.9749765625,
+          "buckets_at_or_above_30_fit_examples": 48,
+          "constant_baseline_accuracy": 0.9749765625,
+          "correct": 124797,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.232143940081867,
+          "n": 128000,
+          "wilson_upper_bound": 0.9756846987814107
+        },
+        "hop_distance": {
+          "accuracy": 0.9749765625,
+          "buckets_at_or_above_30_fit_examples": 5,
+          "constant_baseline_accuracy": 0.9749765625,
+          "correct": 124797,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 2.293152183251021,
+          "n": 128000,
+          "wilson_upper_bound": 0.9756846987814107
+        },
+        "local_rank": {
+          "accuracy": 0.9749765625,
+          "buckets_at_or_above_30_fit_examples": 3,
+          "constant_baseline_accuracy": 0.9749765625,
+          "correct": 124797,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.0538956937173725,
+          "n": 128000,
+          "wilson_upper_bound": 0.9756846987814107
+        },
+        "relation": {
+          "accuracy": 0.9749765625,
+          "buckets_at_or_above_30_fit_examples": 16,
+          "constant_baseline_accuracy": 0.9749765625,
+          "correct": 124797,
+          "excess_over_constant_baseline": 0.0,
+          "max_bucket_lift_over_base_rate": 1.166015613677827,
+          "n": 128000,
+          "wilson_upper_bound": 0.9756846987814107
+        }
+      },
+      "score_edges": 128000,
+      "target_assertion_base_rate": 0.0250234375
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "n_episodes": 2000,
+  "section_1_on_path_fraction": {
+    "correct": {
+      "max": 0.0859375,
+      "mean": 0.045796875,
+      "median": 0.046875,
+      "min": 0.0234375,
+      "n": 1500,
+      "p25": 0.03125,
+      "p75": 0.0546875
+    },
+    "incorrect": null
+  },
+  "section_2_first_target_step": {
+    "distribution": {
+      "max": 17,
+      "mean": 9.122666666666667,
+      "median": 9,
+      "min": 0,
+      "n": 1500,
+      "p25": 6,
+      "p75": 13
+    },
+    "fraction_within_first_16": 0.8966666666666666,
+    "n_correct_episodes": 1500,
+    "n_with_a_target_assertion_examined": 1500
+  },
+  "section_3_trav_vs_available_divergence": {
+    "degree": {
+      "kl_divergence": 0.0,
+      "total_variation": 0.0
+    },
+    "global_position": {
+      "kl_divergence": 0.014893383487032043,
+      "total_variation": 0.07550976535251569
+    },
+    "hop_distance": {
+      "kl_divergence": 0.3880812492154803,
+      "total_variation": 0.3543021303984345
+    },
+    "local_rank": {
+      "kl_divergence": 6.119597933360553e-05,
+      "total_variation": 0.005208333333333343
+    },
+    "relation": {
+      "kl_divergence": 2.5842301737946018e-05,
+      "total_variation": 0.0027694416813864695
+    }
+  },
+  "section_4_trav_chosen_probe": {
+    "fit_edges": 128000,
+    "probes": {
+      "degree": {
+        "accuracy": 0.97128125,
+        "buckets_at_or_above_30_fit_examples": 1,
+        "constant_baseline_accuracy": 0.97128125,
+        "correct": 124324,
+        "excess_over_constant_baseline": 0.0,
+        "max_bucket_lift_over_base_rate": 1.0127856365614798,
+        "n": 128000,
+        "wilson_upper_bound": 0.9720391972453956
+      },
+      "global_position": {
+        "accuracy": 0.97128125,
+        "buckets_at_or_above_30_fit_examples": 48,
+        "constant_baseline_accuracy": 0.97128125,
+        "correct": 124324,
+        "excess_over_constant_baseline": 0.0,
+        "max_bucket_lift_over_base_rate": 1.2453077890433124,
+        "n": 128000,
+        "wilson_upper_bound": 0.9720391972453956
+      },
+      "hop_distance": {
+        "accuracy": 0.97128125,
+        "buckets_at_or_above_30_fit_examples": 8,
+        "constant_baseline_accuracy": 0.97128125,
+        "correct": 124324,
+        "excess_over_constant_baseline": 0.0,
+        "max_bucket_lift_over_base_rate": 1.974315184050213,
+        "n": 128000,
+        "wilson_upper_bound": 0.9720391972453956
+      },
+      "local_rank": {
+        "accuracy": 0.97128125,
+        "buckets_at_or_above_30_fit_examples": 3,
+        "constant_baseline_accuracy": 0.97128125,
+        "correct": 124324,
+        "excess_over_constant_baseline": 0.0,
+        "max_bucket_lift_over_base_rate": 1.0721461649416706,
+        "n": 128000,
+        "wilson_upper_bound": 0.9720391972453956
+      },
+      "relation": {
+        "accuracy": 0.97128125,
+        "buckets_at_or_above_30_fit_examples": 16,
+        "constant_baseline_accuracy": 0.97128125,
+        "correct": 124324,
+        "excess_over_constant_baseline": 0.0,
+        "max_bucket_lift_over_base_rate": 1.1749032622641296,
+        "n": 128000,
+        "wilson_upper_bound": 0.9720391972453956
+      }
+    },
+    "score_edges": 128000,
+    "target_assertion_base_rate": 0.02871875
+  },
+  "section_5_shuffled_serialization": {
+    "baseline_exact_set_accuracy": 1.0,
+    "n": 1500,
+    "shuffled_exact_set_accuracy": 1.0
+  },
+  "section_6_ablated_query": {
+    "ablated_exact_set_accuracy": 0.16933333333333334,
+    "abstain_base_rate_for_reference": 0.25,
+    "baseline_exact_set_accuracy": 1.0,
+    "n": 1500
+  }
+}

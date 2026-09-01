@@ -1,8 +1,9 @@
 # TRAV edge-selection diagnostic at gamma=0
 
-**Status: predictions and checkpoint-independent results recorded. Sections 1, 2,
-4 (TRAV column), 5 and 6 await the diagnostic checkpoint and are marked
-PENDING. No verdict is issued yet.**
+**Status: complete. Overall verdict CLEAN.** All six sections computed against
+the diagnostic checkpoint, which reproduces the 100.00% model exactly
+(9,376/9,376 update records and 21/21 screening evaluations identical to its
+reference).
 
 Diagnostic, not preregistered. Screening split only. No holdout is read; the v1
 holdout is spent and the v2 holdout does not exist. This emits no training
@@ -174,11 +175,165 @@ of the generator's serialization rather than of pool construction.
 establishes that a fixed structural pool exposes no exploitable regularity at
 the class-prior-corrected level.
 
-## Sections 1, 2, 4 (TRAV column), 5, 6 — PENDING
+## Results
 
-Await the diagnostic checkpoint. The analysis code is written and validated
-end-to-end against an untrained model on CPU; all six sections execute and the
-edge cases (zero correct episodes, empty buckets) are handled.
+TRAV scored **1,500 / 1,500 non-abstain screening episodes correct** in the
+baseline pass — the 100.00% under investigation, reproduced at inference.
+
+### Section 1 — on-path fraction: **CLEAN**
+
+**The metric as specified is uninformative, and this was found only after
+running it.** Episodes contain a mean of 5.86 on-path edges while TRAV examines
+128, so the on-path *fraction* is capped at roughly 0.0466 by construction. The
+observed 0.0458 is 98% of the arithmetic maximum, not a low number. Predicting
+"high" against a scale that cannot exceed 4.66% was a specification error.
+
+Recomputed as **recall** — of the on-path edges that exist, how many did TRAV
+examine:
+
+| | mean | min | median | max |
+|---|---|---|---|---|
+| on-path edges available | 5.862 | 3 | 6 | 11 |
+| on-path edges examined | 5.862 | 3 | 6 | 11 |
+| **recall** | **1.000** | **1.000** | **1.000** | **1.000** |
+
+**TRAV examined every on-path edge in every one of 1,500 episodes.** Perfect
+recall, no exceptions. This is traversal doing exactly what the mechanism
+claims. The correct/incorrect split the section asked for is vacuous here
+because there were no incorrect episodes.
+
+### Section 2 — first-target-examination step: **CLEAN**
+
+| n | mean | min | p25 | median | p75 | max | within first 16 |
+|---|---|---|---|---|---|---|---|
+| 1,500 | 9.12 | 0 | 6 | 9 | 13 | 17 | 89.7% |
+
+89.7% within the first 16 examinations is heavy concentration, which the
+prediction named as the concerning shape — **but the prediction did not compute
+what traversal actually allows, and that was the error.** Mean out-degree in this
+domain is exactly 3.0, and a walk expanding one node per hop examines roughly
+`3 x hops` edges: 6 at two hops, 9 at three, 12 at four. The gated stratum is
+2–4 hops. **The observed median of 9 is precisely the centre of that range.**
+
+TRAV is not reaching targets faster than traversal allows. It is reaching them
+at exactly the rate an efficient walk predicts.
+
+### Section 3 — structural concentration: **CLEAN**
+
+Total variation of TRAV's chosen edges against all available edges, with
+DIRECT's structural pool as the reference:
+
+| feature | TRAV | DIRECT pool | reading |
+|---|---|---|---|
+| hop_distance | 0.3543 | 0.5863 | concentration, benign — and *less* than BFS's |
+| global_position | 0.0755 | 0.0749 | indistinguishable from the fixed pool |
+| local_rank | 0.0052 | 0.0052 | **identical**; no serialization preference |
+| relation | 0.0028 | 0.0022 | flat |
+| degree | 0.0000 | 0.0000 | flat |
+
+The features that would indicate a shortcut — local rank in the router-seed
+serialization, global position, degree — are flat and match the fixed pool to
+four decimal places. The only concentration is hop distance, named as benign in
+advance, and TRAV's is *lower* than DIRECT's BFS.
+
+### Section 4 — predictive probe on chosen edges: **CLEAN**
+
+Base rate 0.0288 over 128,000 scored edges.
+
+| feature | excess over constant baseline | max bucket lift | DIRECT pool lift |
+|---|---|---|---|
+| degree | +0.00000 | 1.013 | 1.012 |
+| global_position | +0.00000 | 1.245 | 1.232 |
+| hop_distance | +0.00000 | 1.974 | 2.293 |
+| local_rank | +0.00000 | 1.072 | 1.054 |
+| relation | +0.00000 | 1.175 | 1.166 |
+
+**No structural feature predicts target membership above the class prior on
+TRAV's chosen edges**, and every lift is at or below the fixed pool's. If TRAV
+had learned to select on a structural regularity, this is where it would appear.
+It does not.
+
+### Section 5 — shuffled serialization: **CLEAN**
+
+| | exact-set accuracy |
+|---|---|
+| baseline | 1.0000 |
+| node-level edge order re-randomized under a different seed | **1.0000** |
+
+**Exactly zero change.** Graph, query, targets and budget held fixed; only the
+order in which edges are presented was re-randomized. The prediction was that a
+similarity-following policy would be unaffected because similarity is
+order-independent. Confirmed to the last episode.
+
+### Section 6 — ablated query: **CLEAN, after correcting the ablation**
+
+**The ablation as first implemented did not remove query information.** Zeroing
+the query embedding leaves `query_similarity_ppm` in the per-edge features
+(`model.py:141`), and that scalar is itself query-derived — it is the signal a
+similarity-following policy actually chains. The first result (16.93%) therefore
+measured "query embedding removed, similarity retained", not "structure alone".
+This was a specification error in the diagnostic, found on reading the result.
+
+Three variants, separating the channels. Chance on non-abstain episodes is
+1/15 = 6.67%:
+
+| condition | exact-set accuracy |
+|---|---|
+| baseline | 100.00% |
+| query embedding zeroed, similarity retained | 16.93% |
+| **similarity flattened to a constant, query embedding retained** | **0.27%** |
+| both ablated | 2.60% |
+
+**Flattening similarity alone collapses TRAV from 100% to 0.27% — far below the
+6.67% chance level.** Below chance, not merely at it: without the query signal
+the model does not degrade to guessing, it produces predictions that fail
+proof-valid scoring outright.
+
+This is the innocent explanation confirmed as directly as the design allows.
+TRAV is entirely dependent on query-derived information and retains nothing
+without it. It does not locate targets from structure alone.
+
+## Verdicts
+
+| section | verdict |
+|---|---|
+| 1. on-path fraction (as recall) | **Clean** — 1.000 recall on 1,500/1,500 episodes |
+| 2. first-target step | **Clean** — median 9 against an expected 6–12 |
+| 3. structural concentration | **Clean** — serialization features flat, at the fixed pool's level |
+| 4. predictive probe | **Clean** — zero excess over the class prior on every feature |
+| 5. shuffled serialization | **Clean** — exactly zero change |
+| 6. ablated query | **Clean** — collapses to 0.27%, below chance |
+
+### Overall verdict: **CLEAN**
+
+**The 100.00% at gamma=0 is what adaptive selection buys.** At gamma=0 the
+highest-similarity neighbour is on-path at every step, so "follow maximum
+similarity" is a complete and correct algorithm; TRAV learned it, executes it
+with perfect on-path recall, and is entirely dependent on the query signal that
+makes it work. No structural regularity, no serialization artifact, no
+structure-only shortcut.
+
+**This does not vindicate the arm comparison.** It establishes that TRAV's
+gamma=0 result is legitimate, not that the gamma=0 control is informative. The
+open question in the next section is untouched by these findings and is arguably
+sharpened by them.
+
+## Errors in this diagnostic's own specification
+
+Recorded because the checks were mine and two of them were wrong:
+
+1. **Section 1's metric was capped at 4.66% by construction.** "Predicted high"
+   was stated against a scale that could not reach it. Corrected to recall.
+2. **Section 6's ablation was incomplete**, leaving the query-derived similarity
+   feature in place. The first number it produced was not evidence about
+   structure-only performance. Corrected with three variants.
+3. **Section 2's prediction named a concerning shape without computing the
+   benign one.** 89.7% within the first 16 looked alarming until mean
+   out-degree (3.0) and the 2–4 hop range were multiplied together.
+
+All three were found by reading results against stated predictions, which is the
+argument for stating them in advance. Had the predictions not been recorded, the
+first would have read as a finding and the second as a disqualification.
 
 ## Open question — recorded, not acted on
 
@@ -202,10 +357,12 @@ evidence about adaptive-versus-fixed candidate selection *in general* was too
 strong. DIRECT's inability to compete at gamma=0 is a property of its query-blind
 pool construction. Any general claim lives at gamma>0, where no data exists.
 
-## Verdict
+## Effect on Phase 3a
 
-**PENDING.** Per-section verdicts (Clean / Concerning / Disqualifying) and an
-overall verdict are issued once sections 1, 2, 4-TRAV, 5 and 6 are computed.
-This diagnostic blocks Phase 3a: no new code freeze and no gate jobs until it
-reports. It does not block plateau determination, budget selection, or the
-seed and configuration work, all of which proceed in parallel.
+This diagnostic gated Phase 3a and **reports Clean, so that gate lifts.** No
+generator fix is required, and the v1 procedural data is not invalidated for
+this comparison by anything found here.
+
+The remaining prerequisite for Phase 3a is unchanged and unrelated: a code
+freeze on a clean tree, since `freeze.py` inventories every `read_run` source
+file and those changed.

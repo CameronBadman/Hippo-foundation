@@ -1,0 +1,41 @@
+{
+  "section_1_corrected_on_path_recall": {
+    "note": "fraction of the episode's on-path edges that TRAV examined; the Stage B 'on-path fraction of 128 examined' is capped at ~0.0466 by construction and is not informative",
+    "on_path_edges_available": {
+      "max": 11,
+      "mean": 5.862,
+      "median": 6,
+      "min": 3,
+      "n": 1500,
+      "p25": 4,
+      "p75": 7
+    },
+    "on_path_edges_examined": {
+      "max": 11,
+      "mean": 5.862,
+      "median": 6,
+      "min": 3,
+      "n": 1500,
+      "p25": 4,
+      "p75": 7
+    },
+    "recall": {
+      "max": 1.0,
+      "mean": 1.0,
+      "median": 1.0,
+      "min": 1.0,
+      "n": 1500,
+      "p25": 1.0,
+      "p75": 1.0
+    }
+  },
+  "section_6_corrected_ablations": {
+    "baseline": 1.0,
+    "both_ablated": 0.026,
+    "chance_on_non_abstain": 0.06666666666666667,
+    "n_non_abstain": 1500,
+    "note": "query_similarity_ppm is a per-edge feature (model.py:141) and survives zeroing the query embedding, so the Stage B ablation did not remove query information. Variants separate the channels.",
+    "query_embedding_zeroed_only": 0.16933333333333334,
+    "similarity_flattened_only": 0.0026666666666666666
+  }
+}
