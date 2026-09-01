@@ -58,6 +58,9 @@ non-adaptive baselines at every preregistered budget.
 no arm or config modified; route-completeness is implemented and tested but
 wired into no gate. Those are governance decisions reserved for a human.
 
+Full suite: **274 passed, 0 failed** (241 pre-existing plus 33 new) under the
+canonical `uv run pytest -q`, 454.58 s.
+
 ## 2026-08-31 — preregistration freeze
 
 - Committed preregistration v1 and the SHA-256 commitment to a private 32-byte

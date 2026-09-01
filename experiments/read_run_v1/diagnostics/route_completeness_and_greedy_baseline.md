@@ -249,8 +249,17 @@ and naming it is not the unattended run's decision.
 
 ## Verification
 
-- Full suite **274 passed, 0 failed** (241 pre-existing + 33 new), 295 s
-  sharded 26-way. Serial baseline was bounded by `test_phase2_process` at 294.59 s.
+- Full suite **274 passed, 0 failed** (241 pre-existing + 33 new), measured by
+  the canonical `uv run pytest -q` in **454.58 s**.
+
+  A 26-way per-file shard was used while iterating and returned the same 274 in
+  295 s, but it is *not* the number cited: it invokes `pytest <file> -q -p
+  no:cacheprovider`, which departs from the `addopts` pinned in
+  `pyproject.toml` and gives session-scoped fixtures a different session than
+  they normally get. It is a faster check, not an equivalent one, so the
+  verification claim rests on the canonical run. The two agreeing is
+  reassuring but was not assumed. The shard's ceiling is `test_phase2_process`
+  at 294.59 s, which is why it only bought 1.54x.
 - `ruff check` and `ruff format --check` clean on all new source, tests, scripts.
 - Route-completeness ≡ `proof_valid`: 0 disagreements, 40,000+ pairs.
 - Two-path premise: 0 `reached_outside_targets` violations.
@@ -259,6 +268,12 @@ and naming it is not the unattended run's decision.
 - Holdout: not opened, not generated, not read. Seed files untouched.
 
 ### Artifacts
+
+Paths under `private/` are **session-local and gitignored** — they hold the raw
+outputs this report was computed from and are regenerable from the committed
+scripts. A reader of this committed copy should expect them to be absent; every
+number quoted above is reproduced in the committed `rc_*.json` files beside this
+file, except the B2 traces, which are withheld for the reason given in the table.
 
 | path | contents |
 |---|---|
