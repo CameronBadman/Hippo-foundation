@@ -22,11 +22,15 @@ FROZEN_TRAINING_CONFIG_SHA256 = (
 # Set when `training-config.v2.json` is created, which happens only after the
 # learnability probe supplies its single new value under Amendment 05 §2.
 # Until then a v2 request is refused rather than silently falling back to v1.
-FROZEN_TRAINING_CONFIG_V2_SHA256: str | None = None
+FROZEN_TRAINING_CONFIG_V2_SHA256: str | None = (
+    "sha256:a9154e278d28dd186e4a47379923c8a6751a6a78f1509a653d423719c9aa50f2"
+)
 # Set when `heldout-seed.v2.json` is created, in the same ceremony that writes the
 # new 32-byte master seed. E1's holdout was opened once under freeze 07d18b39 and
 # is spent, so E1-v2 needs a seed the frozen preregistration cannot name.
-FROZEN_HELDOUT_SEED_V2_SHA256: str | None = None
+FROZEN_HELDOUT_SEED_V2_SHA256: str | None = (
+    "sha256:cf962fe56f67f05f32f7326fc5788b0247337b5da290bb8e2a2e8441bc5da803"
+)
 RUN_VERSIONS = (1, 2)
 HELDOUT_SEED_V2_FIELDS = frozenset(
     {

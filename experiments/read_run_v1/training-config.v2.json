@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "config_id": "hippocampus-read-run-training-v2",
+  "model": {
+    "assertion_count": 4,
+    "edge_hidden_dimension": 1536,
+    "hidden_dimension": 512,
+    "maximum_relation_types": 16,
+    "score_hidden_dimension": 1024,
+    "self_attention_heads": 8,
+    "dropout": 0.0,
+    "output_classes": 16
+  },
+  "training": {
+    "optimizer": "adamw",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "microbatch_size": 16,
+    "gradient_accumulation_steps": 8,
+    "effective_batch_size": 128,
+    "update_count": 8000,
+    "answer_loss_weight": 1.0,
+    "edge_loss_weight": 0.25,
+    "early_stopping": false,
+    "mixed_precision": "bf16_if_supported_else_fp32",
+    "deterministic_algorithms": true
+  },
+  "fairness": {
+    "identical_model_class": true,
+    "identical_initialization_for_paired_arms": true,
+    "identical_episode_order_for_paired_arms": true,
+    "maximum_trainable_parameter_relative_difference": 0.01,
+    "arm_specific_hyperparameters_allowed": false
+  },
+  "selection": {
+    "budget_source": "coverage_only_before_screening_accuracy",
+    "holdout_forbidden": true,
+    "threshold_tuning": false,
+    "model_selection": false
+  },
+  "training_authorized": false
+}

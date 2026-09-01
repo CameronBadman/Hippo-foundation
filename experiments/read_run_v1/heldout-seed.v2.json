@@ -1,0 +1,9 @@
+{
+  "bound_preregistration_json_sha256": "sha256:b28bfb07b90671cdf863b43557212973d6eadcba6530af90fec5f2fe5a76f717",
+  "frozen_at": "2026-09-01T11:10:00Z",
+  "heldout_seed_sha256": "sha256:bfbbdf5c7d7bfde431483c3ccc1890cc7465bcefaf52f9f2be5f346cd065d726",
+  "record_kind": "read_run_heldout_seed_record",
+  "schema_version": "1.0.0",
+  "seed_version": 2,
+  "supersedes": "sha256:6183dc36b8a9fededaee99db385013d33785bc75de531937e65115d6d770c663"
+}

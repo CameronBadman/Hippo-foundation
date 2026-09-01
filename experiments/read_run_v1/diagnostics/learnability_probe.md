@@ -1,10 +1,9 @@
 # READ run v1 — learnability probe
 
-**DIRECT is complete. TRAV's extended run is in progress; its sections are
-updated on completion.**
+**Complete. Both arms ran their full 9,376-update horizon.**
 
-Started 2026-09-01T02:18:35Z. DIRECT finished its 9,376-update horizon in
-6,673 s at concurrency 2. Phase 2 of the E1 recovery, run under the rules
+Started 2026-09-01T02:18:35Z. DIRECT finished in 6,673 s at concurrency 2;
+TRAV's extended run finished in 26,024 s. Phase 2 of the E1 recovery, run under the rules
 fixed in [`../PREREGISTRATION_AMENDMENT_04.md`](../PREREGISTRATION_AMENDMENT_04.md)
 §4 and §5, which were committed before the probe launched.
 
@@ -125,15 +124,100 @@ The instrument change therefore selected the earlier and cheaper budget, but by
 because it is evidence against the strength of that section's original argument,
 not for it.
 
+## TRAV: complete curve and plateau
+
+TRAV's run was restarted once, to extend its horizon from 4,688 to 9,376. The
+restart replays the killed run exactly — **1595/1595 update records identical**
+on every field, and every shared screening evaluation identical — so the curve
+below is one continuous trajectory, not two spliced ones. Its first 1,172
+updates are also **bit-identical to E1's own TRAV run** at the same seed and
+gamma, as DIRECT's were.
+
+| U | acc% | ΔA | classes | H |
+|---|---|---|---|---|
+| 1,000 | 7.38 | +7.38 | 16 | 0.552 |
+| 1,500 | 76.87 | +69.48 | 16 | 2.767 |
+| 2,000 | 75.27 | −1.60 | 16 | 2.746 |
+| 2,500 | 79.72 | +4.45 | 16 | 2.764 |
+| 3,000 | 79.72 | +0.00 | 16 | 2.761 |
+| 3,500 | 82.65 | +2.94 | 16 | 2.769 |
+| 4,000 | 82.21 | −0.44 | 16 | 2.767 |
+| 4,500 | 83.19 | +0.98 | 16 | 2.768 |
+| 5,000 | 88.26 | +5.07 | 16 | 2.769 |
+| 5,500 | 91.37 | +3.11 | 16 | 2.763 |
+| 6,000 | 96.00 | +4.63 | 16 | 2.743 |
+| 6,500 | 98.22 | +2.22 | 16 | 2.741 |
+| 7,000 | 99.91 | +1.69 | 16 | 2.712 |
+| 7,500 | 99.56 | −0.36 | 16 | 2.724 |
+| **8,000** | **100.00** | +0.44 | 15 | 2.707 |
+| 8,500 | 99.82 | −0.18 | 15 | 2.707 |
+| 9,000 | 100.00 | +0.18 | 15 | 2.707 |
+| 9,376 | 100.00 | 0.00 | 15 | 2.707 |
+
+TRAV finishes at **1,124 of 1,124 correct** with answer loss 0.0000.
+
+**The drop from 16 to 15 distinct classes at 8,000 is the perfect value, not a
+regression.** Non-abstain episodes in the gated stratum carry gold labels 1–15;
+class 0 is ABSTAIN. Emitting 16 meant the model was still wrongly predicting
+abstain on some episodes. Emitting exactly 15 means it never does. Both learner
+floors (≥8 classes, entropy ≥1.00 nats) pass comfortably.
+
+## Plateau under Amendment 09, both arms
+
+| arm | qualifying checkpoints | final unbroken run | plateau |
+|---|---|---|---|
+| DIRECT | 7500, 8000, 8500, 9000, 9376 | `[7500, 8000, 8500, 9000, 9376]` | **7,500** |
+| TRAV | **4500**, 8000, 8500, 9000, 9376 | `[8000, 8500, 9000, 9376]` | **8,000** |
+
+```
+shared update_count = max(7500, 8000) = 8000
+```
+
+**The isolated 4,500 is the false positive Amendment 09 exists to discard.** It
+satisfies the pairwise test — ΔA +0.9786pp against a 1.00pp threshold, a margin
+of 0.0214pp, or 11 correct episodes out of 1,124 where a twelfth would have
+prevented it — and the two checkpoints after it gained +5.07pp and +3.11pp. It
+is not part of the run reaching the end, so the settled-streak reading drops it.
+
+Under Amendment 05's original first-qualifying rule the answer would have been
+**4,500**, and the shared budget would have stayed at 7,500 with TRAV trained to
+less than half the point where it actually converged. Same curve, same
+underlying test, different reading.
+
+Amendment 09's 3-checkpoint minimum also binds: TRAV's run is exactly four, so a
+two-checkpoint run would have been admissible without it — which is the 4,500
+fragility in another form.
+
+### Post-saturation behaviour
+
+Neither arm degrades after its plateau. DIRECT runs 86.03 → 86.74 → 87.19 →
+87.28 → 87.81; TRAV runs 100.00 → 99.82 → 100.00 → 100.00. The first checkpoint
+within 1.00pp of each arm's whole-run maximum is 6,500 for DIRECT and 7,000 for
+TRAV, so each selection lands one to two checkpoints past saturation, in the
+direction Amendment 05 §2 flagged as the unfavourable one.
+
+## What this does not establish
+
+**No comparison between the arms is a finding here.** Both curves are one model
+seed, on screening data, at gamma=0, from a non-preregistered diagnostic. The
+probe answers one question — where does each arm stop improving — and that
+answer is a single shared number.
+
+TRAV's gamma=0 accuracy accelerated to 100% rather than converging, on the
+negative-control condition where adaptive traversal is supposed to confer
+nothing. That is the subject of a separate blocking diagnostic
+([`trav_edge_selection_g00.md`](trav_edge_selection_g00.md)) and is explicitly
+not interpreted here.
+
 ## Status of the Amendment 04 rules
 
 - **Left uniform.** DIRECT satisfies criterion (L) and all three §5
   learner-gate conditions from U = 3,500 onward. TRAV satisfies them from
   U = 1,500 onward, so Amendment 06 §2's stop clause cannot fire for either arm.
-- **Plateau.** DIRECT: **7,500**, confirmed against its complete curve. TRAV:
-  pending its extended run.
-- **Budget.** None selected yet. Amendment 05 §3 takes the **maximum** over arms,
-  so the shared count is `max(7500, plateau_TRAV)`.
+- **Plateau.** DIRECT **7,500**, TRAV **8,000**, both under Amendment 09 §2
+  against complete 9,376-update curves.
+- **Budget.** `update_count = max(7500, 8000) = 8000`, recorded in
+  `training-config.v2.json` and Amendment 08.
 
 ### The §4 escalation clause is likely to be needed
 

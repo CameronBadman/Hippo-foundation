@@ -794,16 +794,30 @@ def test_run_version_two_activates_as_a_pair_and_never_partially() -> None:
     assert v2["preregistration_json_sha256"] == FROZEN_PREREGISTRATION_JSON_SHA256
     assert v2["training_config_sha256"] != v1["training_config_sha256"]
     assert v2["heldout_seed_sha256"] != v1["heldout_seed_sha256"]
+
+    # Compare the FULL flattened configs, not just the training sub-dict: a
+    # top-level field could otherwise drift between versions unnoticed. The
+    # permitted difference set is an explicit allowlist rather than a
+    # structural comparison, because an allowlist is a list and a comparator
+    # is code that can be wrong.
+    def flatten(value: dict[str, Any], prefix: str = "") -> dict[str, Any]:
+        flat: dict[str, Any] = {}
+        for key, item in value.items():
+            if isinstance(item, dict):
+                flat.update(flatten(item, f"{prefix}{key}."))
+            else:
+                flat[f"{prefix}{key}"] = item
+        return flat
+
+    flat_v1 = flatten(v1["training_config"])
+    flat_v2 = flatten(v2["training_config"])
     differing = {
         key
-        for key in set(v1["training_config"]["training"])
-        | set(v2["training_config"]["training"])
-        if v1["training_config"]["training"].get(key)
-        != v2["training_config"]["training"].get(key)
+        for key in set(flat_v1) | set(flat_v2)
+        if flat_v1.get(key) != flat_v2.get(key)
     }
-    assert differing == {"update_count"}, differing
-    for section in ("model", "fairness", "selection"):
-        assert v1["training_config"][section] == v2["training_config"][section]
+    assert differing == {"config_id", "training.update_count"}, differing
+    assert flat_v2["training.update_count"] > flat_v1["training.update_count"]
 
 
 def test_code_freeze_field_sets_are_exact_in_both_run_versions() -> None:
