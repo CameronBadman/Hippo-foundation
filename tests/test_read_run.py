@@ -752,3 +752,42 @@ def test_parallel_p0_scheduling_is_byte_identical_to_serial(tmp_path: Path) -> N
         for gamma in GAMMA_BUCKETS
     ]
     assert _run_units(specs, 1) == _run_units(specs, 4)
+
+
+def test_training_config_v2_is_additive_and_refused_until_frozen() -> None:
+    """The v2 path must not exist until its config does, and must never
+    silently fall back to v1.
+
+    A fallback would let a run claim a v2 budget while training under v1's
+    `update_count`, which is the exact confusion the version-additive
+    convention exists to prevent. v1's digests are also re-checked on every v2
+    call, so a v2 run cannot proceed against an edited preregistration.
+    """
+
+    from hippocampus_foundation.read_run import contracts as contracts_module
+
+    v1 = validate_preregistration()
+    assert v1["training_config_version"] == "v1"
+    assert v1["training_config_sha256"] == FROZEN_TRAINING_CONFIG_SHA256
+
+    with pytest.raises(IntegrityGateError, match="version is not preregistered"):
+        validate_preregistration(version="v3")
+
+    if contracts_module.FROZEN_TRAINING_CONFIG_V2_SHA256 is None:
+        with pytest.raises(IntegrityGateError, match="v2 is not frozen yet"):
+            validate_preregistration(version="v2")
+        return
+
+    v2 = validate_preregistration(version="v2")
+    assert v2["training_config_version"] == "v2"
+    assert v2["training_config_sha256"] != v1["training_config_sha256"]
+    differing = {
+        key
+        for key in set(v1["training_config"]["training"])
+        | set(v2["training_config"]["training"])
+        if v1["training_config"]["training"].get(key)
+        != v2["training_config"]["training"].get(key)
+    }
+    assert differing == {"update_count"}, differing
+    for section in ("model", "fairness", "selection"):
+        assert v1["training_config"][section] == v2["training_config"][section]

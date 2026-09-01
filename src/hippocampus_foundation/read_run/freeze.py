@@ -93,8 +93,10 @@ INVALIDATING_TESTS = [
 ]
 
 
-def create_code_freeze(*, p0_report: dict[str, Any], frozen_at: str) -> dict[str, Any]:
-    contracts = validate_preregistration()
+def create_code_freeze(
+    *, p0_report: dict[str, Any], frozen_at: str, config_version: str = "v1"
+) -> dict[str, Any]:
+    contracts = validate_preregistration(version=config_version)
     if p0_report.get("record_kind") != "read_run_p0_report":
         raise IntegrityGateError("code freeze requires a READ-run P0 report")
     if not p0_report.get("screening_training_authorized"):
@@ -121,9 +123,12 @@ def create_code_freeze(*, p0_report: dict[str, Any], frozen_at: str) -> dict[str
 
 
 def validate_code_freeze(
-    freeze: dict[str, Any], *, p0_report: dict[str, Any] | None = None
+    freeze: dict[str, Any],
+    *,
+    p0_report: dict[str, Any] | None = None,
+    config_version: str = "v1",
 ) -> None:
-    contracts = validate_preregistration()
+    contracts = validate_preregistration(version=config_version)
     required = {
         "schema_version",
         "record_kind",
@@ -162,7 +167,7 @@ def validate_code_freeze(
 
 
 def load_and_validate_code_freeze(
-    path: Path, *, p0_report_path: Path | None = None
+    path: Path, *, p0_report_path: Path | None = None, config_version: str = "v1"
 ) -> dict[str, Any]:
     value = load_json(path)
     if not isinstance(value, dict):
@@ -172,5 +177,5 @@ def load_and_validate_code_freeze(
         p0 = load_json(p0_report_path)
         if not isinstance(p0, dict):
             raise IntegrityGateError("P0 report must be an object")
-    validate_code_freeze(value, p0_report=p0)
+    validate_code_freeze(value, p0_report=p0, config_version=config_version)
     return value

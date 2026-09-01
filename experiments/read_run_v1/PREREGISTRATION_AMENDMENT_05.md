@@ -106,6 +106,35 @@ amendment was written on a misreading of eight checkpoints, and the rule it
 installed survives on a different argument than the one that motivated it. The
 rule was not adjusted to fit the new data.
 
+### Final correction: the predicted harm did not occur either
+
+DIRECT's probe ran to its 9,376 horizon. With the complete curve, the two
+instruments can be compared directly rather than argued about.
+
+| | selected checkpoint |
+|---|---|
+| Amendment 05 dev-accuracy rule | **7,500** |
+| Amendment 04 training-loss rule, applied retrospectively | **8,000** |
+
+**They differ by one checkpoint.** This section warned that a loss-defined
+plateau would place the budget "roughly two thousand updates past the point where
+dev accuracy stopped improving". It would have placed it 500 updates later.
+
+Nor was there overfitting to be past. Post-plateau accuracy runs 86.03, 86.74,
+87.19, 87.28, 87.81 — **no degradation, still rising**, and the run's maximum is
+its final value. The first checkpoint within 1.00pp of that maximum is 6,500, so
+the dev rule's selection landed one checkpoint past saturation and the loss
+rule's would have landed two.
+
+**What survives.** The instrument argument stands unchanged: a budget should be
+chosen on the quantity the experiment reports, and where the two instruments
+disagree the dev rule selected the earlier and cheaper of the two. What does not
+survive is the magnitude claimed for the problem. This section was written from
+eight checkpoints during a noisy stretch and it over-read them three times — the
+"flat since 3,500" claim, then the overfitting inference, and finally the size of
+the consequence. Each is corrected here rather than in a summary, and **the rule
+was never adjusted to fit any of the new data.**
+
 ## 2. Plateau, redefined on dev
 
 Let `A(U)` be proof-valid exact-set accuracy over non-abstain episodes in the

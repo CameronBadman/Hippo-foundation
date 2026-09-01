@@ -168,6 +168,7 @@ def train_arm(
     p0_report_path: Path,
     code_freeze_path: Path,
     output_root: Path,
+    config_version: str = "v1",
 ) -> dict[str, Any]:
     """Run the fixed optimizer schedule and retain every update loss."""
 
@@ -177,13 +178,13 @@ def train_arm(
         raise TrainingBlocked("run stage must be screening or main")
     if model_seed not in {1729, 2718, 3141}:
         raise TrainingBlocked("model seed is not preregistered")
-    contracts = validate_preregistration()
+    contracts = validate_preregistration(version=config_version)
     config = contracts["training_config"]
     p0_report = load_json(p0_report_path)
     if not isinstance(p0_report, dict):
         raise TrainingBlocked("P0 report must be an object")
     freeze = load_and_validate_code_freeze(
-        code_freeze_path, p0_report_path=p0_report_path
+        code_freeze_path, p0_report_path=p0_report_path, config_version=config_version
     )
     _validate_training_gate(p0_report, budget=budget, stage=stage)
     dataset_manifest = _validate_training_dataset(
@@ -347,8 +348,9 @@ def evaluate_checkpoint(
     expected_split: str,
     code_freeze_path: Path | None = None,
     p0_report_path: Path | None = None,
+    config_version: str = "v1",
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    contracts = validate_preregistration()
+    contracts = validate_preregistration(version=config_version)
     config = contracts["training_config"]
     receipt = load_json(receipt_path)
     if (
@@ -364,7 +366,7 @@ def evaluate_checkpoint(
     if not isinstance(p0, dict):
         raise IntegrityGateError("P0 report must be an object")
     freeze = load_and_validate_code_freeze(
-        code_freeze_path, p0_report_path=p0_report_path
+        code_freeze_path, p0_report_path=p0_report_path, config_version=config_version
     )
     _public, manifest, _artifacts = validate_generated_split_artifacts(
         dataset_root,

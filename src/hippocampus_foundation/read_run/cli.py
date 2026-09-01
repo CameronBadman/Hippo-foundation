@@ -190,6 +190,7 @@ def _freeze(args: argparse.Namespace) -> int:
     result = create_code_freeze(
         p0_report=p0,
         frozen_at=_require_timestamp(args.frozen_at, "--frozen-at"),
+        config_version=args.config_version,
     )
     _write_json(Path(args.output), result, mode=0o644)
     _emit(result)
@@ -206,6 +207,7 @@ def _train(args: argparse.Namespace) -> int:
         p0_report_path=Path(args.p0_report),
         code_freeze_path=Path(args.code_freeze),
         output_root=Path(args.output),
+        config_version=args.config_version,
     )
     _emit(receipt)
     return 0
@@ -224,6 +226,7 @@ def _evaluate(args: argparse.Namespace) -> int:
         expected_split=args.split,
         code_freeze_path=(Path(args.code_freeze) if args.code_freeze else None),
         p0_report_path=(Path(args.p0_report) if args.p0_report else None),
+        config_version=args.config_version,
     )
     _write_json(output / "summary.json", summary, mode=0o600)
     prediction_path = output / "predictions.jsonl"
@@ -330,6 +333,7 @@ def build_parser() -> argparse.ArgumentParser:
     freeze.add_argument("--p0-report", required=True)
     freeze.add_argument("--frozen-at", required=True)
     freeze.add_argument("--output", required=True)
+    freeze.add_argument("--config-version", default="v1", choices=["v1", "v2"])
     freeze.set_defaults(handler=_freeze)
 
     train = commands.add_parser("train")
@@ -341,6 +345,7 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--p0-report", required=True)
     train.add_argument("--code-freeze", required=True)
     train.add_argument("--output", required=True)
+    train.add_argument("--config-version", default="v1", choices=["v1", "v2"])
     train.set_defaults(handler=_train)
 
     evaluate = commands.add_parser("evaluate")
@@ -351,6 +356,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--code-freeze", required=True)
     evaluate.add_argument("--p0-report", required=True)
     evaluate.add_argument("--output", required=True)
+    evaluate.add_argument("--config-version", default="v1", choices=["v1", "v2"])
     evaluate.set_defaults(handler=_evaluate)
 
     decision = commands.add_parser("decision")

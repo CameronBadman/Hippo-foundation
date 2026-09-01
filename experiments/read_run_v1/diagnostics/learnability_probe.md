@@ -1,8 +1,10 @@
 # READ run v1 — learnability probe
 
-**Interim record. The probe is still running; this file is updated on completion.**
+**DIRECT is complete. TRAV's extended run is in progress; its sections are
+updated on completion.**
 
-Started 2026-09-01T02:18:35Z. Phase 2 of the E1 recovery, run under the rules
+Started 2026-09-01T02:18:35Z. DIRECT finished its 9,376-update horizon in
+6,673 s at concurrency 2. Phase 2 of the E1 recovery, run under the rules
 fixed in [`../PREREGISTRATION_AMENDMENT_04.md`](../PREREGISTRATION_AMENDMENT_04.md)
 §4 and §5, which were committed before the probe launched.
 
@@ -77,15 +79,61 @@ coverage figures were measured before any accuracy existed and are bound into
 `audit/read-run-p0.v1.passed.json`, so this is a prediction confirmed rather
 than a fit.
 
+## DIRECT: complete curve and plateau
+
+| U | `L(U)` | acc% | Wilson LB% | classes | H | ΔA | plateau |
+|---|---|---|---|---|---|---|---|
+| 2500 | 2.5357 | 0.09 | 0.020 | 5 | 0.029 | +0.09 | |
+| 3000 | 2.4201 | 8.54 | 7.267 | 14 | 0.844 | +8.45 | |
+| 3500 | 0.9931 | 83.36 | 81.456 | 16 | 2.764 | +74.82 | |
+| 4000 | 0.8933 | 80.16 | 78.132 | 16 | 2.738 | −3.20 | |
+| 4500 | 0.8678 | 83.90 | 82.012 | 16 | 2.765 | +3.74 | |
+| 5000 | 0.8389 | 82.65 | 80.716 | 16 | 2.751 | −1.25 | |
+| 5500 | 0.8115 | 86.48 | 84.711 | 16 | 2.771 | +3.83 | |
+| 6000 | 0.7678 | 84.96 | 83.127 | 16 | 2.765 | −1.51 | |
+| 6500 | 0.6958 | 87.54 | 85.834 | 16 | 2.770 | +2.58 | |
+| 7000 | 0.6476 | 87.63 | 85.927 | 16 | 2.771 | +0.09 | |
+| **7500** | 0.6115 | 86.03 | 84.245 | 16 | 2.771 | −1.60 | **YES** |
+| 8000 | 0.6101 | 86.74 | 84.992 | 16 | 2.769 | +0.71 | yes |
+| 8500 | 0.6078 | 87.19 | 85.459 | 16 | 2.772 | +0.44 | yes |
+| 9000 | 0.6126 | 87.28 | 85.553 | 16 | 2.771 | +0.09 | yes |
+| 9376 | 0.6068 | 87.81 | 86.115 | 16 | 2.769 | | |
+
+**Plateau checkpoint under Amendment 05 §2: 7,500.** The first checkpoint to
+satisfy the rule, and every later checkpoint satisfies it too, so the selection
+is not a single noisy crossing.
+
+### Post-saturation behaviour, as Amendment 05 §2 requires reporting
+
+The run's maximum accuracy is **87.81%**, its final value. The first checkpoint
+within 1.00pp of that maximum is **6,500**, so the selected budget landed **one
+checkpoint past saturation**.
+
+Post-plateau accuracy runs 86.03, 86.74, 87.19, 87.28, 87.81. **There is no
+degradation** — the arm was still improving slightly at its horizon. The
+overfitting risk that motivated the dev-plateau rule did not materialise for this
+arm, and Amendment 05 records that correction against itself.
+
+### The two instruments differ by one checkpoint
+
+Applied retrospectively to the same curve, Amendment 04's training-loss rule
+(`L(U−500) − L(U) < 0.02`) first fires at **8,000**: `ΔL/500` runs 0.0720,
+0.0481, 0.0362, then 0.0013 at 8,000. The dev rule fires at 7,500.
+
+The instrument change therefore selected the earlier and cheaper budget, but by
+500 updates rather than the two thousand Amendment 05 §1 anticipated. Recorded
+because it is evidence against the strength of that section's original argument,
+not for it.
+
 ## Status of the Amendment 04 rules
 
-- **Left uniform.** DIRECT satisfies criterion (L) (`L(U) <= 2.34`) and all
-  three §5 learner-gate conditions from U = 3,500 onward.
-- **Plateau.** Not yet. The rule requires `L(U-500) - L(U) < 0.02`; DIRECT is at
-  0.0254 as of U = 4,500.
-- **TRAV.** Still pre-transition at roughly 950 updates: one class, `L` = 2.589.
-- **Budget.** None selected. §4 selects the smallest evaluated checkpoint at
-  which *both* arms have plateaued.
+- **Left uniform.** DIRECT satisfies criterion (L) and all three §5
+  learner-gate conditions from U = 3,500 onward. TRAV satisfies them from
+  U = 1,500 onward, so Amendment 06 §2's stop clause cannot fire for either arm.
+- **Plateau.** DIRECT: **7,500**, confirmed against its complete curve. TRAV:
+  pending its extended run.
+- **Budget.** None selected yet. Amendment 05 §3 takes the **maximum** over arms,
+  so the shared count is `max(7500, plateau_TRAV)`.
 
 ### The §4 escalation clause is likely to be needed
 
