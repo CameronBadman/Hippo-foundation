@@ -391,3 +391,31 @@ Runtime estimates were repeatedly wrong in both directions across P0 and E1.
 Measured figures for future planning: DIRECT 15.3 min per run, TRAV 73.3 min per
 run, both at concurrency 3 on one RTX 5070 Ti, with the whole 30-run sweep taking
 7 hours 50 minutes.
+
+## Recovery, Phase 0 — free diagnostics on the void run
+
+2026-09-01. Two questions were settled entirely from artifacts already on disk:
+the 30 `predictions.jsonl` files and the per-update logs. No model was
+instantiated, no episode generated, no evaluation re-run.
+[`diagnostics/per_seed_spread.md`](diagnostics/per_seed_spread.md) carries the
+full record; the stratification harness first had to reproduce the committed
+negative-control counts of 7/25,707 and 7,330/25,707 exactly, which it did.
+
+**The seeds are scattered, and the scatter dominates the gamma series.** TRAV's
+gamma=0.3 cell spans 3.69% to 40.45% across three seeds — a 36.76pp range within
+one gamma, wider than the 31.16pp span of the entire pooled gamma curve. No seed
+is uniformly stronger. The apparent lurch in the E1 curve is three-seed noise on
+an undertrained model. The one qualification, recorded because it cuts the other
+way: the gamma=0.2 dip is present in all three seeds, and the scatter explains
+the magnitude of the irregularity without explaining that sign consistency.
+
+**All 30 runs are post-`112fcb0`,** on two independent arguments. Every receipt
+binds freeze `07d18b39…`, which recomputes to that digest and records
+`git_commit 112fcb0…`; and separately, the dtype fault was fatal rather than
+silent, so no pre-fix TRAV checkpoint can exist, while DIRECT never enters the
+affected code path at all. The TRAV column does not mix dtype regimes.
+
+**The label marginal is 2.5934 nats** — 25% ABSTAIN and 5% for each of fifteen
+masks, measured rather than assumed. DIRECT's final loss lands between 2.5556 and
+2.5799 in all fifteen runs: it learned the label frequencies and no function of
+its input. This anchors the reading rule in Amendment 04.
