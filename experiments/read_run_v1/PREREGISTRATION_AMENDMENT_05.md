@@ -60,32 +60,51 @@ improving. **A clean fire of the original rule would have hidden the problem
 rather than surfaced it**, which is why this is not left to see whether the
 threshold happens to trip.
 
-### Correction to this section, recorded the same day
+### Correction: the overfitting claim is refuted, not merely weakened
 
-**The "flat since 3,500" claim above is weaker than stated, and this is recorded
-where the claim lives rather than only in a summary.**
+**The "flat since 3,500" claim above is wrong.** It was written from DIRECT's
+curve through update 5,000 and was corrected once as "weaker than stated"; the
+curve through update 7,000 refutes it outright. The correction is recorded here,
+where the claim lives.
 
-The section was written with DIRECT's curve through update 5,000. Update 5,500
-gives 86.48%, so the series reads 83.36, 80.16, 83.90, 82.65, 86.48. The change
-from 3,500 to 5,500 is **+3.12pp over 2,000 updates**, about two standard errors
-at SE = 1.12pp, on a non-monotone path. Held-out accuracy is therefore neither
-clearly flat nor clearly improving over that span; "flat" overstated it.
+| U | accuracy | ΔA | `L(U)` | ΔL/500 |
+|---|---|---|---|---|
+| 3500 | 83.36% | — | 0.9931 | 1.4270 |
+| 4000 | 80.16% | −3.20 | 0.8933 | 0.0998 |
+| 4500 | 83.90% | +3.74 | 0.8678 | 0.0254 |
+| 5000 | 82.65% | −1.25 | 0.8389 | 0.0289 |
+| 5500 | 86.48% | +3.83 | 0.8115 | 0.0275 |
+| 6000 | 84.96% | −1.51 | 0.7678 | 0.0437 |
+| 6500 | 87.54% | +2.58 | 0.6958 | 0.0720 |
+| 7000 | 87.63% | +0.09 | 0.6476 | 0.0481 |
 
-**No rule in this amendment changes.** The correction cuts against the strength
-of one piece of motivating evidence, not against the instrument:
+Least squares over the post-transition region gives **+1.758pp per 1,000
+updates**, and the 3,500-to-6,500 change of +4.27pp is about 2.7 standard errors
+at SE = 1.12pp. DIRECT was not overfitting and its dev accuracy was not flat. It
+was improving slowly underneath a ±3pp oscillation, and the shape was misread
+from too few checkpoints.
 
-- Plateau on training loss was still measuring the wrong quantity. Training loss
-  fell monotonically from 0.9931 to 0.8115 across the same span while dev
-  accuracy wandered within roughly two standard errors, so the two are plainly
-  not tracking each other.
-- The §2 rule is behaving correctly on this data: it declines to fire, because a
-  +3.83pp step from 5,000 to 5,500 is not a plateau. Had the rule been tuned to
-  produce a convenient answer it would have fired here.
+**No rule changes, and the instrument change is better supported than before.**
+The original argument for moving off training loss was an overfitting story that
+did not hold. The argument the data actually supports is sharper, and it is the
+one that now stands:
 
-The honest summary is that the overfitting reading is a hypothesis consistent
-with the data rather than a demonstrated fact, and that the case for defining
-plateau on dev rests on the divergence between the two quantities rather than on
-dev being flat.
+- The training-loss rule was moving **away** from firing. `ΔL/500` runs
+  0.0275, 0.0437, 0.0720, 0.0481 across updates 5,500 to 7,000 — the loss is
+  falling *faster*, not settling, so a threshold of 0.02 recedes rather than
+  approaches.
+- The dev rule is one checkpoint from firing. `ΔA` reached +0.09pp at 7,000, so
+  a plateau is declared at 7,500 if that interval is also within 1.00pp.
+
+Two instruments pointed at the same arm therefore disagree about whether it is
+converging, and they disagree in the direction that decides the budget. That is
+the case for defining plateau on the quantity the experiment reports rather than
+on a training-side proxy, and it does not depend on any claim about overfitting.
+
+**Recorded against interest:** this section's original evidence was wrong, the
+amendment was written on a misreading of eight checkpoints, and the rule it
+installed survives on a different argument than the one that motivated it. The
+rule was not adjusted to fit the new data.
 
 ## 2. Plateau, redefined on dev
 
