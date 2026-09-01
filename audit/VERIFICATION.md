@@ -588,10 +588,72 @@ and were not independently rerun during this repository review.
 - The earlier restored-workspace claim that `.git` was an empty read-only
   directory no longer applies; this directory is now a writable Git worktree.
 
+## READ run v1: executed, void, and under recovery
+
+This section is the only part of this record describing executed training. It
+was added on 2026-09-01 and it corrects a claim below that predated it.
+
+**E1 ran and is void.** All 30 preregistered main runs completed under code
+freeze `sha256:07d18b39…` at commit `112fcb0`, against P0 report
+`sha256:715a12e0…`. The preregistered gamma=0 negative control failed: the arms
+differed by 28.49pp in the gated `hops_2_4` stratum against a 1.00pp threshold.
+No comparison between the arms is reported as a result. The holdout was opened
+once and is spent. Recorded in `experiments/read_run_v1/results/E1.md` and
+`audit/read-run-e1.v1.void.json`.
+
+**The cause is now demonstrated rather than inferred.** A diagnostic learnability
+probe reproduces E1's own DIRECT run bit-for-bit — all 1,172 updates at seed
+1729, gamma=0 are exactly equal to the retained E1 log, including `L(1172)` at
+2.5583 — and then continues past E1's cutoff. DIRECT sits on the 2.5934 label
+marginal until roughly update 2,500, then reaches 83.36% proof-valid exact-set
+accuracy on the gated stratum by update 3,500. E1 stopped at 1,172, about 2,300
+updates before the transition completed. The probe is not preregistered, emits no
+training receipt, and touches no holdout.
+
+**P0 optimization, verified against a committed oracle.** Profiling found
+`model_input_bytes` canonicalizing every episode at 1.902 ms against 0.001 ms for
+the allowlist check that is the actual leakage control, with the bytes discarded
+at three call sites. Splitting the check from the serialization took the read
+path from 4.107 ms to 0.319 ms per episode, measured on 2,000 episodes with a
+warm cache. `evaluate_p0` additionally gained a `workers` parameter scheduling 26
+independent per-gamma units.
+
+Three runs at different widths each reproduced `audit/read-run-p0.v1.passed.json`
+**byte for byte**, canonical digest
+`sha256:715a12e0358cd6cd4b486f574961968dc8b000d2ce5a64e07be0e5f6abbd46e6` — the
+same digest bound into all 30 E1 training receipts:
+
+| workers | wall clock | peak RSS, all P0 processes | bytes |
+| --- | --- | --- | --- |
+| serial, pre-change | 14,820 s | not measured | reference |
+| 6 | 767 s | not measured | identical |
+| 12 | **436 s** | 0.83 GiB | identical |
+| 26 | 452 s | 2.23 GiB | identical |
+
+Width 12 is the operating point; 26 is slower, so the scaling is bounded by the
+serial portion and by uneven unit durations rather than by memory. An earlier
+estimate of 1.9 GiB per worker was wrong by more than an order of magnitude and
+came from the pre-optimization code.
+
+Full suite: 239 passed in 471 s. `ruff check` and `ruff format --check` clean.
+
+**Not established.** Nothing above compares the arms. TRAV had not left uniform
+when this was written. No E1-v2 exists: it requires a new master seed, a full
+regeneration, a fresh seven-gate P0 report, and a new code freeze before its
+holdout is opened once. Changing `freeze.py`'s source inventory means the
+committed freeze at `07d18b39…` no longer validates against this tree, which is
+correct for a spent and void run.
+
 ## Integrity interpretation
 
 Passing tests shows that the checked-in implementation behaves as those tests
 exercise it. It does not prove unacquired data clean, metadata truthful,
 licences approved, generated labels correct, detached manifests authentic, or
-any model effective. No training, optimization, threshold selection, embedding
-generation, or confirmatory evaluation was run.
+any model effective.
+
+No training, optimization, threshold selection, embedding generation, or
+confirmatory evaluation was run **in Phase 0, Phase 1, or Phase 2**, whose
+artifacts all set `training_authorized` to `false` under a test-pinned
+invariant. That scoping is explicit because it is no longer true of the
+repository as a whole: the READ run described above executed training under its
+own separate authorization, and its result is void.
