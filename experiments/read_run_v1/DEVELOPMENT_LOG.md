@@ -4,6 +4,60 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-02 — route-completeness measured; E1-v2 overnight run stopped at gate G1
+
+The overnight E1-v2 sequence ran tracks A–D and **stopped at gate G1**, which
+failed on track B2. Track E — v2 generation, P0, code freeze and training —
+never opened. No v2 data exists and no model was trained. Full report:
+[`diagnostics/route_completeness_and_greedy_baseline.md`](diagnostics/route_completeness_and_greedy_baseline.md).
+
+### Route-completeness is now a measurable quantity
+
+`read_run/coverage.py` measures whether an examined edge set contains a complete
+relation-matching route to *every* target, which is what `score_prediction`
+requires. Gate 7 measures target-node-in-pool, an upper bound on it. On the
+gated `hops_2_4` stratum at B=128 the two differ by **12.10pp** (100.00% against
+87.90%); over all strata they are 81.30% against 69.55%.
+
+Because generation admits exactly two relation-matching paths per episode,
+`proof_valid` is a pure function of the examined set and is score-independent.
+`coverage.route_coverage` and the evaluator therefore compute the same predicate
+by independent means — a breadth-first frontier expansion against
+`decode_best_routes`' depth-first enumeration — and agree on **0 disagreements
+across more than 40,000 episode-arm pairs**. `tests/test_read_run_coverage.py`
+pins this in 33 tests.
+
+### DIRECT is at its structural ceiling, not underperforming
+
+At γ=0 DIRECT scored 987 of the 988 episodes whose routes its pool can complete
+— **99.899%** conditional accuracy. Its scorer is not the limiting factor; pool
+construction is.
+
+### A non-learned greedy arm was added, and it fails its own γ=0 validation
+
+`read_run/greedy.py` performs TRAV's best-first walk scored by published
+`query_similarity_ppm` instead of by a network. It reaches **82.65%** at γ=0
+against a pre-stated ≥99.5%, so B2 failed and G1 closed.
+
+The traces show why, and it is not an implementation fault: greedy reaches *some*
+target in **100.00%** of episodes, **zero** failures came from following a
+competing 900k sibling, and 193 of 195 failures are a route edge whose source
+node was never expanded inside the budget. "Greedy is optimal at γ=0" is exactly
+true for edge choice and false for two-endpoint coverage within a fixed budget —
+structurally the same conflation as gate 7's.
+
+### What is recorded but deliberately not acted on
+
+An audit of every citation of gate 7's node-in-pool number is in the report.
+Four conclusions do not survive when the premise is replaced with
+route-completeness, including Amendment 02's "de-confounded" label for
+`hops_2_4` and its 1pp γ=0 negative control, which is unsatisfiable against both
+non-adaptive baselines at every preregistered budget.
+
+**Nothing was changed in response.** No amendment was drafted, no gate rewired,
+no arm or config modified; route-completeness is implemented and tested but
+wired into no gate. Those are governance decisions reserved for a human.
+
 ## 2026-08-31 — preregistration freeze
 
 - Committed preregistration v1 and the SHA-256 commitment to a private 32-byte

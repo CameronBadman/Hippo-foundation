@@ -1,0 +1,54 @@
+{
+  "budget": 128,
+  "by_stratum": {
+    "hops_2_4": {
+      "exact_correct": 1124,
+      "exact_set_accuracy": 1.0,
+      "n": 1124,
+      "route_complete": 1124,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    },
+    "hops_2_4_abstain": {
+      "exact_correct": 394,
+      "exact_set_accuracy": 1.0,
+      "n": 394,
+      "route_complete": 394,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    },
+    "hops_5": {
+      "exact_correct": 322,
+      "exact_set_accuracy": 1.0,
+      "n": 322,
+      "route_complete": 322,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    },
+    "hops_5_abstain": {
+      "exact_correct": 90,
+      "exact_set_accuracy": 1.0,
+      "n": 90,
+      "route_complete": 90,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    },
+    "hops_6_plus": {
+      "exact_correct": 54,
+      "exact_set_accuracy": 1.0,
+      "n": 54,
+      "route_complete": 54,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    },
+    "hops_6_plus_abstain": {
+      "exact_correct": 16,
+      "exact_set_accuracy": 1.0,
+      "n": 16,
+      "route_complete": 16,
+      "route_complete_fraction": 1.0,
+      "target_node_present_fraction": 1.0
+    }
+  },
+  "route_complete_vs_proof_valid_disagreements": 0
+}

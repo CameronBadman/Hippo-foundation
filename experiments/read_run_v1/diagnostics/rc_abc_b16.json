@@ -1,0 +1,305 @@
+{
+  "budget": 16,
+  "by_gamma": {
+    "0.0": {
+      "all_strata_direct_route_complete": {
+        "episode_count": 2000,
+        "gate7_overstatement_pp": 1.05,
+        "reached_outside_targets_violations": 0,
+        "route_complete": 449,
+        "route_complete_fraction": 0.2245,
+        "target_node_present": 470,
+        "target_node_present_fraction": 0.235
+      },
+      "direct": {
+        "route_complete": {
+          "count": 338,
+          "fraction": 0.30071174377224197,
+          "n": 1124,
+          "wilson_lower_bound": 0.2787140442364745
+        },
+        "target_node_present": {
+          "count": 355,
+          "fraction": 0.31583629893238435,
+          "n": 1124,
+          "wilson_lower_bound": 0.2934953192997295
+        }
+      },
+      "episode_count": 2000,
+      "gated_non_abstain": 1124,
+      "greedy": {
+        "class_correct": {
+          "count": 1064,
+          "fraction": 0.9466192170818505,
+          "n": 1124,
+          "wilson_lower_bound": 0.934479223900362
+        },
+        "exact_set_accuracy": {
+          "count": 654,
+          "fraction": 0.5818505338078291,
+          "n": 1124,
+          "wilson_lower_bound": 0.5574822484786468
+        },
+        "reaches_some_target": {
+          "count": 1064,
+          "fraction": 0.9466192170818505,
+          "n": 1124,
+          "wilson_lower_bound": 0.934479223900362
+        },
+        "route_complete": {
+          "count": 654,
+          "fraction": 0.5818505338078291,
+          "n": 1124,
+          "wilson_lower_bound": 0.5574822484786468
+        },
+        "target_node_present": {
+          "count": 683,
+          "fraction": 0.6076512455516014,
+          "n": 1124,
+          "wilson_lower_bound": 0.5834645059288401
+        }
+      }
+    },
+    "0.1": {
+      "all_strata_direct_route_complete": {
+        "episode_count": 2000,
+        "gate7_overstatement_pp": 1.05,
+        "reached_outside_targets_violations": 0,
+        "route_complete": 449,
+        "route_complete_fraction": 0.2245,
+        "target_node_present": 470,
+        "target_node_present_fraction": 0.235
+      },
+      "direct": {
+        "route_complete": {
+          "count": 338,
+          "fraction": 0.30071174377224197,
+          "n": 1124,
+          "wilson_lower_bound": 0.2787140442364745
+        },
+        "target_node_present": {
+          "count": 355,
+          "fraction": 0.31583629893238435,
+          "n": 1124,
+          "wilson_lower_bound": 0.2934953192997295
+        }
+      },
+      "episode_count": 2000,
+      "gated_non_abstain": 1124,
+      "greedy": {
+        "class_correct": {
+          "count": 902,
+          "fraction": 0.802491103202847,
+          "n": 1124,
+          "wilson_lower_bound": 0.782242196253469
+        },
+        "exact_set_accuracy": {
+          "count": 582,
+          "fraction": 0.5177935943060499,
+          "n": 1124,
+          "wilson_lower_bound": 0.49326488472624624
+        },
+        "reaches_some_target": {
+          "count": 902,
+          "fraction": 0.802491103202847,
+          "n": 1124,
+          "wilson_lower_bound": 0.782242196253469
+        },
+        "route_complete": {
+          "count": 582,
+          "fraction": 0.5177935943060499,
+          "n": 1124,
+          "wilson_lower_bound": 0.49326488472624624
+        },
+        "target_node_present": {
+          "count": 609,
+          "fraction": 0.541814946619217,
+          "n": 1124,
+          "wilson_lower_bound": 0.5172986973167142
+        }
+      }
+    },
+    "0.2": {
+      "all_strata_direct_route_complete": {
+        "episode_count": 2000,
+        "gate7_overstatement_pp": 1.05,
+        "reached_outside_targets_violations": 0,
+        "route_complete": 449,
+        "route_complete_fraction": 0.2245,
+        "target_node_present": 470,
+        "target_node_present_fraction": 0.235
+      },
+      "direct": {
+        "route_complete": {
+          "count": 338,
+          "fraction": 0.30071174377224197,
+          "n": 1124,
+          "wilson_lower_bound": 0.2787140442364745
+        },
+        "target_node_present": {
+          "count": 355,
+          "fraction": 0.31583629893238435,
+          "n": 1124,
+          "wilson_lower_bound": 0.2934953192997295
+        }
+      },
+      "episode_count": 2000,
+      "gated_non_abstain": 1124,
+      "greedy": {
+        "class_correct": {
+          "count": 750,
+          "fraction": 0.6672597864768683,
+          "n": 1124,
+          "wilson_lower_bound": 0.6437647489235627
+        },
+        "exact_set_accuracy": {
+          "count": 517,
+          "fraction": 0.4599644128113879,
+          "n": 1124,
+          "wilson_lower_bound": 0.43563756649063073
+        },
+        "reaches_some_target": {
+          "count": 750,
+          "fraction": 0.6672597864768683,
+          "n": 1124,
+          "wilson_lower_bound": 0.6437647489235627
+        },
+        "route_complete": {
+          "count": 517,
+          "fraction": 0.4599644128113879,
+          "n": 1124,
+          "wilson_lower_bound": 0.43563756649063073
+        },
+        "target_node_present": {
+          "count": 547,
+          "fraction": 0.48665480427046265,
+          "n": 1124,
+          "wilson_lower_bound": 0.46219409304411996
+        }
+      }
+    },
+    "0.3": {
+      "all_strata_direct_route_complete": {
+        "episode_count": 2000,
+        "gate7_overstatement_pp": 1.05,
+        "reached_outside_targets_violations": 0,
+        "route_complete": 449,
+        "route_complete_fraction": 0.2245,
+        "target_node_present": 470,
+        "target_node_present_fraction": 0.235
+      },
+      "direct": {
+        "route_complete": {
+          "count": 338,
+          "fraction": 0.30071174377224197,
+          "n": 1124,
+          "wilson_lower_bound": 0.2787140442364745
+        },
+        "target_node_present": {
+          "count": 355,
+          "fraction": 0.31583629893238435,
+          "n": 1124,
+          "wilson_lower_bound": 0.2934953192997295
+        }
+      },
+      "episode_count": 2000,
+      "gated_non_abstain": 1124,
+      "greedy": {
+        "class_correct": {
+          "count": 603,
+          "fraction": 0.5364768683274022,
+          "n": 1124,
+          "wilson_lower_bound": 0.511952943724668
+        },
+        "exact_set_accuracy": {
+          "count": 433,
+          "fraction": 0.38523131672597866,
+          "n": 1124,
+          "wilson_lower_bound": 0.36165804506790006
+        },
+        "reaches_some_target": {
+          "count": 603,
+          "fraction": 0.5364768683274022,
+          "n": 1124,
+          "wilson_lower_bound": 0.511952943724668
+        },
+        "route_complete": {
+          "count": 433,
+          "fraction": 0.38523131672597866,
+          "n": 1124,
+          "wilson_lower_bound": 0.36165804506790006
+        },
+        "target_node_present": {
+          "count": 454,
+          "fraction": 0.40391459074733094,
+          "n": 1124,
+          "wilson_lower_bound": 0.38009941857172963
+        }
+      }
+    },
+    "0.4": {
+      "all_strata_direct_route_complete": {
+        "episode_count": 2000,
+        "gate7_overstatement_pp": 1.05,
+        "reached_outside_targets_violations": 0,
+        "route_complete": 449,
+        "route_complete_fraction": 0.2245,
+        "target_node_present": 470,
+        "target_node_present_fraction": 0.235
+      },
+      "direct": {
+        "route_complete": {
+          "count": 338,
+          "fraction": 0.30071174377224197,
+          "n": 1124,
+          "wilson_lower_bound": 0.2787140442364745
+        },
+        "target_node_present": {
+          "count": 355,
+          "fraction": 0.31583629893238435,
+          "n": 1124,
+          "wilson_lower_bound": 0.2934953192997295
+        }
+      },
+      "episode_count": 2000,
+      "gated_non_abstain": 1124,
+      "greedy": {
+        "class_correct": {
+          "count": 525,
+          "fraction": 0.46708185053380785,
+          "n": 1124,
+          "wilson_lower_bound": 0.4427124615345628
+        },
+        "exact_set_accuracy": {
+          "count": 368,
+          "fraction": 0.3274021352313167,
+          "n": 1124,
+          "wilson_lower_bound": 0.30481748041220597
+        },
+        "reaches_some_target": {
+          "count": 525,
+          "fraction": 0.46708185053380785,
+          "n": 1124,
+          "wilson_lower_bound": 0.4427124615345628
+        },
+        "route_complete": {
+          "count": 368,
+          "fraction": 0.3274021352313167,
+          "n": 1124,
+          "wilson_lower_bound": 0.30481748041220597
+        },
+        "target_node_present": {
+          "count": 397,
+          "fraction": 0.35320284697508897,
+          "n": 1124,
+          "wilson_lower_bound": 0.3301310087506115
+        }
+      }
+    }
+  },
+  "cross_check": {
+    "examples": [],
+    "reached_outside_targets_violations": 0,
+    "route_complete_vs_proof_valid_disagreements": 0
+  }
+}
