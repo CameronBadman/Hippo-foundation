@@ -60,6 +60,42 @@ def reachable_endpoints(
     return frontier
 
 
+def relation_prefix_tree(visible: dict[str, Any]) -> set[int]:
+    """Every edge on a path from the start whose relations match a query prefix.
+
+    A walker that follows relations alone, with no lookahead and no similarity,
+    cannot tell a route edge from a dead end that happens to carry the right
+    relation at the right depth. It must examine all of them. This set is what
+    it examines, so its size is the budget at which such a walker is
+    route-complete with certainty, independent of gamma: query similarity is
+    never consulted.
+
+    Both planted routes are relation-matching paths from the start, so their
+    edges are always contained here; the endpoints reachable through this set
+    are exactly the targets. States are `(node, depth)` pairs because a node
+    can sit at several depths of different matching paths, and a cycle can
+    return one to an earlier node at a later depth.
+    """
+
+    by_source: dict[int, list[dict[str, int]]] = defaultdict(list)
+    for edge in visible["edges"]:
+        by_source[edge["source"]].append(edge)
+    relations = visible["query_relations"]
+    tree: set[int] = set()
+    frontier = {visible["start_node"]}
+    for relation in relations:
+        advanced: set[int] = set()
+        for node in frontier:
+            for edge in by_source[node]:
+                if edge["relation"] == relation:
+                    tree.add(edge["edge_id"])
+                    advanced.add(edge["target"])
+        frontier = advanced
+        if not frontier:
+            break
+    return tree
+
+
 def node_assertion_masks(visible: dict[str, Any]) -> dict[int, int]:
     """Recover each node's integer assertion mask from the visible payload."""
 

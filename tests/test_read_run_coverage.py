@@ -19,6 +19,7 @@ import pytest
 from hippocampus_foundation.read_run.coverage import (
     node_assertion_masks,
     reachable_endpoints,
+    relation_prefix_tree,
     route_coverage,
     summarize_route_coverage,
 )
@@ -117,6 +118,57 @@ def test_full_edge_set_is_always_route_complete():
         episode = _episode(index=index, mask=None if index % 4 else 1)
         every = [edge["edge_id"] for edge in episode.visible["edges"]]
         assert route_coverage(episode, every)["route_complete"]
+
+
+@pytest.mark.parametrize("gamma", GAMMA_BUCKETS)
+def test_relation_prefix_tree_holds_both_routes_and_nothing_off_query(gamma):
+    """The gamma-immune ceiling set: a subset of the edges that is always complete."""
+
+    for index in range(COUNT):
+        episode = _episode(index=index, gamma=gamma, mask=None if index % 4 else 1)
+        tree = relation_prefix_tree(episode.visible)
+        edge_ids = {edge["edge_id"] for edge in episode.visible["edges"]}
+        assert tree <= edge_ids
+        for route in episode.hidden["valid_routes"]:
+            assert set(route) <= tree
+        coverage = route_coverage(episode, sorted(tree))
+        assert coverage["route_complete"]
+        assert coverage["endpoints_reached"] == coverage["targets"]
+        assert coverage["reached_outside_targets"] == []
+
+
+def test_relation_prefix_tree_is_a_function_of_structure_not_similarity():
+    """The same world at two gammas has the same tree: similarity is never read."""
+
+    for index in range(COUNT):
+        trees = {
+            frozenset(relation_prefix_tree(_episode(index=index, gamma=gamma).visible))
+            for gamma in (0.0, 0.4)
+        }
+        assert len(trees) == 1
+
+
+def test_relation_prefix_tree_splits_into_necessary_routes_and_dead_ends():
+    """Route edges are each necessary; the rest of the tree is the dead-end cost.
+
+    Removing any single route edge breaks completeness, while the route edges
+    alone are already complete. Whatever the tree holds beyond them is what a
+    relation follower pays for having no lookahead, and that surplus is the
+    quantity the budget sweep measures.
+    """
+
+    for index in range(COUNT):
+        episode = _episode(index=index, mask=None if index % 4 else 1)
+        tree = relation_prefix_tree(episode.visible)
+        route_edges = {
+            edge for route in episode.hidden["valid_routes"] for edge in route
+        }
+        assert route_edges <= tree
+        assert route_coverage(episode, sorted(route_edges))["route_complete"]
+        for edge_id in sorted(route_edges):
+            assert not route_coverage(episode, sorted(tree - {edge_id}))[
+                "route_complete"
+            ]
 
 
 def test_greedy_is_deterministic_and_consumes_its_budget():
