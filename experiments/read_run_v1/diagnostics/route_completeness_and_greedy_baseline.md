@@ -130,8 +130,9 @@ reaches each endpoint, `proof_valid` is a **pure function of the examined set**
 and is score-independent. So C1 and `proof_valid` are the same predicate and can
 be compared episode-by-episode rather than in aggregate:
 
-**0 disagreements across 40,000 episode-arm pairs** (5 γ × 2,000 episodes ×
-2 parameter-free arms × 4 budgets), plus 0 for TRAV at B=128. Also **0
+**0 disagreements across 80,000 episode-arm pairs** (5 γ × 2,000 episodes ×
+2 parameter-free arms × 4 budgets; an earlier revision of this line said
+40,000 against its own multiplication), plus 0 for TRAV at B=128. Also **0
 `reached_outside_targets` violations**, confirming generation's two-path premise.
 
 `tests/test_read_run_coverage.py` pins this as 33 tests.
@@ -261,7 +262,7 @@ and naming it is not the unattended run's decision.
   reassuring but was not assumed. The shard's ceiling is `test_phase2_process`
   at 294.59 s, which is why it only bought 1.54x.
 - `ruff check` and `ruff format --check` clean on all new source, tests, scripts.
-- Route-completeness ≡ `proof_valid`: 0 disagreements, 40,000+ pairs.
+- Route-completeness ≡ `proof_valid`: 0 disagreements, 80,000 pairs.
 - Two-path premise: 0 `reached_outside_targets` violations.
 - A1's 987 and 988 come from independent artifacts, joined on a deterministic
   γ-invariant pool.

@@ -4,6 +4,61 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-02 — Amendment 10 drafted; the relation-prefix ceiling measured
+
+Recorded before any learned run at γ>0 exists. The reading rule for the γ
+sweep is committed first; the runs it will be read from start after this commit.
+
+### The γ-immune ceiling is 16 edges
+
+`coverage.relation_prefix_tree` returns every edge on a path from the start
+whose relations match a prefix of the query — the set a walker that follows
+relations alone, with no lookahead and no similarity, must examine to be
+route-complete with certainty. On the gated `hops_2_4` stratum it holds **3 to
+16 edges** (median 5, p95 10), identically at every γ, so a relation-following
+policy is route-complete on 100% of gated episodes at B = 16 and every larger
+preregistered budget. Seven new tests pin containment of both routes,
+γ-invariance, and the necessary-route / dead-end split.
+
+### The two non-adaptive arms saturate late
+
+`scripts/read_run_ceiling_sweep.py` extends the B = 128 measurement to
+B ∈ {16 … 768} on all 10,000 screening episodes, 30 worker processes, about
+25 s wall. Budgets above 128 are admitted only by patching the two module
+tuples inside the workers; `generator.py` and `greedy.py` are unedited and the
+preregistered candidates are unchanged. DIRECT's pool first exceeds 99%
+route-completeness at B = 384 (99.73%); similarity-greedy is still 98.84% at
+B = 512 (γ = 0) and reaches 100% only at B = 768, where every gated episode's
+reachable graph is exhausted. The B = 128 rows reproduce `rc_abc_b128.json`
+count for count, and route-completeness equals `proof_valid` on all 160,000
+episode-arm-budget triples, exhausted walks included. Aggregates:
+[`diagnostics/ceiling_sweep.json`](diagnostics/ceiling_sweep.json); per-episode
+rows stay under `private/`.
+
+By planted path length the two arms fail in different places: at B = 128
+DIRECT is 100% route-complete for lengths 2–4 and 56.8% / 17.5% at 5 / 6, while
+greedy is 100% at length 2 and 82.2%, 71.4%, 74.6%, 71.8% at 3–6.
+
+### Amendment 10, pending review
+
+[`PREREGISTRATION_AMENDMENT_10.md`](PREREGISTRATION_AMENDMENT_10.md) withdraws
+Amendment 02's four coverage premises with their measured values, the
+E1-v2 screening preregistration's "two ceilings" and stopping-criterion
+controls and its Wilson clause; makes route-completeness a mandatory report
+field beside gate 7's quantity, now called target-node exposure in prose with
+its code and threshold unchanged; reclassifies the γ=0 TRAV−greedy gap as the
+allocation offset; defines `lead(γ)` and `excess(γ)` against greedy with
+per-seed reporting; fixes a sign-symmetric holdout decision rule; provides for
+ceiling censoring; and declares the screening runs that follow. Nothing frozen
+changes.
+
+### A correction
+
+The route-completeness report's headline cross-check count read "40,000
+episode-arm pairs" against its own multiplication (5 γ × 2,000 × 2 arms × 4
+budgets = 80,000); the four `rc_abc_b*.json` files confirm 10,000 episodes and
+two arms each. Corrected in place, with the earlier figure noted.
+
 ## 2026-09-02 — route-completeness measured; E1-v2 overnight run stopped at gate G1
 
 The overnight E1-v2 sequence ran tracks A–D and **stopped at gate G1**, which

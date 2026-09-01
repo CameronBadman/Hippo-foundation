@@ -90,6 +90,25 @@ anchors to the penultimate pinned registry before producing one final
 successor. Only `gate-v4.1` and `source acquire-v4.1` may support real Phase 0
 execution. Training remains unconditionally unauthorized.
 
+### 2026-09-02: READ run coverage is reported as route-completeness, selected by exposure
+
+Gate 7 of the READ run's P0 report measures whether the target node lies inside
+DIRECT's examined pool; proof-valid scoring needs a complete relation-matching
+route to every target, a strictly stronger condition that
+`read_run/coverage.py` now measures and that equals the evaluator's own
+`proof_valid` flag. From Amendment 10 on, every READ report carries
+route-completeness per arm, γ, budget and stratum beside gate 7's quantity,
+which is called target-node exposure in prose. Gate 7's code, its 90% threshold
+and its role in selecting the budget are deliberately unchanged, so the selected
+budget is not silently re-derived; making route-completeness *select* a budget
+would be a new gate version.
+
+The primary statistic of any READ retry compares TRAV with the model-free
+similarity-greedy arm, offset-subtracted at γ=0, under a sign-symmetric per-seed
+rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a reported
+allocation offset, not a void condition. Amendment 10 is pending review; the
+holdout stays sealed and nothing frozen changes.
+
 ### 2026-08-28: Phase 0 v4.2 roots OAuth and acquisition authority externally
 
 Phase 0 v4.2 supersedes v4.1 for operational authorization while preserving all
