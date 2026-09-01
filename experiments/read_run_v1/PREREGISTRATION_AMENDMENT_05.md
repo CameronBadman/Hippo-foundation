@@ -60,6 +60,33 @@ improving. **A clean fire of the original rule would have hidden the problem
 rather than surfaced it**, which is why this is not left to see whether the
 threshold happens to trip.
 
+### Correction to this section, recorded the same day
+
+**The "flat since 3,500" claim above is weaker than stated, and this is recorded
+where the claim lives rather than only in a summary.**
+
+The section was written with DIRECT's curve through update 5,000. Update 5,500
+gives 86.48%, so the series reads 83.36, 80.16, 83.90, 82.65, 86.48. The change
+from 3,500 to 5,500 is **+3.12pp over 2,000 updates**, about two standard errors
+at SE = 1.12pp, on a non-monotone path. Held-out accuracy is therefore neither
+clearly flat nor clearly improving over that span; "flat" overstated it.
+
+**No rule in this amendment changes.** The correction cuts against the strength
+of one piece of motivating evidence, not against the instrument:
+
+- Plateau on training loss was still measuring the wrong quantity. Training loss
+  fell monotonically from 0.9931 to 0.8115 across the same span while dev
+  accuracy wandered within roughly two standard errors, so the two are plainly
+  not tracking each other.
+- The §2 rule is behaving correctly on this data: it declines to fire, because a
+  +3.83pp step from 5,000 to 5,500 is not a plateau. Had the rule been tuned to
+  produce a convenient answer it would have fired here.
+
+The honest summary is that the overfitting reading is a hypothesis consistent
+with the data rather than a demonstrated fact, and that the case for defining
+plateau on dev rests on the divergence between the two quantities rather than on
+dev being flat.
+
 ## 2. Plateau, redefined on dev
 
 Let `A(U)` be proof-valid exact-set accuracy over non-abstain episodes in the
