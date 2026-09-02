@@ -644,6 +644,52 @@ holdout is opened once. Changing `freeze.py`'s source inventory means the
 committed freeze at `07d18b39…` no longer validates against this tree, which is
 correct for a spent and void run.
 
+## READ run v1: Track N structural-only screening executed
+
+Added 2026-09-03. Screening split only; the holdout was not generated, read, or
+opened; the masked runs are a screening ablation, not a preregistered arm, and
+no arm comparison here is a result.
+
+**Order of evidence.** The reading rule
+(`experiments/read_run_v1/NOSIM_SCREENING_PREREGISTRATION.md`) was committed as
+`841cdf5` at 2026-09-02T20:02:56+10:00 (10:02:56Z). The six runs started
+2026-09-02T10:03:26Z–10:08:26Z — 30 to 330 seconds after it — and every
+`probe.json` records `git_head` equal to that commit (verified mechanically by
+the report's order check: 6/6 match, 6/6 post-date). The report script and its
+test file were finished at 2026-09-02T10:14:51Z, when the slowest run had
+completed at most 2,420 of 9,376 updates and none had reached the 8,000 read
+point (progress recorded in `private/read-run-v1/diagnostics/nosim/preflight.md`).
+
+**Execution.** Six runs of 9,376 updates each (cuda, bf16, MPS): TRAV and
+DIRECT × seeds 1729/2718/3141, `--input-ablation no_similarity`
+(`masked_similarity_ppm: 0` at train and eval). All completed 2026-09-02 by
+17:18:18Z with zero stderr content. Per-checkpoint diagnostics ran with
+`--constant-similarity 0` and the report was generated at 2026-09-02T17:21:47Z
+by `scripts/read_run_nosim_report.py` into
+`experiments/read_run_v1/diagnostics/nosim_curves.json` and
+`nosim_screening_report.md`; every number in the Markdown is copied from the
+JSON by the script.
+
+**Observed reading.** Band **D — pool-indistinguishable**: TRAV-nosim RC@128 at
+update 8,000 = 972/1124 (86.48%), 1009/1124 (89.77%), 1001/1124 (89.06%), all
+inside the preregistered null band [85.90, 89.90]%. Controls: identity variant
+equals baseline on 0 differing episodes for all three checkpoints;
+`baseline_matches_probe_final_row` true ×3; 0 route-complete/proof-valid
+disagreements across every variant; shuffled |Δ| ≤ 0.09 pp (clean ×3);
+DIRECT-nosim's examined sets equal the pool reference counts at every
+checkpoint of every seed; prefix-property tests passed at the recorded commit;
+scoring-code diff against `841cdf5` empty. No Amendment 04 §5 floor failed. No
+Amendment 09 plateau: all nine TRAV curves (exact, RC@128, RC@32 × 3 seeds)
+were still moving at 9,376; s2718's RC@128 crossed the band's upper edge only
+after the read point (1013/1124 = 90.12% at 9,376). No extension was run.
+
+**Suite.** Full canonical suite at the working tree that produced the report:
+`uv run pytest -q` → **433 passed in 458.15s** (300 at the preregistration
+commit plus 133 added by `tests/test_read_run_nosim_report.py`, which pins the
+band reader to the §5 table across all 128 three-seed level combinations, H
+precedence, and the plateau mechanics). `ruff check` and `ruff format --check`
+clean on `src` and `tests`; `uv lock --check` clean.
+
 ## READ run v1: the Amendment 10 γ sweep on screening splits
 
 Added 2026-09-02. Screening splits only; the holdout was not generated, read,

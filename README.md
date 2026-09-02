@@ -56,10 +56,22 @@ retained:
   [`experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md`](experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md)
   is single-seed screening and inadmissible as a hypothesis result.
 
-The next run is a structural-only screening ablation: the same frozen model and
-v1 data, trained with `query_similarity_ppm` held at a constant, read by an
-outcome table committed before the run. It is not a preregistered arm and opens
-no holdout. Every observation above is recorded, with failures, in
+That structural-only screening ablation (Track N) has now run: the same frozen
+model and v1 data, three seeds per arm, `query_similarity_ppm` held at 0 at
+train and eval, read by an outcome table committed before any run existed. The
+band is **D — pool-indistinguishable**: every TRAV seed's route-completeness at
+update 8,000 (86.48–89.77%) sits inside the preregistered null band around the
+query-blind pool's 87.90%, with every control clean and no learning curve
+plateaued by 9,376. Beside the letter: navigation from structure alone
+demonstrably *learns* (~2–5% → 82.6–85.1% exact answers), the walk's examined
+sets are read at ~95% given route-completeness, and the deficit is selection
+precision (RC@32 62–64% against a model-free relation walker's 98.93%). The
+head-only reference isolated the other half: on a route-complete blind pool the
+masked head answers 46.9–48.4%, against 98.68% with the similarity marker
+present — the marker had been carrying both the walk and the head.
+[`experiments/read_run_v1/diagnostics/nosim_screening_report.md`](experiments/read_run_v1/diagnostics/nosim_screening_report.md)
+is the record; it is screening, not a preregistered arm, and it opened no
+holdout. Every observation above is recorded, with failures, in
 [`experiments/read_run_v1/DEVELOPMENT_LOG.md`](experiments/read_run_v1/DEVELOPMENT_LOG.md).
 
 ### Parked foundation programme
@@ -193,16 +205,20 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Run the structural-only screening ablation on the frozen v1 γ=0 buckets:
-   three seeds per arm with `query_similarity_ppm` masked at train and eval,
-   read per seed against the model-free references (DIRECT's structural pool
-   and a relation-following walker) under an outcome table committed first.
-2. Decide from that reading whether the generator needs a shortcut-free
-   similarity field before any E1-v2, and record the decision in
-   `docs/DECISIONS.md`.
+1. Track O (decided before Track N's band was read; `docs/DECISIONS.md`
+   2026-09-03): generator v2 — similarity-leak fix, content-rule edges with
+   unbiased rule-valid planting, and a difficulty regime where neither blind
+   breadth nor a computed relation walker suffices — built together with the
+   path-scoped traversal architecture of
+   `docs/DESIGN_NOTES_READ_PATH_SUCCESSOR.md` §2.12–§2.16, screened under its
+   own preregistered outcome table.
+2. After Track O's table: good results advance to the insert objective;
+   insufficient ones iterate on traversal — the fundamental building block —
+   with the gate preregistered, never judged after the fact.
 3. Review Amendment 10. Only an approved amendment, a new master seed, a full
    regeneration, a fresh seven-gate P0 report and a new code freeze can open a
-   holdout again, once.
+   holdout again, once. E1-v2 stays recorded and not in force, superseded by
+   Track O; the v2 holdout seed remains sealed.
 4. Apply whichever preregistered decision rule is then in force without
    changing thresholds, arms, seeds, metrics, or reporting. Only after that
    result should the parked external-data programme be reconsidered.

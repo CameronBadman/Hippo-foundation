@@ -4,6 +4,63 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-03 — Track N executed: band D, every control clean, nothing plateaued
+
+Six runs (TRAV and DIRECT × seeds 1729/2718/3141, `--input-ablation
+no_similarity`, 9,376 updates each) launched 2026-09-02T10:03–10:08Z, all after
+the preregistration commit `841cdf5` each `probe.json` records, and finished
+without a single stderr line. The reading rule ran as committed:
+`scripts/read_run_nosim_report.py` (itself finished, with 133 tests, before any
+run reached the 8,000 read point — recorded in the preflight) produced
+[`diagnostics/nosim_screening_report.md`](diagnostics/nosim_screening_report.md)
+and `nosim_curves.json`.
+
+### The band
+
+**D — pool-indistinguishable.** TRAV-nosim RC@128 at update 8,000: 972/1124
+(86.48 %), 1009/1124 (89.77 %), 1001/1124 (89.06 %) — every seed inside the
+preregistered null band [85.90, 89.90] % around the query-blind pool's 87.90 %.
+No floor failed; no harness defect; identity variant equal to baseline on every
+episode; 0 route-complete/proof-valid disagreements anywhere; shuffled controls
+clean (|Δ| ≤ 0.09 pp); DIRECT-nosim's examined sets equal the pool reference at
+every checkpoint of every seed.
+
+### What the letter does and does not say
+
+Per §8 of the preregistration: as frozen, the architecture does not learn
+navigation from structure *at this budget* better than not walking. Beside the
+letter, three facts:
+
+- **Structure-only learning is real.** Exact accuracy rose from ~2–5 % at
+  update 1,000 to 82.6–85.1 % at 8,000 across three seeds within ~2.6 pp, and
+  the walk's examined set is read at 94.3–95.5 % given route-completeness —
+  against 41–43 % exact for DIRECT-nosim on the blind pool. The earlier
+  flattening collapse was shortcut preference, not inability.
+- **Nothing plateaued.** All nine Amendment 09 readings (exact, RC@128, RC@32 ×
+  three seeds) say not plateaued; s2718 crossed the band's upper edge after the
+  read point (RC 90.12 % at 9,376). The letter is read at 8,000 by rule; no
+  automatic extension.
+- **The gap is precision.** RC@32 62.2–63.8 % against the relation walker's
+  98.93 %, with the walk still spending its whole 128-edge budget (examined-set
+  precision ≈ 0.04 vs the walker's 0.42).
+
+### DIRECT-nosim, the head-only reference
+
+Exact 41.28/42.53/41.64 % at 8,000 (bands do not apply, by §4): given a
+route-complete blind pool the head localises the answer 46.9–48.4 % of the
+time, versus 98.68 % for the with-similarity DIRECT on the same pools — the
+similarity marker was carrying the head as well as the walk. Analysis in
+`docs/DESIGN_NOTES_READ_PATH_SUCCESSOR.md` §1.8–§2.9.
+
+### Programme consequence
+
+Decided before this band was read (recorded in `docs/DECISIONS.md`): Track O —
+generator v2 (leak fix, content-rule edges, a regime where breadth and the
+computed walker are both insufficient) together with the path-scoped traversal
+architecture of design notes §2.12–§2.16, screened under its own preregistered
+table; good results advance to insert, insufficient ones iterate on traversal.
+Amendment 10 remains pending review; no holdout was generated, read, or opened.
+
 ## 2026-09-02 — Track N preregistered; the relation walker's ceiling corrected
 
 Recorded before any similarity-masked run exists. The reading rule

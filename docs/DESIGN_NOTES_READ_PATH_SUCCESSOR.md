@@ -48,12 +48,21 @@ exhaust the frontier — the 100 % row is "examine the entire reachable graph".
 Raising the budget converges on having no memory system at all, so budget is not
 a substitute for selection.
 
-**The bottom of the curve is where a correct selector would already be.** The
-relation-prefix tree — the edges a relation-following walker actually needs — is
-min 3, median 5, mean 5.49, p95 10, max 16. A correct selector is route-complete
-at B = 16. At B = 16 the real arms reach 30.07 % and 58.19 %. The 128-edge budget
-in use exists to compensate for selection failure, and at that budget roughly
-96 % of what is examined is irrelevant.
+**The bottom of the curve is where a correct selector would already be —
+corrected 2026-09-02.** The relation-prefix tree — the matching edges alone — is
+min 3, median 5, mean 5.49, p95 10, max 16, and this section originally
+concluded "a correct selector is route-complete at B = 16". That figure is a
+lower bound for an edge-level selector only. Under the model's own expansion
+mechanics, reaching a node examines all three of its out-edges, so a
+relation-following walker examines 3·|expanded nodes| edges (gated: min 6,
+median 12, mean 13.46, p95 27, max 45) and is route-complete on 29.80 % of gated
+episodes at B = 8, 74.38 % at B = 16, 98.93 % at B = 32, and 100.00 % at B = 64
+(`model_input_audit.json`, `relation_walker_examined_set`). The corrected
+statement: a correct selector under the model's mechanics is route-complete at
+B = 64, and near it (98.93 %) at B = 32. At B = 16 the real arms reach 30.07 %
+and 58.19 % against the walker's 74.38 %. The 128-edge budget in use exists to
+compensate for selection failure, and at that budget roughly 96 % of what is
+examined is irrelevant.
 
 ## 1.2 World structure
 
@@ -336,6 +345,105 @@ without it. A cleaner probe would ablate similarity from the scorer's input only
 leaving the head's features intact.
 
 ---
+
+## 1.8 The head without the marker: DIRECT-nosim at 8,000
+
+Measured 2026-09-02, gated `hops_2_4`, n = 1124, screening only. DIRECT-nosim is
+the structural-only run whose examined set is the model-free BFS pool: no walk
+is learned, `query_similarity_ppm` is held at 0 at train and eval, and route-
+completeness is fixed at the pool's 988/1124 (87.90 %) at B = 128 —
+reproduced exactly at every checkpoint of every seed, at every prefix budget.
+It therefore isolates one thing: **what the answer head can learn to read from
+structure alone, given a query-blind neighbourhood.** The preregistration (§4)
+declares bands do not apply to it and fixes this reading in advance, so it is
+read here ahead of the TRAV runs without adaptation: nothing about the TRAV
+band, its thresholds or its schedule depends on these numbers.
+
+| seed | exact-set acc | Wilson LB | exact given route-complete | distinct classes | entropy (nats) | modal share |
+|---|---|---|---|---|---|---|
+| 1729 | 41.28 % | 38.89 % | **46.96 %** | 16 | 2.41 | 32.83 % |
+| 2718 | 42.53 % | 40.12 % | **48.38 %** | 16 | 2.50 | 27.85 % |
+| 3141 | 41.64 % | 39.24 % | **47.37 %** | 16 | 2.46 | 30.43 % |
+
+Chance is 1/15 = 6.67 %. The head is not degenerate — 16 distinct classes,
+entropy 2.4–2.5 nats against a uniform 15-class label distribution, modal share
+0.28–0.33 — so all three Amendment 04 §5 floors pass with room. This is a
+learned capability, not a collapse, and it replicates across three seeds within
+1.3 pp.
+
+**The comparison that matters.** The with-similarity DIRECT run at the same
+update, same pool, same seed 1729, answered 975/988 = 98.68 % of its
+route-complete episodes. Masked, the same architecture on the same examined sets
+answers 46.96 %. Selection was query-blind in both. **So roughly half of what
+looked like reading was the head reading §1.5's on-path marker, not the graph.**
+§1.7 established that the *walk* was leaning on similarity; this establishes
+that the *head* was too, and it does so without the confound §1.7 carried — that
+model was trained with similarity and shocked by its removal (99.47 % abstain),
+whereas these heads were trained masked from update 0.
+
+Per path length L, `exact given route-complete` by seed:
+
+| L | n | pool route-complete | s1729 | s2718 | s3141 |
+|---|---|---|---|---|---|
+| 2 | 300 | 300/300 | 47.33 % | 48.67 % | 46.33 % |
+| 3 | 337 | 337/337 | 50.74 % | 50.15 % | 52.23 % |
+| 4 | 266 | 266/266 | 50.38 % | 53.38 % | 50.75 % |
+| 5 | 118 | 67/118 | 20.90 % | 25.37 % | 20.90 % |
+| 6 | 103 | 18/103 | 16.67 % | 22.22 % | 22.22 % |
+
+L = 2–4 sit near 50 % and are flat in depth, so the failure is not path length
+per se: given a route-complete pool the head identifies the endpoint about half
+the time whether the route is two hops or four. L = 5 and L = 6 fall to roughly
+a fifth, but each conditional is computed on that length's route-complete subset
+only — 67 of 118 and 18 of 103 episodes — so those two rows are small-n and are
+also the rows where the pool itself is the binding constraint.
+
+**What this does and does not settle.** It is the "can a model read this graph
+from structure alone?" measurement of §2.8, and the answer is *partially, well
+above chance, far below the marker-assisted number* — not a dead idea, and not a
+solved one. It says nothing about whether an adaptive walk helps; that is the
+TRAV band, unread at the time of writing. The authoritative record of these
+numbers is `diagnostics/nosim_screening_report.md`, generated from the JSON.
+
+## 1.9 Track N executed: band D at 8,000, and nothing plateaued
+
+Measured 2026-09-02/03; full record in `diagnostics/nosim_screening_report.md`
+and `nosim_curves.json`, read by `scripts/read_run_nosim_report.py` under the
+preregistered table, every §9 control clean (identity 0 differing episodes,
+0 route-complete/proof-valid disagreements, shuffled |Δ| ≤ 0.09 pp, prefix
+tests passed at the recorded commit, every probe post-dates the preregistration
+commit it names).
+
+**The band is D — pool-indistinguishable**: every seed's RC@128 at update 8,000
+sits inside the null band [85.90, 89.90] % around the query-blind pool.
+
+| seed | RC@128 @8,000 | RC@32 | exact | exact given RC | RC@128 @9,376 | exact @9,376 |
+|---|---|---|---|---|---|---|
+| 1729 | 972/1124 (86.48 %) | 63.79 % | 82.56 % | 95.47 % | 984/1124 (87.54 %) | 84.34 % |
+| 2718 | 1009/1124 (89.77 %) | 62.19 % | 85.14 % | 94.85 % | 1013/1124 (90.12 %) | 87.90 % |
+| 3141 | 1001/1124 (89.06 %) | 63.70 % | 83.99 % | 94.31 % | 993/1124 (88.35 %) | 84.79 % |
+
+Three facts sit beside the letter and belong to any reading of it:
+
+- **Structure-only navigation learns.** From ~2–5 % answers at update 1,000 to
+  82.6–85.1 % at 8,000, with the walk's examined set read at ~95 % given
+  route-completeness — against 47 % for the same head on the blind pool (§1.8).
+  The with-similarity collapse was shortcut preference, not inability.
+- **Not one of the nine curves plateaued** (exact, RC@128, RC@32 × three
+  seeds, Amendment 09 read literally): all were still climbing at 9,376, and
+  s2718 crossed the null band's upper edge *after* the read point
+  (RC 90.12 % at 9,376). The letter is read at 8,000 by rule; extension is a
+  human decision and is not made here.
+- **Precision is where the distance is.** RC@32 is 62–64 % against the
+  walker's 98.93 %, and the walk still spends its full budget (§2.16). The gap
+  to a correct selector is selection efficiency, not reachability.
+
+Per the preregistration's §8, band D reads: as frozen, the architecture does
+not learn navigation from structure *at this budget* — an optimisation or
+architecture limit, and the walker design changes before insert. The programme
+decision that follows (Track O: generator v2 plus the path-scoped traversal of
+§2.12–§2.16, decided before this band was read) is recorded in
+`docs/DECISIONS.md`.
 
 # 2. Proposed
 
@@ -714,6 +822,672 @@ characterisation (it is the basis for treating our failure as canonical) and the
 false-negative rate in self-mined hard negatives (it is one of the two arguments
 for precomputing the ablation ladder). If either is misattributed, the conclusion
 it supports needs re-deriving rather than inheriting.
+
+# 2.8 What Track N can and cannot decide
+
+Written 2026-09-02 while the six masked runs are between update ~350 and ~4,700
+of 9,376, before any of them reaches the 8,000 read point. It exists because the
+question "is a graph-based model a dead idea?" is not the question the band
+answers, and the two get fused easily. Per-band consequences are owned by
+`NOSIM_SCREENING_PREREGISTRATION.md` §8 and are deliberately not restated here.
+
+**What is actually under test.** TRAV is a GRU-conditioned per-edge scorer
+driving a hard greedy expansion: `model.py` scores each out-edge of an expanded
+node from the source/target assertion masks, a relation embedding, the query GRU
+state and (unmasked) one similarity scalar, then expands the argmax. Its edge
+supervision is `binary_cross_entropy_with_logits` against `_edge_targets`
+(`training.py:146`), which labels an edge 1 iff it lies on a valid route — but
+only over `output_batch["edge_ids"]`, the edges the walk **actually examined**.
+Selection is not differentiable and is not policy-gradient trained; it is a
+directly supervised scorer whose training distribution is generated by its own
+past choices.
+
+**So the band is near-silent about a graph transformer.** A transformer over a
+retrieved subgraph has no walk to learn and no such loop: its examined set is
+chosen by a retrieval policy outside the model, and every candidate edge is in
+its input whether or not it was on the argmax path. That architecture's analogue
+in this experiment is DIRECT, whose examined set is the model-free BFS pool. A
+band D or E on TRAV-nosim would say that *this* scorer, under *this* self-
+generated supervision, does not learn to navigate; it would not transfer to an
+architecture that never navigates.
+
+**Two questions, two different measurements.**
+
+- *Is a learned walk worth having?* — the §5 band on TRAV-nosim, read at 8,000.
+- *Can a model read this graph from structure alone at all?* — DIRECT-nosim's
+  `exact_given_route_complete` against its fixed 87.90 % pool ceiling. §4 says
+  bands do not apply to DIRECT-nosim; it is a head-only reference. This, not the
+  band, is the "dead idea" measurement, and it is the cheaper of the two.
+
+Do not read the with-similarity DIRECT number (86.74 % exact at 8,000, ≈ 98.7 %
+of its 87.90 % pool ceiling) as evidence that the head is healthy on structure.
+Selection was query-blind there, but the head's input was not: §1.5's marker
+identifies on-path nodes and was inside the pool the head read. The masked run
+is the uncontaminated version of that measurement.
+
+**What a kill would require, and why half of it is already dead.** For "learned
+graph reading is not viable on this generator" one needs *both* that the head
+cannot read a route-complete examined set *and* that no non-learned policy
+reaches high route-completeness at a feasible budget. The second half is already
+falsified by measurement: `relation_walker_examined_set`, a model-free
+relation-follower under the model's own expansion mechanics, is route-complete
+on 1124/1124 gated episodes at B = 64 and 1112/1124 at B = 32
+(`model_input_audit.json`). Navigation here is *computable*; it never has to be
+learned. A negative band therefore reallocates the learned capacity — to the
+head, and to the INCLUDE/INSERT decisions of §2.6 where structure genuinely
+underdetermines the answer — rather than closing the programme.
+
+**The per-L table already discriminates the two failure modes.** Because edge
+targets cover only examined edges, a wrong branch at depth 2 means the on-route
+edges at depth ≥ 3 are never supervised: bad walk → no signal → bad walk. That
+exposure-bias loop and a plain inability to learn "score high iff this edge's
+relation matches the query at this depth" have different signatures in §4 of the
+report, which is computed either way:
+
+- failures concentrated at L = 5 and L = 6 with L = 2–4 matching the walker →
+  exposure bias; the fix is supervision (walker-forced examined sets, scheduled
+  sampling), not architecture.
+- failures spread uniformly across L → the local rule itself was not learned
+  from direct supervision, which is a much starker statement about this scorer.
+
+**Limits in both directions.** This generator is easy in exactly the way that
+makes navigation computable: query relations are distinct within a query,
+out-degree is 3, and the gated relation-prefix tree has median 5 and max 16
+edges (walker examined set: median 12, p95 27, max 45; 35.4 % of all edges carry
+an in-query relation; a route state has a same-relation distractor 9.1 % of the
+time, 0 % at the final step by construction). Band A would therefore not
+establish that a learned walker survives a real graph's ambiguity, and band D
+would not establish that one cannot exist — only that this scorer did not learn
+the easy case within 9,376 updates. Both readings are about the frozen
+architecture on a synthetic corpus, and §1.6's knob grid is where the ambiguity
+profile would have to be raised before either reading generalises.
+
+# 2.9 What "slow, high-accuracy memory" implies, given 1.8
+
+The design goal this experiment serves is a *compute-intensive, slower,
+high-accuracy* memory: it is allowed to spend time and FLOPs per query in
+exchange for being right. §1.8's 47 % is a poor number, but read against that
+goal it locates the problem rather than condemning the programme, in three
+steps.
+
+**1. The deficit is in the reader, and the reader is one attention layer.**
+`forward_direct` encodes each retrieved edge independently, applies
+`joint_attention` **once**, takes a softmax-weighted mean of the 128 edge
+vectors, and sends `[state, summary]` through a two-layer MLP
+(`model.py:175`). Of the model's 10,257,937 trainable parameters, the entire
+read path is 1,050,624 (one `MultiheadAttention`) plus 533,008 (the answer
+head); the rest is spent encoding edges and scoring them. One attention layer
+is roughly one hop of message passing. Identifying the answer requires knowing
+which retrieved edge terminates a path whose relation sequence matches the
+query — an L-hop composition for L = 2…6. The architecture cannot express it.
+
+**2. The flatness in depth is the signature that it is not composing.**
+`exact | route-complete` at L = 2 / 3 / 4 is 47.3 / 50.7 / 50.4 % (seed 1729;
+the other two seeds agree). A reader composing hop by hop would degrade with
+depth. A flat line is a depth-independent heuristic — such as "attend to edges
+carrying the query's last relation and report the target's mask", which needs
+no path at all, and for which there are a median of 12 candidate edges in the
+pool. The similarity marker short-circuits the gap: it labels on-path nodes
+directly, so one pooling step suffices, which is why the same architecture on
+the same examined sets reaches 98.68 % with the field present. That the model
+is not composing is well supported; *why* it is not is answered in 3, and is
+not the shallow-reader story this section first proposed.
+
+**3. Superseded by measurement: the reader cannot see the graph at all.**
+The paragraph that stood here argued depth was the leading explanation and that
+more attention layers were the fix. Measurement contradicts it, and the real
+constraint is upstream of depth. `model.py::_edge_batch` encodes each edge as
+(source assertion mask, target assertion mask, relation embedding, query state,
+similarity scalar) — **no node identifier of any kind**. Two edges in the pool
+therefore cannot tell whether one's target is the other's source except through
+a 4-bit mask. `scripts/read_run_adjacency_ambiguity.py`, run on screen-g00,
+gated non-abstain, n = 1124, B = 128:
+
+| quantity | min | median | mean | max |
+|---|---|---|---|---|
+| distinct nodes touched by the 128-edge pool | 53 | 88 | 84.88 | 108 |
+| distinct assertion masks among those nodes | 13 | 15 | 14.94 | 15 |
+| nodes sharing the target node's mask | 2 | 7 | 7.70 | 17 |
+| candidate continuations of a route step under `(source mask, relation)` | 0 | 2 | 2.14 | 8 |
+
+Over 5,518 route steps the true continuation is uniquely identifiable **28.33 %
+of the time**; the rest of the time two or more pool edges are, to this model,
+the same edge. A path cannot be composed over a relation the input does not
+express, at any depth. **Depth is not the binding constraint; the edge encoding
+is.** (The pool touches ~88 nodes carrying ~15 masks — roughly six nodes per
+mask — so the collision is structural, not incidental.)
+
+This also explains why the deficit is specific to the set reader. TRAV never
+infers adjacency: its walk expands the chosen edge's target mechanically and its
+GRU state carries the traversal, so connectivity is supplied by the control flow
+rather than recovered from the encoding. §1.8 should therefore be read as a
+result about *a set transformer over edges with no structural encoding*, which
+is exactly the configuration a graph transformer is defined in contrast to — not
+as a result about attention-based readers in general.
+
+**Consequence for sizing, in the right order.** Reallocating the parameter
+budget from width to depth is the correct instinct — a transformer block costs
+about 12d², quadratic in width and linear in depth, so at d = 256 a block is
+≈ 786 K parameters and eight of them ≈ 6.3 M, comfortably inside the current
+10,257,937 — and 512/1536 is over-provisioned for 16 relation types and 4-bit
+masks. But spent before the encoding is fixed it buys nothing. The order is:
+
+1. **Make adjacency representable.** Either an attention bias/mask that connects
+   edge A to edge B when `target(A) == source(B)` (costs ~no parameters and is
+   exact), or episode-local node identity embeddings. This is the step that
+   makes a reader a *graph* transformer rather than a set transformer.
+2. **Then depth**, sized to the task: paths here are at most six hops, so about
+   six to eight layers, with residual connections and pre-LayerNorm around each
+   block — the current single block has **neither** (`joint_attention` is
+   applied raw), so stacking it as-is would degrade rather than compose.
+   Over-smoothing across a 128-token set is a real risk past roughly that depth
+   and is the reason to stop there rather than go deeper.
+3. **Then trim width**, which is where the parameters for (2) come from.
+
+**And the strategic conclusion: do not learn what can be computed.** On this
+generator the whole read task is exactly solvable without a model. The relation
+walker is route-complete on 1124/1124 gated episodes at B = 64, and generation
+enforces that the only complete relation-matching paths are the two planted
+routes — `ceiling_sweep.json` records `reached_outside_targets_violations: 0`
+and `relation_tree_not_route_complete: 0` — so enumerating those paths yields
+the target nodes exactly, and comparing their assertion masks yields the answer
+or the abstain. A deterministic algorithm scores 100 % here. That reframes what
+these runs are: a **substrate test** of whether the frozen architecture can
+learn a capability we can already compute, not a product benchmark. A learned
+reader at 47 % is a weak showing for the architecture and says little about
+whether a graph memory can be accurate.
+
+**What the goal actually licenses.** A slow, high-accuracy memory is exactly the
+setting in which the deterministic half should be kept and the learned half
+narrowed:
+
+- *Retrieval* is deterministic and exact here (the walker), so spend the budget
+  on recall, not on learning to navigate.
+- *Verification* is structural: whether a proposed route's relations match the
+  query and its edges exist is checkable without labels, at inference, with no
+  model. A weak reader inside a propose-and-verify loop is a different system
+  from a weak one-shot reader, and the compute budget is what pays for the
+  loop.
+- *Learning* then earns its place where structure genuinely underdetermines the
+  answer — ambiguous relation graphs where the walker's tree explodes (§1.6),
+  and the INCLUDE/INSERT decisions of §2.6, which have no deterministic
+  solution at all.
+
+None of this is established by §1.8; it is the design reading §1.8 supports and
+the reason a 47 % one-shot reader is not by itself a verdict on the programme.
+
+# 2.10 A concrete specification for a successor reader
+
+The actionable content of 1.8, 2.8 and 2.9, gathered in one place. This is a
+design proposal, not a result: nothing in it has been built or measured, and the
+only *measured* claim it rests on is 2.9's — that the current edge encoding
+fails to identify a route's continuation on 71.67 % of route steps. The frozen
+v1 contracts pin the existing model, so this is a successor experiment, never an
+edit to `training-config.v1.json`.
+
+**Two representation defects to fix before any capacity change.**
+
+1. *Adjacency is not expressed.* Give the reader a token per edge and a hard
+   attention bias: edge A may attend to edge B when `target(A) == source(B)`.
+   This is exact, costs approximately no parameters, and is computed from the
+   visible payload the model already receives. The alternative — episode-local
+   random node-identity embeddings, so `target(A) == source(B)` is recoverable
+   by dot product — is softer, must be re-randomised per episode to avoid
+   memorising node numbers, and asks the model to learn something the bias
+   simply states. Prefer the bias; it is the same "do not learn what can be
+   computed" rule as 2.9's.
+2. *The query has no per-hop resolution.* `_query` returns `state[-1]`, the GRU's
+   final hidden state, and `_edge_batch` broadcasts that single vector to every
+   edge. To align hop k of a path with relation k of the query, the reader needs
+   the ordered relation sequence, not a summary of it: cross-attention from edge
+   tokens to per-relation query tokens. Without this the model cannot tell which
+   relation it is currently supposed to be matching, which is a second, separate
+   reason path composition is not expressible today.
+
+**Then the shape, which is where the width/depth trade lands.** Depth sized to
+the reasoning diameter rather than to model scale: paths here are at most six
+hops, so six to eight blocks, one hop each, with residual connections and
+pre-LayerNorm — the current model applies `joint_attention` raw, with neither.
+Width can fall a long way to pay for it: an edge's information content is a
+relation from 16 types, two 4-bit assertion masks, and a query-position signal,
+so d = 128–256 is ample where the frozen model uses 512 hidden and 1536 edge-
+hidden. At d = 256 a block is ≈ 786 K parameters and eight of them ≈ 6.3 M,
+against the frozen model's 10,257,937 total — deeper *and* smaller.
+
+**Feed it the walker's set, not the BFS pool.** Retrieval is already exact and
+model-free: `relation_walker_examined_set` is route-complete on 1124/1124 gated
+episodes at B = 64, with a median examined set of 12 edges (p95 27, max 45)
+against the pool's 128. That is an order of magnitude fewer tokens, far fewer
+mask collisions, no distractor swamping, and much less over-smoothing pressure
+across the stack — and it keeps the learned capacity on composition rather than
+on search. It also makes the "compute-intensive" budget cheap to spend: twelve
+tokens through eight blocks is nothing, which leaves the budget for the loop
+below.
+
+**Wrap it in propose-and-verify.** A proposed route's validity — its relations
+match the query in order and its edges exist — is checkable at inference with no
+model and no labels. A reader that is right 60 % of the time inside a
+propose-verify-retry loop is a different system from a 60 % one-shot reader, and
+this is the mechanism by which "slower" converts into "higher accuracy". The
+verifier already exists in `evaluation.py`; what is missing is a reader that
+proposes routes rather than emitting a class directly.
+
+**And evaluate it somewhere the answer is not already computable.** On this
+generator the task is exactly solvable without a model (2.9), so a successor
+reader scoring well here demonstrates only that it learned what an algorithm
+does. The measurement that would mean something is the ambiguous regime — the
+knob settings of §1.6 where the relation-prefix tree grows and the walker stops
+being a sufficient policy — plus the INCLUDE/INSERT decisions of §2.6, which
+have no deterministic solution at all. Building the reader without also raising
+the generator would produce a good number and no information.
+
+**What the running TRAV arm still decides.** TRAV supplies adjacency through its
+control flow rather than its encoding, so it is the one architecture in this
+experiment not affected by 2.9's defect. If TRAV-nosim navigates without
+similarity, a recurrent walker remains a live alternative to a structure-aware
+reader and the two should be compared. If it does not, the structure-aware
+reader above is the remaining candidate and the walk is not worth learning.
+
+# 2.11 Does a transformer traversal design have merit?
+
+Asked directly, 2026-09-02, with TRAV-nosim about 40 % of the way through its
+9,376 updates and therefore unread. The answer below is an architectural
+argument from code and from the measurements in 1.8, 2.9 and the audit; the
+empirical half is still running and is named at the end.
+
+**Yes — and on the present evidence it has more merit than the set-reader
+design.** Five reasons, in descending order of how well each is evidenced.
+
+1. *It gets adjacency for free.* This is the decisive one. 2.9 measured the set
+   reader's fatal defect: the true continuation of a route step is uniquely
+   identifiable from the model's inputs on only 28.33 % of steps, because edges
+   carry no node identity. A walker never infers adjacency — it moves to the
+   chosen edge's actual target and expands that node's actual out-edges.
+   Connectivity is supplied exactly by the environment. The one thing measured
+   to be structurally impossible for the reader is free for the walker.
+2. *The decision is local and tiny.* Out-degree is 3, so each expansion scores
+   three candidates against "does this relation match what the query wants
+   here". The set reader must instead locate one edge among 128 by global
+   composition.
+3. *It is roughly ten times cheaper in examined edges, at higher coverage.* The
+   model-free relation walker is route-complete on 1124/1124 gated episodes at
+   B = 64 with a median examined set of 12 edges (p95 27, max 45); the BFS pool
+   reaches 87.90 % at 128. Traversal is the more budget-efficient shape of the
+   two by an order of magnitude.
+4. *It is the only one of the two with a story for graphs that cannot be
+   pooled.* A set reader needs a retrieval policy that returns a bounded,
+   route-complete neighbourhood. On an ambiguous real graph the relation-prefix
+   tree grows past any fixed budget (§1.6 is where that is knobbed), and pooling
+   a million-node store is not an option at all. Pruning *during* the walk is
+   the mechanism that keeps the examined set small, and only a traversal design
+   has it.
+5. *It emits the verifiable object.* A walk produces a route, whose validity is
+   checkable at inference without labels; a set reader emitting a class produces
+   nothing to check. §2.10's propose-and-verify loop is native to traversal and
+   bolted on to the alternative.
+
+**But the current traversal implementation has three specific defects, and a
+transformer version should be understood as fixing them rather than as adding
+capacity.**
+
+- *No per-hop query indexing.* `_query` returns the GRU's final hidden state and
+  broadcasts it; the controller must decode "the query's k-th relation" from a
+  fixed summary plus an implicit step counter carried in `state`. Learnable in
+  principle, indirect in practice, and the same defect 2.10 names for the
+  reader. A transformer controller should cross-attend to the query's relation
+  tokens with an explicit depth, so matching hop k against relation k is a
+  lookup rather than a decoding problem.
+- *The recurrent state assumes a path that selection does not follow.*
+  `_forward_trav_one` accumulates every scored-but-unchosen edge in a global
+  `pending` frontier and each step takes the global argmax, so the walk is
+  best-first search, not a greedy path — it can and does jump back to an edge
+  discovered several expansions ago. That is a genuine strength (a wrong early
+  step is recoverable within the budget), but `state` is updated as
+  `state_cell(chosen_edge_representation, state)` in *jump order*, so after a
+  jump the controller's state describes a history that is not a path in the
+  graph. A frontier-scoring transformer should condition each candidate on
+  **its own** prefix — its depth and the relations along the path that reached
+  it — rather than on the order in which the search happened to visit things.
+- *Supervision covers only what was examined.* `_edge_targets`
+  (`training.py:146`) labels an edge 1 iff it lies on a valid route, over the
+  examined set only, so a wrong branch means the deeper route edges are never
+  supervised: bad walk → no signal → bad walk. This is traversal-specific — the
+  set reader's pool is fixed and its edge supervision is stable — and it is the
+  most likely training pathology if TRAV-nosim reads poorly. The fix is
+  supervision, not architecture: mix teacher-forced examined sets (score the
+  model-free walker's set) with on-policy ones, i.e. scheduled sampling.
+
+**What the running arm decides, and what it does not.** TRAV-nosim measures
+whether *this* implementation learns to navigate without the similarity marker.
+A poor result is evidence about the three defects above, not about traversal as
+a design, and §4 of the screening report separates the two cases: failures
+concentrated at L = 5–6 with L = 2–4 matching the walker indicate the
+supervision loop, while failures flat across L indicate that the local
+relation-matching rule itself was never learned. Only the second would be an
+argument against the design, and even then it would be an argument against
+learning a policy that §2.9 shows can simply be computed.
+
+# 2.12 The common root: destructive state, and what replaces it
+
+All three defects of §2.11 are the same defect. The traversal controller carries
+a mutated hidden vector — `state = state_cell(chosen_edge_representation, state)`
+— and every problem follows from compressing an exactly-known, discrete history
+into an order-dependent latent.
+
+- The query's k-th relation is hard to reach because the query was compressed to
+  `state[-1]` and the depth lives implicitly in how many times the state has
+  been updated.
+- The path/jump incoherence exists because the state mutates in *visit* order
+  while selection is best-first over a global frontier.
+- Scheduled sampling is awkward because a teacher-forced trajectory and an
+  on-policy one produce different states, so the state itself is off-policy;
+  the supervision problem is partly a state problem.
+
+**A fourth symptom, from the same cause, not previously recorded.** Frontier
+scores are computed once, at expansion time, under whatever `state` held then
+(`model.py:216`), stored in `pending`, and never revised. The selection step
+`max(pending, ...)` then compares an edge scored at step 2 against an edge
+scored at step 9 — two numbers produced by different functions, because the
+controller state differed. **The frontier's scores are not commensurable.** This
+is not a subtle inefficiency; it means best-first selection is ordering
+candidates by a quantity whose units drift as the walk proceeds, and it is
+caused entirely by conditioning the score on a mutated state.
+
+**What replaces it: append-only context, not a smaller state.** The traversal
+history here is not hidden and not large — at most six hops, at most 128 scored
+edges, each with a known depth, relation, and prefix. Compressing that into 512
+mutated dimensions discards structure that is available exactly, which is the
+same error §2.9 identifies in the edge encoding. The successor's step function
+should be a *pure function of facts*:
+
+- tokens for the query's relation sequence, indexed by position;
+- tokens for the examined edges so far, each carrying its own depth and the
+  relations along the path that reached it;
+- tokens for the current frontier candidates, scored under a context that makes
+  their scores comparable — §2.14 shows this is achieved by scoping the context
+  to each candidate's own path rather than by re-scoring the frontier, which is
+  what an earlier revision of this section proposed.
+
+The distinction that matters is **append-only versus destructive**. A KV cache
+or a token sequence is still state, and still O(1) to extend, but it preserves
+the history exactly and is invariant to the order the search happened to visit
+things; a GRU cell overwrites. "Stateless" here means no *mutated* state, not no
+context — the model must still see what it has examined and where the frontier
+is, or it cannot know the search's progress.
+
+Every §2.11 defect dissolves rather than being patched: depth becomes a lookup
+against an indexed query; jump order stops mattering because each candidate is
+scored from its own prefix rather than from the walk's history; teacher-forced
+and on-policy examined sets become interchangeable inputs to the same function,
+which makes scheduled sampling a data decision instead of an architectural one;
+and the frontier becomes commensurable because each candidate is scored under
+its own path rather than under the walk's history (§2.14).
+
+**Cost, and why this setting can afford it.** Re-attending over the prefix and
+frontier at every step is O(frontier + prefix) per step instead of an O(1) state
+update, and quadratic in path length over a whole walk. At ≤ 6 hops and a
+frontier of ≤ 45 edges (the walker's max examined set; median 12) this is
+negligible, and it is precisely the recomputation a compute-intensive,
+higher-accuracy memory is meant to buy. The trade only reverses for walks
+hundreds of hops long, which is not this regime — and even there the answer is
+caching the append-only context, not reinstating a destructive one.
+
+Unmeasured: nothing in this section has been built or run. The measured inputs
+to it are §2.9's adjacency figures and the code cited above.
+
+# 2.13 Is a graph-wide KV cache viable at 50,000 nodes?
+
+Two different things get called a KV cache here and they have opposite viability
+profiles. All figures below are arithmetic under stated assumptions — bf16, K and
+V of width d per node per layer, out-degree 3 so 150,000 edges at 50,000 nodes —
+not measurements. Nothing in this section has been built or benchmarked.
+
+**The traversal context cache is a non-question.** The tokens a walk appends for
+one query — the query's relations, the examined edges, the frontier — number in
+the low hundreds at ≤ 6 hops and ≤ 128 examined edges. It scales with the walk,
+not with the store. Viable at any graph size, and it is what §2.12 actually asks
+for.
+
+**The graph-wide cache is the real question, and for reads the answer is yes.**
+
+| d | layer-0 embeddings only | full 8-layer node KV | dense attention/query | adjacency-sparse/query |
+|---|---|---|---|---|
+| 128 | 12.2 MiB | 195.3 MiB | 20.48 GFLOP | 0.614 GFLOP |
+| 256 | 24.4 MiB | 390.6 MiB | 40.96 GFLOP | 1.229 GFLOP |
+| 512 | 48.8 MiB | 781.2 MiB | 81.92 GFLOP | 2.458 GFLOP |
+
+Dense figures assume ~100 traversal tokens attending over all 50,000 nodes at
+every one of 8 layers; sparse figures assume one message per edge per layer.
+A few hundred MiB of cache and one to forty GFLOPs per query is small — on the
+order of a millisecond of consumer-GPU compute, with the cache read likely
+dominating and amortising across batched queries.
+
+**Which forces an uncomfortable observation: at 50,000 nodes, traversal is not
+required by compute.** You can attend to the entire store. The scale at which
+walking becomes necessary for *reads* is 10⁶–10⁹ nodes, not 10⁴·⁷. Traversal
+still earns its place at this size for three reasons that are not about read
+cost, and they should be the stated justification rather than efficiency:
+
+1. **Headroom.** The design should not have to be rebuilt when the store grows
+   two orders of magnitude.
+2. **The verifiable object.** A walk emits a route, checkable without labels
+   (§2.10); dense attention emits a distribution over the store, checkable
+   against nothing.
+3. **A small, precise candidate set for the write path.** This is the strongest
+   one. INCLUDE/INSERT (§2.6) needs a handful of candidates a verifier or a
+   human can adjudicate, not a soft attention map over 50,000 nodes. The
+   walker's median examined set is 12 edges. Read accuracy is not what
+   traversal is being kept for.
+
+**The binding constraint is writes, not reads.** A memory system mutates. A
+cached layer-ℓ representation of a node depends on layer ℓ−1 of its neighbours,
+so one node's change dirties its ℓ-hop neighbourhood at layer ℓ: with 8 layers
+and out-degree 3 that is up to 3⁸ ≈ 6,561 nodes per write in the uniform case,
+and effectively the whole store once hubs exist. **A multi-layer graph KV cache
+is a read-optimised structure that is hostile to the thing this system is for.**
+
+The resolution is to cache only what writes invalidate locally:
+
+- **Cache layer-0 node embeddings** — 12–49 MiB at these widths — where a write
+  dirties exactly one entry.
+- **Recompute the stack per query over the retrieved subgraph**, which
+  traversal keeps tiny (median 12 edges, p95 27, max 45). Eight layers over
+  forty-five tokens is nothing, and it composes with §2.12's append-only
+  traversal context.
+- Reserve a full multi-layer cache for a read-mostly snapshot with periodic
+  rebuilds, the way an index is rebuilt, if profiling ever justifies it.
+
+**A separate caveat, about the data rather than the model.** The current
+generator produces independent episodic worlds; a persistent 50,000-node store
+with many queries against one graph is a different setup, and the Phase 1
+sampler, the split discipline, and the leakage argument would all have to be
+redesigned around it. That is a larger change than the model work in §2.10–2.12
+and should not be smuggled in as an implementation detail.
+
+# 2.14 Path-scoped context: the cache is keyed to the branch, not the walk
+
+The proposal is a KV cache holding the path a traversal has taken so far. It is
+the right structure, and it is worth being exact about *which* path, because the
+walk is not one.
+
+**There is no single path — there is a search tree.** `_forward_trav_one` keeps
+a global `pending` frontier and takes the global argmax, so it routinely jumps
+to an edge discovered several expansions ago on a different branch (§2.11).
+"The path so far" therefore has three readings: the visit order (what the GRU
+state currently encodes, and incoherent for exactly this reason), the actual
+prefix from the start node to the candidate being scored, or the whole explored
+tree. **The second is the one to cache.** The structure that results is the same
+one beam search over an LLM uses: a prefix tree of cache entries, one branch per
+frontier candidate, shared ancestors computed once.
+
+**Key the cache by `(node, depth)`, not by node.** `coverage.py` already records
+why: a node can sit at several depths on different matching paths, and a cycle
+can return the walk to an earlier node at a later depth, which is why
+`relation_walker_examined_set` queues `(node, depth)` states. A cache keyed by
+node alone would collide two genuinely different traversal contexts.
+
+**Four consequences, and the third is the important one.**
+
+1. *Backtracking becomes free and correct.* Jumping to a frontier edge from
+   another branch requires no recomputation and no state surgery: that
+   candidate's context is its own cached ancestry, which was written when its
+   ancestors were expanded.
+2. *Prefix sharing makes it cheap.* All out-edges of an expanded node share
+   their entire ancestry. The walker expands a median of 4 nodes to a median
+   examined set of 12 edges at depth ≤ 6, so a whole query's cache is on the
+   order of tens of entries. Sizing is a non-issue at any store size (§2.13).
+3. *Scores become stable, not merely comparable.* If a candidate's score is a
+   function of (indexed query, its own prefix, the candidate edge) and nothing
+   else, then it never goes stale: it does not depend on what the walk did
+   elsewhere or when the candidate was discovered. Best-first selection over
+   the frontier is then coherent — it compares numbers produced by one function
+   — **without re-scoring the frontier at every step**, which is what §2.12
+   originally proposed and is now withdrawn as unnecessary. The
+   incommensurability §2.12 identified is a symptom of walk-scoped context, and
+   path-scoping removes the cause rather than paying to work around it.
+4. *Supervision stops depending on the model's own choices.* This dissolves
+   §2.11's third defect by construction. Because scoring is a function of a
+   supplied prefix, every route edge can be supervised under its **true**
+   prefix regardless of where the model's walk actually went — the "wrong branch
+   at depth 2 means the depth-3 route edges are never labelled" loop simply does
+   not arise. Teacher-forced and on-policy prefixes become two input
+   distributions to the same function, so scheduled sampling is a data mix, not
+   an architectural change.
+
+**What is given up.** Path-scoped context means a candidate cannot condition on
+what the search found on other branches. An earlier revision of this section
+argued that measurement settled the trade — that the optimal policy is local,
+since `relation_walker_examined_set` consults nothing but the query's relation
+at the current depth and is route-complete on 1124/1124 gated episodes at
+B = 64. **That argument was wrong, and §2.15 replaces it.** Local context is
+sufficient to be route-complete *at a budget of 64*; it is not sufficient to be
+budget-*efficient*, and budget efficiency is the whole justification for
+traversal (§2.11). Read §2.14 as the right cache *structure* and §2.15 as the
+correction to its conditioning claim.
+
+Unmeasured: this is a design argument from the cited code and audit figures. No
+such model has been built or run.
+
+# 2.15 Cross-branch context: what staleness actually costs
+
+§2.14 concluded that a candidate's score should depend only on its own prefix,
+because the known-optimal policy is local. That conclusion does not survive
+contact with the task, and the objection is worth recording because it changes
+the design rather than decorating it.
+
+**Every episode has two targets, and coverage is inherently cross-branch.**
+`route_coverage` defines `route_complete` as `reached >= targets` — reaching
+*every* target, not one — and generation plants exactly two routes per episode
+(2,248 target nodes over the 1,124 gated episodes). A traversal is therefore not
+searching for *a* path; it is trying to cover a set. Whether a given expansion
+is worth its budget depends on which targets are already reached, which is
+precisely the information path-scoped context withholds.
+
+**And the measurement I cited does not support the claim I made with it.** The
+relation walker is route-complete on 1124/1124 at B = 64, but 1112/1124
+(98.93 %) at B = 32, 836/1124 (74.38 %) at B = 16 and 335/1124 (29.80 %) at
+B = 8. A purely local policy is route-complete only once the budget is generous
+enough to expand every node reachable by a matching prefix, dead ends included.
+It is *not* budget-optimal, and budget efficiency — a median 12-edge examined
+set instead of a 128-edge pool — is exactly what §2.11 keeps traversal for. A
+policy that knew "target A's branch is already covered, spend what is left on
+the other" would beat the walker at small budgets, and no path-scoped scorer
+can express it.
+
+**So the real question is not local versus global, but how often the global
+context changes.** Staleness costs one re-score of the frontier per change. The
+facts a scorer would want from other branches are discrete and rare, not
+continuous: a complete matching path was found, a subtree was exhausted, a
+second endpoint was reached. That is a handful of events per query — bounded
+below by the two targets — not one per expansion step. The current design pays
+staleness on *every* step because it conditions on a state that mutates on every
+step; a design that appends cross-branch facts only when they occur pays it a
+handful of times.
+
+**Concretely, split the score.** A stable term `f(indexed query, own prefix,
+candidate edge)`, cached in the prefix tree of §2.14 and never recomputed, plus
+a cheap term `g(coverage so far)` evaluated against the current global context.
+Only `g` is re-evaluated, and only on the events above; `f` — the expensive
+part, carrying the path — stays cached and shared across siblings. This is the
+familiar shape of a search heuristic: a stable path cost and a dynamic estimate
+of what remains. Selection stays commensurable within a round, and rounds are
+few.
+
+**One thing that does *not* argue for a global scorer.** The abstain decision —
+whether the two endpoints share an assertion mask — is cross-branch, but it is
+made by the answer head, which already pools over the entire examined set at the
+end of the walk. Global context is needed by the *scorer* for budget allocation,
+not for the answer. Keeping those two arguments apart matters, because only the
+first justifies paying for re-scoring.
+
+Unmeasured: no scorer of either shape has been built. The figures above are from
+`model_input_audit.json` and `coverage.py`, and the design conclusion is an
+argument, not a result.
+
+# 2.16 A router or a threshold: where it belongs, and what it must not be
+
+Both are worth having, but they answer different questions, they are only
+meaningful *after* §2.14 fixes score commensurability, and one of them collides
+with this project's governance in a way worth naming before it is written into a
+config.
+
+**Sequencing first: a threshold on an incommensurable score is meaningless.**
+§2.11 and §2.12 established that the current frontier scores are produced under
+different controller states and are not comparable to one another. A stop rule
+or a routing rule reading such a score is reading a quantity whose units drift
+as the walk proceeds. Path-scoped, stable scores (§2.14) are a precondition, not
+an alternative.
+
+**The highest-value threshold is a stop rule, and its payoff is precision, not
+compute.** `_forward_trav_one` loops `while len(all_ids) < budget` and raises if
+the frontier empties first, so **TRAV always examines exactly the full budget**.
+Measured on screen-g00, gated non-abstain, n = 1124:
+
+| examined set | median precision | mean precision |
+|---|---|---|
+| relation walker (median 12 edges, stops when the tree is exhausted) | 0.417 | 0.405 |
+| TRAV at a fixed B = 128 | 0.039 | 0.040 |
+
+There are a median of 5 distinct on-route edges per episode (mean 5.07). A walk
+that stops when it is done is an order of magnitude more precise than one that
+spends its budget regardless, at equal or better route-completeness. Since
+selection precision is what the write path will consume — a verifier or a human
+adjudicates a handful of candidates, not 128 — this is the single largest
+available improvement in the traversal design, and it is a stop rule, not a
+bigger model.
+
+**Prefer a computed stop rule to a learned one, on the same principle as
+everywhere else.** "Stop when every discoverable complete matching path has been
+found" is computable from structure on this generator: it is what
+`relation_walker_examined_set` already does when it exhausts the prefix tree,
+and it needs no threshold at all. A learned router earns its place exactly where
+that computation blows up — an ambiguous graph whose prefix tree outgrows the
+budget (§1.6) — which is the same boundary that justifies learned traversal in
+the first place.
+
+**A router is safer than a threshold here, for a governance reason.**
+`training-config.v1.json` sets `selection.threshold_tuning: false` and
+`model_selection: false`, and records `budget_source:
+coverage_only_before_screening_accuracy` — the existing budget was derived from
+coverage *before* anyone looked at screening accuracy, precisely so it could not
+be tuned. A scalar threshold chosen by looking at screening or holdout results
+is the selection this experiment is built to forbid. A router whose parameters
+are trained by the loss is not selection against a metric and does not have that
+problem. If a scalar is used anyway it must be derived structurally, in the same
+way and with the same disclosure as the budget was, and fixed before the data it
+will be read against exists.
+
+**And be honest that a learned stop rule moves the knob rather than removing
+it.** Stopping early is only rewarded if the loss rewards small examined sets
+subject to route-completeness, which is a two-objective problem whose weight is
+a hyperparameter — a threshold wearing a different hat. The defensible version
+of that weight is again a structural derivation or a preregistered value, not a
+sweep. The routing trigger of §2.15 is the cheaper case: re-score when the top
+two frontier scores are within a margin, which is uncertainty-triggered
+computation and needs no accuracy-derived constant.
+
+Unmeasured: no router, threshold or stop rule has been built. The precision
+figures above are measured; everything else in this section is design argument.
 
 # 3. Open, and deliberately not answered here
 

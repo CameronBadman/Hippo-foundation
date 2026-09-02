@@ -21,19 +21,28 @@ discrimination on marked nodes; whether the frozen model can learn to navigate
 from structure alone has never been tested, because every TRAV trained so far
 had the marker from update 0.
 
-The next execution boundary is that test: a structural-only screening ablation
-on the frozen v1 γ=0 buckets — the same model class, training configuration
-and data, with `query_similarity_ppm` held at a constant at train and eval,
-three seeds per arm, route-completeness at B=128 and at prefix budgets as the
-primary quantity, read against DIRECT's pool and a relation-following walker
-under an outcome table committed before any masked run exists. It is a
-screening ablation, not a preregistered arm: it opens no holdout, changes no
-frozen digest, arm, metric, seed or threshold, and its reading decides whether
-the generator needs a shortcut-free similarity field before any E1-v2. Its run
-declaration and outcome table are committed to
-`experiments/read_run_v1/NOSIM_SCREENING_PREREGISTRATION.md` before the first
-masked run starts; the frozen experiment's own commands and evidence order stay
-in [`experiments/read_run_v1/README.md`](../experiments/read_run_v1/README.md).
+That test has now run (Track N, 2026-09-02/03) and read **band D —
+pool-indistinguishable** under its pre-committed table
+([`experiments/read_run_v1/diagnostics/nosim_screening_report.md`](../experiments/read_run_v1/diagnostics/nosim_screening_report.md)):
+every masked TRAV seed's route-completeness at update 8,000 sits inside the
+null band around the query-blind pool, with all controls clean and no curve
+plateaued. Structure-only navigation learns (~2–5% → 82.6–85.1% exact), but no
+better than not walking at B = 128, and far below a relation walker's precision
+at B = 32; the head-only reference showed the similarity marker had been
+carrying the answer head as well (46.9–48.4% masked vs 98.68% with the field).
+
+The active milestone is now **Track O** (decision recorded in
+[`docs/DECISIONS.md`](DECISIONS.md), 2026-09-03, taken before the band was
+read): generator v2 — similarity-leak fix, content-rule edges with unbiased
+rule-valid planting, and a difficulty regime where neither blind breadth nor
+the computed walker suffices — built together with the path-scoped traversal
+architecture of [`DESIGN_NOTES_READ_PATH_SUCCESSOR.md`](DESIGN_NOTES_READ_PATH_SUCCESSOR.md)
+§2.12–§2.16, screened under its own preregistered outcome table with
+route-completeness *and* examined-set precision as primary quantities. Good
+results advance to the insert objective; insufficient ones iterate on
+traversal. E1-v2 stays recorded and not in force, superseded by Track O; the
+v2 holdout seed remains sealed and unspent; Amendment 10 remains pending
+review.
 
 ## Parked public-source milestone
 

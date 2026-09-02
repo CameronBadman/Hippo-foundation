@@ -109,6 +109,37 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-03: Track N read band D; the walker design changes, the generator follows
+
+The structural-only screening ran exactly as preregistered and read **band D —
+pool-indistinguishable**: TRAV-nosim RC@128 at update 8,000 of 86.48 / 89.77 /
+89.06 % across seeds 1729/2718/3141, every value inside the committed null band
+[85.90, 89.90] % around the query-blind pool, with every §9 control clean and
+no curve plateaued by 9,376 (s2718 crossed the band's upper edge only after the
+read point; the letter is read at 8,000 by rule and no automatic extension is
+taken). Beside the letter: structure-only navigation demonstrably *learns*
+(~2–5 % → 82.6–85.1 % exact; the walk's sets read at ~95 % given completeness),
+and the deficit is selection precision (RC@32 62–64 % vs the walker's 98.93 %;
+budget always fully spent). DIRECT-nosim fixed the other half of the picture:
+the head reads a route-complete blind pool at 46.9–48.4 %, so the similarity
+marker had been carrying head and walk both.
+
+Two decisions follow, both recorded before the band was read and ratified with
+it. First, the user's programme choice: **Track O — traversal v2 first** — the
+path-scoped traversal architecture (design notes §2.12–§2.16) built together
+with generator v2 (similarity-leak fix, content-rule edges with unbiased
+rule-valid planting, and a difficulty regime where neither blind breadth nor
+the computed relation walker suffices), screened under its own preregistered
+outcome table; alternatives considered and declined were insert-first on the
+computed-walker substrate and band-contingent branching. Second, the user's
+standing branch rule for what comes after: good Track O results advance the
+programme to insert; insufficient ones mean iterating on traversal itself —
+the fundamental building block — never skipping to insert on a weak substrate,
+with "good" defined by the preregistered table, not judged afterwards.
+
+E1-v2 stays "recorded, NOT IN FORCE" and is superseded by Track O; the v2
+holdout seed remains sealed and unspent; Amendment 10 remains pending review.
+
 ### 2026-09-02: the similarity field is a leak; navigation is tested structure-only before any generator change
 
 The γ sweep's TRAV curve (99.47–100.00% exact at every γ on screening, single
