@@ -1,0 +1,334 @@
+{
+  "budget": 64,
+  "cells": {
+    "deg3_len6_v8": {
+      "per_seed": {
+        "1729": {
+          "by_path_length": {
+            "2": {
+              "correct": 18,
+              "n": 303,
+              "route_complete": 303
+            },
+            "3": {
+              "correct": 15,
+              "n": 306,
+              "route_complete": 306
+            },
+            "4": {
+              "correct": 22,
+              "n": 288,
+              "route_complete": 288
+            },
+            "5": {
+              "correct": 12,
+              "n": 130,
+              "route_complete": 130
+            },
+            "6": {
+              "correct": 7,
+              "n": 121,
+              "route_complete": 121
+            }
+          },
+          "correct": 74,
+          "distinct_classes": 4,
+          "exact_set_accuracy": 0.06445993031358885,
+          "examined_mean": 13.659407665505226,
+          "modal_fraction": 0.9677700348432056,
+          "n": 1148,
+          "precision_mean": 0.4077452575492655,
+          "prediction_entropy_nats": 0.16656719723200886,
+          "route_complete": 1148,
+          "route_complete_fraction": 1.0,
+          "route_complete_wilson_lower_bound": 0.9976487960195496,
+          "stop_reasons": {
+            "targets_reached": 1148
+          },
+          "wilson_lower_bound": 0.053532502688969745
+        },
+        "2718": {
+          "by_path_length": {
+            "2": {
+              "correct": 3,
+              "n": 303,
+              "route_complete": 303
+            },
+            "3": {
+              "correct": 0,
+              "n": 306,
+              "route_complete": 306
+            },
+            "4": {
+              "correct": 0,
+              "n": 288,
+              "route_complete": 288
+            },
+            "5": {
+              "correct": 0,
+              "n": 130,
+              "route_complete": 130
+            },
+            "6": {
+              "correct": 2,
+              "n": 121,
+              "route_complete": 121
+            }
+          },
+          "correct": 5,
+          "distinct_classes": 3,
+          "exact_set_accuracy": 0.004355400696864111,
+          "examined_mean": 13.763937282229966,
+          "modal_fraction": 0.9329268292682927,
+          "n": 1148,
+          "precision_mean": 0.4057977696261674,
+          "prediction_entropy_nats": 0.28612932721818085,
+          "route_complete": 1148,
+          "route_complete_fraction": 1.0,
+          "route_complete_wilson_lower_bound": 0.9976487960195496,
+          "stop_reasons": {
+            "targets_reached": 1148
+          },
+          "wilson_lower_bound": 0.002121659162797126
+        },
+        "3141": {
+          "by_path_length": {
+            "2": {
+              "correct": 19,
+              "n": 303,
+              "route_complete": 303
+            },
+            "3": {
+              "correct": 23,
+              "n": 306,
+              "route_complete": 306
+            },
+            "4": {
+              "correct": 19,
+              "n": 288,
+              "route_complete": 288
+            },
+            "5": {
+              "correct": 10,
+              "n": 130,
+              "route_complete": 130
+            },
+            "6": {
+              "correct": 7,
+              "n": 121,
+              "route_complete": 121
+            }
+          },
+          "correct": 78,
+          "distinct_classes": 3,
+          "exact_set_accuracy": 0.06794425087108014,
+          "examined_mean": 13.356271777003485,
+          "modal_fraction": 0.9912891986062717,
+          "n": 1148,
+          "precision_mean": 0.4159352479692218,
+          "prediction_entropy_nats": 0.054348656838099814,
+          "route_complete": 1148,
+          "route_complete_fraction": 1.0,
+          "route_complete_wilson_lower_bound": 0.9976487960195496,
+          "stop_reasons": {
+            "targets_reached": 1148
+          },
+          "wilson_lower_bound": 0.05671556864351329
+        }
+      },
+      "precision_mean_range": [
+        0.4057977696261674,
+        0.4159352479692218
+      ],
+      "route_complete_fraction_range": [
+        1.0,
+        1.0
+      ],
+      "screening_episode_count": 2000
+    },
+    "deg6_len8_v4_rep": {
+      "per_seed": {
+        "1729": {
+          "by_path_length": {
+            "2": {
+              "correct": 8,
+              "n": 213,
+              "route_complete": 213
+            },
+            "3": {
+              "correct": 15,
+              "n": 223,
+              "route_complete": 223
+            },
+            "4": {
+              "correct": 12,
+              "n": 229,
+              "route_complete": 227
+            },
+            "5": {
+              "correct": 12,
+              "n": 167,
+              "route_complete": 155
+            },
+            "6": {
+              "correct": 3,
+              "n": 175,
+              "route_complete": 121
+            },
+            "7": {
+              "correct": 3,
+              "n": 122,
+              "route_complete": 52
+            },
+            "8": {
+              "correct": 0,
+              "n": 100,
+              "route_complete": 25
+            }
+          },
+          "correct": 53,
+          "distinct_classes": 6,
+          "exact_set_accuracy": 0.043124491456468676,
+          "examined_mean": 37.770545158665584,
+          "modal_fraction": 0.6965012205044752,
+          "n": 1229,
+          "precision_mean": 0.16590124138435763,
+          "prediction_entropy_nats": 0.9396783288438745,
+          "route_complete": 1016,
+          "route_complete_fraction": 0.8266883645240033,
+          "route_complete_wilson_lower_bound": 0.8082160559326005,
+          "stop_reasons": {
+            "budget_cap": 229,
+            "targets_reached": 1000
+          },
+          "wilson_lower_bound": 0.03455472711699966
+        },
+        "2718": {
+          "by_path_length": {
+            "2": {
+              "correct": 0,
+              "n": 213,
+              "route_complete": 213
+            },
+            "3": {
+              "correct": 0,
+              "n": 223,
+              "route_complete": 223
+            },
+            "4": {
+              "correct": 0,
+              "n": 229,
+              "route_complete": 228
+            },
+            "5": {
+              "correct": 1,
+              "n": 167,
+              "route_complete": 160
+            },
+            "6": {
+              "correct": 1,
+              "n": 175,
+              "route_complete": 129
+            },
+            "7": {
+              "correct": 1,
+              "n": 122,
+              "route_complete": 58
+            },
+            "8": {
+              "correct": 0,
+              "n": 100,
+              "route_complete": 33
+            }
+          },
+          "correct": 3,
+          "distinct_classes": 4,
+          "exact_set_accuracy": 0.0024410089503661514,
+          "examined_mean": 38.33685923515053,
+          "modal_fraction": 0.8958502847843776,
+          "n": 1229,
+          "precision_mean": 0.16535590244143938,
+          "prediction_entropy_nats": 0.4093310467100755,
+          "route_complete": 1044,
+          "route_complete_fraction": 0.8494711147274207,
+          "route_complete_wilson_lower_bound": 0.8319265176688011,
+          "stop_reasons": {
+            "budget_cap": 256,
+            "targets_reached": 973
+          },
+          "wilson_lower_bound": 0.0009759539111246401
+        },
+        "3141": {
+          "by_path_length": {
+            "2": {
+              "correct": 11,
+              "n": 213,
+              "route_complete": 213
+            },
+            "3": {
+              "correct": 16,
+              "n": 223,
+              "route_complete": 223
+            },
+            "4": {
+              "correct": 12,
+              "n": 229,
+              "route_complete": 228
+            },
+            "5": {
+              "correct": 11,
+              "n": 167,
+              "route_complete": 162
+            },
+            "6": {
+              "correct": 7,
+              "n": 175,
+              "route_complete": 154
+            },
+            "7": {
+              "correct": 2,
+              "n": 122,
+              "route_complete": 76
+            },
+            "8": {
+              "correct": 2,
+              "n": 100,
+              "route_complete": 43
+            }
+          },
+          "correct": 61,
+          "distinct_classes": 4,
+          "exact_set_accuracy": 0.04963384865744508,
+          "examined_mean": 37.09357200976404,
+          "modal_fraction": 0.9804719283970708,
+          "n": 1229,
+          "precision_mean": 0.17210389840322687,
+          "prediction_entropy_nats": 0.11187422958330924,
+          "route_complete": 1099,
+          "route_complete_fraction": 0.8942229454841334,
+          "route_complete_wilson_lower_bound": 0.878916751306619,
+          "stop_reasons": {
+            "budget_cap": 231,
+            "targets_reached": 998
+          },
+          "wilson_lower_bound": 0.040396082839353656
+        }
+      },
+      "precision_mean_range": [
+        0.16535590244143938,
+        0.17210389840322687
+      ],
+      "route_complete_fraction_range": [
+        0.8266883645240033,
+        0.8942229454841334
+      ],
+      "screening_episode_count": 1652
+    }
+  },
+  "gamma": 0.4,
+  "gated_stratum": "hops_2_4",
+  "generated_at": "2026-09-02T21:45:07+00:00",
+  "note": "TRAVV2 at update 0. The architecture carries stop_aware's frontier restriction and stop rule structurally, so this is the line training must beat, not the model-free policies alone.",
+  "record_kind": "read_run_track_o_untrained_reference",
+  "touches_holdout": false
+}
