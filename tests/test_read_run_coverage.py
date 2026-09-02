@@ -14,12 +14,16 @@ model, and it will predict proof-validity exactly.
 
 from __future__ import annotations
 
+from collections import defaultdict
+
 import pytest
 
 from hippocampus_foundation.read_run.coverage import (
     node_assertion_masks,
+    prefix_route_coverage,
     reachable_endpoints,
     relation_prefix_tree,
+    relation_walker_examined_set,
     route_coverage,
     summarize_route_coverage,
 )
@@ -169,6 +173,89 @@ def test_relation_prefix_tree_splits_into_necessary_routes_and_dead_ends():
             assert not route_coverage(episode, sorted(tree - {edge_id}))[
                 "route_complete"
             ]
+
+
+def _tree_internal_nodes(visible) -> set[int]:
+    """Nodes reached by a matching relation prefix shorter than the query.
+
+    These are the nodes a relation follower must expand, dead ends included: a
+    node whose out-edges all carry the wrong relation is only known to be a
+    dead end once its out-edges have been examined. Computed as a plain
+    depth-by-depth frontier, independently of the walker under test.
+    """
+
+    by_source = defaultdict(list)
+    for edge in visible["edges"]:
+        by_source[edge["source"]].append(edge)
+    frontier = {visible["start_node"]}
+    internal = set(frontier)
+    for relation in visible["query_relations"][:-1]:
+        frontier = {
+            edge["target"]
+            for node in frontier
+            for edge in by_source[node]
+            if edge["relation"] == relation
+        }
+        internal |= frontier
+    return internal
+
+
+@pytest.mark.parametrize("gamma", GAMMA_BUCKETS)
+def test_relation_walker_expands_exactly_the_tree_internal_nodes(gamma):
+    """The navigation ceiling: every internal node's out-edges, nothing else."""
+
+    for index in range(COUNT):
+        episode = _episode(index=index, gamma=gamma, mask=None if index % 4 else 1)
+        visible = episode.visible
+        internal = _tree_internal_nodes(visible)
+        out_degree = sum(1 for edge in visible["edges"] if edge["source"] in internal)
+        examined = relation_walker_examined_set(visible, 128)
+        assert examined == relation_walker_examined_set(visible, 128)
+        assert len(examined) == len(set(examined)) == out_degree
+        sources = {visible["edges"][edge_id]["source"] for edge_id in examined}
+        assert sources == internal
+        assert relation_prefix_tree(visible) <= set(examined)
+        assert route_coverage(episode, examined)["route_complete"]
+        # Exactly at its own size the walker is complete; the group order is
+        # breadth-first, so the truncated list at the last route edge is not.
+        assert route_coverage(episode, examined[:out_degree])["route_complete"]
+        route_edges = {
+            edge for route in episode.hidden["valid_routes"] for edge in route
+        }
+        last_route_position = max(examined.index(edge) for edge in route_edges)
+        assert not route_coverage(episode, examined[:last_route_position])[
+            "route_complete"
+        ]
+
+
+def test_relation_walker_never_reads_similarity_and_respects_the_budget():
+    for index in range(COUNT):
+        lists = {
+            tuple(relation_walker_examined_set(_episode(index, gamma).visible, 128))
+            for gamma in (0.0, 0.4)
+        }
+        assert len(lists) == 1
+        (full,) = lists
+        visible = _episode(index).visible
+        for budget in (1, 2, 3, 5, 8, 16):
+            truncated = relation_walker_examined_set(visible, budget)
+            assert truncated == list(full[:budget])
+
+
+def test_prefix_route_coverage_of_the_walker_matches_its_own_size():
+    """Route-complete at every prefix budget of at least its size, never below."""
+
+    for index in range(COUNT):
+        episode = _episode(index=index, gamma=0.3, mask=None if index % 4 else 1)
+        examined = relation_walker_examined_set(episode.visible, 128)
+        route_edges = {
+            edge for route in episode.hidden["valid_routes"] for edge in route
+        }
+        needed = 1 + max(examined.index(edge) for edge in route_edges)
+        by_budget = prefix_route_coverage(episode, examined, (8, 16, 32, 64, 128))
+        for budget, coverage in by_budget.items():
+            assert coverage == route_coverage(episode, examined[:budget])
+            assert coverage["route_complete"] == (budget >= needed)
 
 
 def test_greedy_is_deterministic_and_consumes_its_budget():

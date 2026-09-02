@@ -18,6 +18,13 @@ official runner uses.
 Periodic scoring is on the **screening** split only, and is stratified by
 `gates.coverage_stratum` so that the `hops_2_4` cell the decision rules attach to
 can be read directly.
+
+`--input-ablation no_similarity` (the Track N structural-only screening) holds
+`query_similarity_ppm` at `ablation.MASKED_SIMILARITY_PPM` on every training and
+screening episode, identically at train and eval time. The default `none` leaves
+the probe's behaviour byte-identical to earlier runs; the ablation is recorded in
+`probe.json` and in the checkpoint so no scoring script can read a masked model
+against unmasked data by accident.
 """
 
 from __future__ import annotations
@@ -27,12 +34,23 @@ import contextlib
 import json
 import math
 import os
+import subprocess
 import sys
 from collections import Counter
+from collections.abc import Iterator
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from hippocampus_foundation.read_run.ablation import (
+    INPUT_ABLATIONS,
+    NONE,
+    apply_input_ablation,
+    mask_query_similarity,
+    masked_similarity_ppm,
+)
 from hippocampus_foundation.read_run.contracts import validate_preregistration
+from hippocampus_foundation.read_run.coverage import prefix_route_coverage
 from hippocampus_foundation.read_run.evaluation import (
     decode_best_routes,
     score_prediction,
@@ -52,6 +70,7 @@ from hippocampus_foundation.read_run.training import (
 
 CHANCE = 1.0 / 15.0
 Z_ONE_SIDED_95 = 1.6448536269514722
+PREFIX_BUDGETS = (8, 16, 32, 64, 128)
 
 
 def wilson_lower_bound(correct: int, total: int) -> float:
@@ -76,14 +95,40 @@ def shannon_entropy(counts: Counter[int]) -> float:
     return -sum((v / total) * math.log(v / total) for v in counts.values())
 
 
-def load_screening(root: Path) -> list[Any]:
+def _git_head() -> str | None:
+    """The commit the probe was started at, for ordering against a reading rule."""
+
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def load_screening(root: Path, input_ablation: str = NONE) -> list[Any]:
     """Read the screening split once and keep it in memory with its strata."""
 
     episodes = []
     for episode in read_generated_split(root):
+        episode = apply_input_ablation(episode, input_ablation)
         validate_model_input_fields(episode)
         episodes.append((episode, coverage_stratum(target_hop_distance(episode))))
     return episodes
+
+
+def ablated_episodes(episodes: Iterator[Any], input_ablation: str) -> Iterator[Any]:
+    """Apply the input ablation to each training episode as it is read.
+
+    In place, which is safe because `_cycle_episodes` re-reads the gzip stream
+    every epoch: no masked episode is ever handed out again unmasked.
+    """
+
+    constant = masked_similarity_ppm(input_ablation)
+    for episode in episodes:
+        if constant is not None:
+            mask_query_similarity(episode.visible, constant)
+        yield episode
 
 
 def score_screening(
@@ -95,9 +140,28 @@ def score_screening(
     budget: int,
     microbatch: int,
 ) -> dict[str, Any]:
-    """Exact-set accuracy and the Amendment 04 learner-gate statistics."""
+    """Exact-set accuracy, the Amendment 04 learner-gate statistics, and route-completeness.
+
+    Route-completeness is `coverage.route_coverage` on the examined edge list at
+    the run budget and, because the examined list is prefix-consistent in the
+    budget (asserted in `tests/test_read_run_ablation.py`), at each smaller
+    prefix budget from the same pass. Abstain episodes are skipped throughout,
+    as they always were, so every count here is on the non-abstain stratum.
+    """
 
     buckets: dict[str, dict[str, Any]] = {}
+    by_length: dict[str, dict[int, dict[str, Any]]] = {}
+    prefix_budgets = tuple(b for b in PREFIX_BUDGETS if b <= budget) + (budget,)
+
+    def new_bucket() -> dict[str, Any]:
+        return {
+            "n": 0,
+            "correct": 0,
+            "predicted": Counter(),
+            "route_complete_at": dict.fromkeys(prefix_budgets, 0),
+            "correct_given_route_complete": 0,
+        }
+
     was_training = model.training
     model.eval()
     pending: list[Any] = []
@@ -114,18 +178,28 @@ def score_screening(
         for (episode, stratum), predicted, edge_ids, row in zip(
             pending, classes, output["edge_ids"], scores, strict=True
         ):
-            routes = decode_best_routes(episode.visible, edge_ids, row)
+            edge_list = list(edge_ids)
+            routes = decode_best_routes(episode.visible, edge_list, row)
             result = score_prediction(
                 episode, predicted_class=predicted, recorded_routes=routes
             )
             if result["abstain"]:
                 continue
-            bucket = buckets.setdefault(
-                stratum, {"n": 0, "correct": 0, "predicted": Counter()}
-            )
-            bucket["n"] += 1
-            bucket["correct"] += int(result["exact_correct"])
-            bucket["predicted"][predicted] += 1
+            by_budget = prefix_route_coverage(episode, edge_list, prefix_budgets)
+            length = len(episode.visible["query_relations"])
+            for bucket in (
+                buckets.setdefault(stratum, new_bucket()),
+                by_length.setdefault(stratum, {}).setdefault(length, new_bucket()),
+            ):
+                bucket["n"] += 1
+                bucket["correct"] += int(result["exact_correct"])
+                bucket["predicted"][predicted] += 1
+                for b, coverage in by_budget.items():
+                    bucket["route_complete_at"][b] += int(coverage["route_complete"])
+                if by_budget[budget]["route_complete"]:
+                    bucket["correct_given_route_complete"] += int(
+                        result["exact_correct"]
+                    )
         pending.clear()
 
     for item in screening:
@@ -136,11 +210,11 @@ def score_screening(
     if was_training:
         model.train()
 
-    report = {}
-    for stratum, bucket in buckets.items():
+    def summarize(bucket: dict[str, Any]) -> dict[str, Any]:
         total = bucket["n"]
         correct = bucket["correct"]
-        report[stratum] = {
+        route_complete = bucket["route_complete_at"][budget]
+        return {
             "n": total,
             "correct": correct,
             "exact_set_accuracy": correct / total if total else None,
@@ -153,6 +227,24 @@ def score_screening(
             "modal_fraction": (
                 bucket["predicted"].most_common(1)[0][1] / total if total else None
             ),
+            "route_complete": route_complete,
+            "route_complete_fraction": route_complete / total if total else None,
+            "route_complete_at": {
+                str(b): count for b, count in bucket["route_complete_at"].items()
+            },
+            "exact_given_route_complete": (
+                bucket["correct_given_route_complete"] / route_complete
+                if route_complete
+                else None
+            ),
+        }
+
+    report = {}
+    for stratum, bucket in buckets.items():
+        report[stratum] = summarize(bucket)
+        report[stratum]["by_path_length"] = {
+            str(length): summarize(lengths)
+            for length, lengths in sorted(by_length[stratum].items())
         }
     return report
 
@@ -167,6 +259,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--budget", type=int, default=128)
     parser.add_argument("--model-seed", type=int, default=1729)
     parser.add_argument("--eval-every", type=int, default=500)
+    parser.add_argument(
+        "--input-ablation",
+        choices=list(INPUT_ABLATIONS),
+        default=NONE,
+        help="model-input ablation applied identically to every training and "
+        "screening episode; `no_similarity` holds query_similarity_ppm at a "
+        "constant (Track N structural-only screening)",
+    )
     parser.add_argument(
         "--save-checkpoint",
         action="store_true",
@@ -218,7 +318,7 @@ def main(argv: list[str] | None = None) -> int:
         and torch.cuda.is_bf16_supported()
     )
 
-    screening = load_screening(Path(args.screen_root))
+    screening = load_screening(Path(args.screen_root), args.input_ablation)
     checkpoints = sorted(
         {u for u in args.eval_at if 0 < u <= args.updates}
         | set(range(args.eval_every, args.updates + 1, args.eval_every))
@@ -229,6 +329,8 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(
             {
                 "record_kind": "read_run_learning_probe_not_preregistered",
+                "started_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+                "git_head": _git_head(),
                 "arm": args.arm,
                 "budget": args.budget,
                 "model_seed": args.model_seed,
@@ -241,6 +343,8 @@ def main(argv: list[str] | None = None) -> int:
                 "device": device.type,
                 "bf16_autocast": use_bf16,
                 "evaluation_checkpoints": checkpoints,
+                "input_ablation": args.input_ablation,
+                "masked_similarity_ppm": masked_similarity_ppm(args.input_ablation),
                 "emits_training_receipt": False,
                 "touches_holdout": False,
             },
@@ -250,7 +354,10 @@ def main(argv: list[str] | None = None) -> int:
         + "\n"
     )
 
-    batches = _batches(_cycle_episodes(Path(args.train_root)), microbatch)
+    batches = _batches(
+        ablated_episodes(_cycle_episodes(Path(args.train_root)), args.input_ablation),
+        microbatch,
+    )
     log = (output / "updates.jsonl").open("x", encoding="utf-8")
     screen_log = (output / "screen.jsonl").open("x", encoding="utf-8")
     try:
@@ -331,6 +438,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"[{args.arm}] update {update + 1}/{args.updates} "
                     f"loss={update_answer:.4f} "
                     f"hops_2_4 acc={gated.get('exact_set_accuracy')} "
+                    f"rc={gated.get('route_complete_fraction')} "
                     f"classes={gated.get('distinct_classes')} "
                     f"H={gated.get('prediction_entropy_nats')}",
                     flush=True,
@@ -354,6 +462,8 @@ def main(argv: list[str] | None = None) -> int:
                 "budget": args.budget,
                 "update_count": args.updates,
                 "training_config_sha256": contracts["training_config_sha256"],
+                "input_ablation": args.input_ablation,
+                "masked_similarity_ppm": masked_similarity_ppm(args.input_ablation),
             },
             output / "checkpoint.pt",
         )

@@ -24,7 +24,7 @@ flag episode by episode.
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from collections.abc import Sequence
 from typing import Any
 
@@ -141,6 +141,86 @@ def route_coverage(
         # A violation would falsify that premise, so it is checked, not assumed.
         "reached_outside_targets": sorted(reached - targets),
     }
+
+
+def prefix_route_coverage(
+    episode: GeneratedEpisode,
+    examined_edge_ids: Sequence[int],
+    budgets: Sequence[int],
+) -> dict[int, dict[str, Any]]:
+    """Route-coverage of the first `b` examined edges, for each budget `b`.
+
+    Meaningful only for an examined list that is prefix-consistent in the
+    budget: TRAV's walk appends whole expansion groups in a budget-independent
+    order and truncates the final group in that order, and the structural BFS
+    pool is a truncated BFS order, so for both the examined set at a smaller
+    budget is a prefix of the set at a larger one. `tests/test_read_run_ablation.py`
+    asserts that property on the model rather than assuming it. A budget beyond
+    the list covers the whole list.
+    """
+
+    examined = list(examined_edge_ids)
+    return {
+        int(budget): route_coverage(episode, examined[: int(budget)])
+        for budget in budgets
+    }
+
+
+def relation_walker_examined_set(visible: dict[str, Any], budget: int) -> list[int]:
+    """The examined list of a model-free relation-following walker.
+
+    This is the navigation ceiling a structural-only TRAV is read against. It
+    walks under the model's own expansion mechanics — reaching a node examines
+    every one of its out-edges, once — and follows relations alone: from state
+    `(node, depth)` it steps along the out-edges whose relation is the query's
+    relation at `depth`, stopping one step short of the query's end because a
+    node at full depth is an endpoint and needs no expansion. States are
+    breadth-first from `(start_node, 0)`, so the walker expands exactly the
+    nodes reached by a matching prefix shorter than the query — dead ends
+    included, since a node is only known to be a dead end once its out-edges
+    have been examined — and nothing else. Its list is therefore a superset of
+    `relation_prefix_tree`, which counts only the matching edges; with
+    out-degree 3 it is route-complete at any budget of at least three edges
+    per distinct expanded node, and it never consults `query_similarity_ppm`.
+
+    Out-edges of one node are examined in `edge_id` order, which matters only
+    for the group the budget truncates. The list is shorter than the budget
+    when the tree is exhausted first: the walker has nowhere left to go.
+    """
+
+    by_source: dict[int, list[dict[str, int]]] = defaultdict(list)
+    for edge in visible["edges"]:
+        by_source[edge["source"]].append(edge)
+    for values in by_source.values():
+        values.sort(key=lambda edge: edge["edge_id"])
+    relations = visible["query_relations"]
+    start = visible["start_node"]
+    examined: list[int] = []
+    scored: set[int] = set()
+    expanded: set[int] = set()
+    queue: deque[tuple[int, int]] = deque([(start, 0)])
+    queued: set[tuple[int, int]] = {(start, 0)}
+    while queue and len(examined) < budget:
+        node, depth = queue.popleft()
+        if node not in expanded:
+            expanded.add(node)
+            fresh = [
+                edge["edge_id"]
+                for edge in by_source[node]
+                if edge["edge_id"] not in scored
+            ][: budget - len(examined)]
+            examined.extend(fresh)
+            scored.update(fresh)
+        if depth + 1 >= len(relations):
+            continue
+        for edge in by_source[node]:
+            if edge["relation"] != relations[depth]:
+                continue
+            state = (edge["target"], depth + 1)
+            if state not in queued:
+                queued.add(state)
+                queue.append(state)
+    return examined
 
 
 def summarize_route_coverage(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
