@@ -1489,6 +1489,67 @@ computation and needs no accuracy-derived constant.
 Unmeasured: no router, threshold or stop rule has been built. The precision
 figures above are measured; everything else in this section is design argument.
 
+# 2.17 Examined is a cost, returned is a product — and I conflated them
+
+Raised by Cameron on 2026-09-03 while the Track O runs were launching: is
+precision low because the walk *returns* everything it traverses, and should the
+model be able to traverse a node without returning it? The observation is
+correct and the distinction is one this project has been measuring past.
+
+**Two different quantities wore one name.** "Examined-set precision" is
+`on-route edges ÷ edges examined`. Expanding a node examines all of its
+out-edges, because that is what reaching a node costs under the model's
+mechanics — and under the walker's, and under v1's. So the denominator is a
+**cost**: what the policy paid to look. It is the right metric for budget
+efficiency and it is why v1's always-spend-the-budget walk is capped near 0.04.
+It is *not* a measure of what the traversal asserts is relevant.
+
+The quantity a write operation actually adjudicates is the **returned set**:
+what the traversal hands downstream as its answer. Nothing forces those to be
+the same set, and on the Track O generator they are far apart — the walk
+examines a median 37 edges on the hard cell while the two planted routes total
+about five.
+
+**The model already has a returned set, and it is trivially precise.** M5 makes
+the walk emit its routes directly. On a proof-valid episode those routes are
+exactly the on-route edges, so their precision is 1.0 by construction and the
+quantity degenerates into `proof_valid`, which is already the primary coverage
+metric. Reporting it as "returned precision" would be measuring nothing new.
+
+**The version with content is a graded relevance decision, and the edge head is
+already trained to make it.** The edge loss is binary cross-entropy against
+"this edge lies on a valid route", so the scorer is a relevance classifier
+whose natural decision boundary is a positive logit — τ = 0 is the loss's own
+boundary, not a tuned constant, which matters because
+`selection.threshold_tuning: false` forbids fitting one to a screening result.
+That gives a threshold-free returned set:
+
+    returned = { examined edges whose edge logit is positive }
+
+with **returned precision** = on-route ÷ returned and **returned recall** =
+on-route returned ÷ on-route total. A traversal that examines 37 edges and
+returns 6 of which 5 are on route has done something the examined-set number
+cannot express: it looked broadly and reported narrowly.
+
+**What this changes, and what it deliberately does not.** The Track O
+preregistration was committed before the runs started and its primary
+quantities stand; the band is read on route-completeness and examined-set
+precision as written, and no result will be read against a metric invented
+after the fact. Returned precision and recall are **descriptives, declared here
+before any run reaches its read point**, and they are computable from the saved
+checkpoints after the fact — the edge logits are already produced for the loss,
+so no running run needs restarting and no reading rule moves.
+
+**For the next iteration this is a design change, not a metric change.** Making
+the model *selectively aware* — free to traverse without returning — means
+giving the returned set its own objective rather than reading it off the edge
+head as a side effect: a stop-and-report decision per examined edge, trained
+against route membership, with the walk's cost and the report's precision as
+two separate terms. That is the shape the insert objective wants, because
+INCLUDE/INSERT consumes a small adjudicable candidate set, and it is the first
+place where "traverse widely, report narrowly" becomes an objective the model
+is optimised for instead of a property it happens to have.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under
