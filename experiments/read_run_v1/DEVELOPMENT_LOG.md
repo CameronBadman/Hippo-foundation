@@ -4,6 +4,53 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-02 — Track N preregistered; the relation walker's ceiling corrected
+
+Recorded before any similarity-masked run exists. The reading rule
+([`NOSIM_SCREENING_PREREGISTRATION.md`](NOSIM_SCREENING_PREREGISTRATION.md))
+is committed first; the six runs it will be read from start after this commit,
+and each `probe.json` now records `started_at` and `git_head` so the order is
+checked by the report rather than reconstructed from directory times.
+
+### What was built (version-additive; no frozen file touched)
+
+`read_run/ablation.py` holds `query_similarity_ppm` at 0 at train and eval —
+the column's weight then receives exactly zero gradient, so the feature is
+removed at unchanged parameter count. `coverage.py` gains
+`prefix_route_coverage` (RC at 8/16/32/64/128 from one B = 128 walk, valid
+because the examined list is prefix-consistent in the budget — asserted on the
+model, not assumed) and `relation_walker_examined_set` (the model-free
+relation-follower under the model's own expansion mechanics). The probe gains
+`--input-ablation`, per-stratum `route_complete_at`, `exact_given_route_complete`
+and `by_path_length`; the checkpoint diag honours the recorded mask and, with
+`--constant-similarity 0`, turns its flattened variant into an identity check.
+`scripts/read_run_model_input_audit.py` measures what the masked model has
+left. Nineteen new tests; the canonical suite is 300 passed in 456.71 s.
+
+### The audit (`diagnostics/model_input_audit.json`)
+
+Under the mask `screen-g01`–`g04` equal `screen-g00` position by position (0
+masked-visible, 0 label, 0 paired-world mismatches in 8,000 pairs), so γ is
+inert and only the γ = 0 buckets are used. The assertion masks carry nothing:
+all eight rank AUCs for on-route and target nodes lie within 0.002 of 0.5.
+A same-relation distractor exists at 9.10 % of route states (15.00 % at depth
+0, falling with depth); 35.60 % of episodes have any. The pool reproduces
+338/553/784/988 of 1,124 exactly, and `route_complete` equals `proof_valid` on
+every one of the 120,000 examined sets scored.
+
+### Correction: the walker is route-complete at B = 64, not B = 16
+
+The entry below and Amendment 10 §1.5 say a relation-following policy is
+route-complete on 100 % of gated episodes at B = 16 because the relation-prefix
+tree holds 3–16 edges. That counts matching edges only. The frozen model
+expands a node by scoring *all* its out-edges, so a relation-follower under the
+model's mechanics examines 3 edges per expanded node, dead ends included:
+6–45 edges on the gated stratum (median 12, mean 13.46). Measured, the walker
+is route-complete on 29.80 / 74.38 / 98.93 / 100.00 / 100.00 % at
+B = 8/16/32/64/128. The tree-size figure stands as the lower bound for an
+edge-level selector, which is not this model. The outcome table is anchored on
+the measured walker (RC@32 = 98.93 %), not on the tree.
+
 ## 2026-09-02 — the γ sweep read; the capability splits in two; a structural-only run is next
 
 The twelve Amendment 10 §8 screening runs completed (9,376 updates each, cuda,
