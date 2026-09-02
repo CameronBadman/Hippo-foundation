@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -705,8 +706,18 @@ class _FakeHub:
         return hashlib.sha256(value).hexdigest()
 
 
+def _stamp(anchor: datetime, **offset: int) -> str:
+    """A fixture timestamp at a fixed offset from the clock anchor."""
+
+    return (anchor + timedelta(**offset)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def _publication_rights(
-    *, policy: dict[str, Any], source: dict[str, Any], tmp_path: Path
+    *,
+    policy: dict[str, Any],
+    source: dict[str, Any],
+    tmp_path: Path,
+    anchor: datetime,
 ) -> tuple[VerifiedPublicationRights, dict[str, Any]]:
     bundle = {
         "subject_id": "synthetic-source",
@@ -777,8 +788,8 @@ def _publication_rights(
             }
         ],
         "reviewer_id": "synthetic-human-reviewer",
-        "reviewed_at": "2026-08-29T00:00:00Z",
-        "valid_until": "2026-09-30T00:00:00Z",
+        "reviewed_at": _stamp(anchor, days=-1),
+        "valid_until": _stamp(anchor, days=31),
         "signing_key_fingerprint": KEY,
         "training_authorized": False,
     }
@@ -791,7 +802,7 @@ def _publication_rights(
         source_id="synthetic-source",
         source_entry=source,
         evidence_bundle=verified_bundle,
-        evaluated_at="2026-08-30T00:00:00Z",
+        evaluated_at=_stamp(anchor),
         approved_authority_policy_sha256=canonical_sha256(authority),
         approved_destination_policy_sha256=canonical_sha256(policy),
         signature_verifier=_signature,
@@ -802,19 +813,23 @@ def _publication_rights(
 def test_deterministic_publication_and_unknown_outcome_recovery(
     tmp_path: Path,
 ) -> None:
+    # `publish_artifact` and `recover_publication` evaluate the authorization
+    # window and the observation's 72 h freshness against the wall clock, so
+    # every timestamp in this fixture is an offset from one clock anchor.
+    anchor = datetime.now(UTC).replace(microsecond=0) - timedelta(hours=1)
     readme = b"source and licence notice\n"
     policy = _destination_policy(readme)
     client = _FakeHub(readme)
     observation = observe_destination(
         policy=policy,
         client=client,
-        observed_at="2026-08-30T00:00:00Z",
+        observed_at=_stamp(anchor),
         approved_policy_sha256=canonical_sha256(policy),
     )
     assert observation["head_commit"] == policy["baseline_commit"]
     source = {"source_id": "synthetic-source", "version": "v1"}
     rights, authority = _publication_rights(
-        policy=policy, source=source, tmp_path=tmp_path
+        policy=policy, source=source, tmp_path=tmp_path, anchor=anchor
     )
     obligations = build_obligation_manifest(
         rights=rights,
@@ -829,7 +844,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
                 "sha256": policy["metadata_paths"][0]["sha256"],
             }
         ],
-        assembled_at="2026-08-30T00:01:00Z",
+        assembled_at=_stamp(anchor, minutes=1),
         approved_destination_policy_sha256=canonical_sha256(policy),
     )
     local_path = tmp_path / "source.bin"
@@ -849,7 +864,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
         "device": str(measured["device"]),
         "inode": str(measured["inode"]),
         "mtime_ns": str(measured["mtime_ns"]),
-        "audited_at": "2026-08-30T00:02:00Z",
+        "audited_at": _stamp(anchor, minutes=2),
         "verified": True,
         "training_authorized": False,
     }
@@ -875,7 +890,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
         "obligations_sha256": canonical_sha256(obligations),
         "evaluation_gate_sha256": "sha256:" + "9" * 64,
         "quarantine_index_sha256": "sha256:" + "a" * 64,
-        "cleared_at": "2026-08-30T00:03:00Z",
+        "cleared_at": _stamp(anchor, minutes=3),
         "ready": True,
         "foundation_transform_authorized": False,
         "training_authorized": False,
@@ -893,8 +908,8 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
         artifact_audit=audit,
         artifact_manifest=manifest,
         authorization_id="synthetic-publication-authorization",
-        authorized_at="2026-08-30T00:04:00Z",
-        valid_until="2026-09-02T00:04:00Z",
+        authorized_at=_stamp(anchor, minutes=4),
+        valid_until=_stamp(anchor, minutes=4, hours=72),
         authorizer_id="synthetic-publisher",
         signing_key_fingerprint=KEY,
         approved_authority_policy_sha256=canonical_sha256(authority),
@@ -931,8 +946,8 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
             artifact_audit=audit,
             artifact_manifest=manifest,
             authorization_id="premature-publication-authorization",
-            authorized_at="2026-08-30T00:00:00Z",
-            valid_until="2026-08-31T00:00:00Z",
+            authorized_at=_stamp(anchor),
+            valid_until=_stamp(anchor, days=1),
             authorizer_id="synthetic-publisher",
             signing_key_fingerprint=KEY,
             approved_authority_policy_sha256=canonical_sha256(authority),
@@ -1019,7 +1034,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
         destination_observation=observation,
         manifest=manifest,
         client=client,
-        started_at="2026-08-30T00:04:00Z",
+        started_at=_stamp(anchor, minutes=4),
         approved_destination_policy_sha256=canonical_sha256(policy),
     )
     assert recovered["recovered_after_unknown_outcome"] is True
@@ -1035,12 +1050,12 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
             destination_observation=observation,
             manifest=tampered,
             client=client,
-            started_at="2026-08-30T00:04:00Z",
+            started_at=_stamp(anchor, minutes=4),
             approved_destination_policy_sha256=canonical_sha256(policy),
         )
 
     wrong_clearance = copy.deepcopy(clearance)
-    wrong_clearance["cleared_at"] = "2026-08-30T00:03:01Z"
+    wrong_clearance["cleared_at"] = _stamp(anchor, minutes=3, seconds=1)
     with pytest.raises(ValidationError, match="clearance binding"):
         recover_publication(
             policy=policy,
@@ -1049,7 +1064,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
             destination_observation=observation,
             manifest=manifest,
             client=client,
-            started_at="2026-08-30T00:04:00Z",
+            started_at=_stamp(anchor, minutes=4),
             approved_destination_policy_sha256=canonical_sha256(policy),
         )
     with pytest.raises(ValidationError, match="outside the authorization window"):
@@ -1060,7 +1075,7 @@ def test_deterministic_publication_and_unknown_outcome_recovery(
             destination_observation=observation,
             manifest=manifest,
             client=client,
-            started_at="2026-08-30T00:03:59Z",
+            started_at=_stamp(anchor, minutes=3, seconds=59),
             approved_destination_policy_sha256=canonical_sha256(policy),
         )
 
