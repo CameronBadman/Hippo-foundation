@@ -1550,6 +1550,50 @@ INCLUDE/INSERT consumes a small adjudicable candidate set, and it is the first
 place where "traverse widely, report narrowly" becomes an objective the model
 is optimised for instead of a property it happens to have.
 
+# 2.18 The answer path is diluted, and the walk is not — observed mid-run
+
+Observed 2026-09-03 at update 1,500-2,000 of the Track O runs, recorded before
+the read point at 8,000 and before any band is read.
+
+**The two halves separated cleanly, and only one of them works.** Edge loss falls
+from 0.79 to 0.05 within a hundred updates: the walk learns almost immediately,
+and route-completeness and examined-set precision move with it. Answer loss sits
+at ln(16) = 2.77 for well over a thousand updates with the head emitting a single
+class (modal fraction 1.000, one distinct class, entropy 0), and only begins to
+differentiate around update 1,500-2,000.
+
+**It is not a bug.** The head's input is `[LayerNorm(summary) (256), endpoint
+mask bits (8), agreement (1), route-count one-hot (3)]`, and the endpoint bits
+were checked directly against the label: `recovered_from_extras == gold` on every
+episode tested. The answer is present in the input, in eight bits, exactly where
+it should be.
+
+**It is a dilution.** Those eight bits sit beside 256 dimensions of
+softmax-weighted edge-token summary which carry route *structure* and say nothing
+about the answer class — assertion masks are deliberately not in the candidate
+features, because they are the label. So the head must learn to suppress a
+256-dimensional distractor to read an 8-bit signal, and at standard
+initialisation the distractor dominates. It gets there, slowly, once the edge
+loss saturates and the answer term starts to dominate the gradient.
+
+**Why the runs continue anyway.** Track O's primary quantities are
+route-completeness and examined-set precision, both of which come from the walk
+and are unaffected; exact-set accuracy is a descriptive whose failure is band G,
+reported *beside* the letter and explicitly not suppressing it. That split was
+written into the preregistration before any run started, precisely so a weak head
+could not make the navigation measurement unreadable. Changing the architecture
+now, after seeing partial curves, is the adaptive move the discipline forbids —
+and it would invalidate the untrained reference line, which was measured for this
+exact architecture.
+
+**The fix, for the next iteration.** Give the answer its own path rather than
+making it compete with the walk's summary: read the endpoint masks through a
+dedicated small head and combine at the logit level, so the answer does not
+depend on the summary suppressing itself. This is the same shape as section 2.17's
+selective-return change — both are cases of one representation being asked to
+serve two purposes, and both are fixed by giving the second purpose its own
+parameters rather than a larger share of the first's.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under
