@@ -88,6 +88,8 @@ def _git_head() -> str | None:
 
 
 def load_split(root: Path) -> list[tuple[Any, str]]:
+    """Materialise a split in memory. Screening only — see `cycle_split`."""
+
     validate_generated_split_artifacts_v2(root)
     return [
         (episode, coverage_stratum(target_hop_distance(episode)))
@@ -95,10 +97,30 @@ def load_split(root: Path) -> list[tuple[Any, str]]:
     ]
 
 
-def cycle(pairs: list[tuple[Any, str]]) -> Iterator[Any]:
+def count_split(root: Path) -> int:
+    validate_generated_split_artifacts_v2(root)
+    return int(json.loads((root / "manifest.public.json").read_text())["episode_count"])
+
+
+def cycle_split(root: Path) -> Iterator[Any]:
+    """Stream the training split from disk, re-reading it each epoch.
+
+    Holding it in memory is not affordable: the `deg6_len8_v4_rep` train split
+    is 16,432 episodes of about 966 edges each, which measured at roughly 7 GiB
+    of Python objects per process — six concurrent runs would exhaust the
+    machine. `training._cycle_episodes` re-reads its gzip stream every epoch for
+    the same reason, and this follows it. Decompression is far cheaper than the
+    forward pass at these sizes.
+    """
+
+    validate_generated_split_artifacts_v2(root)
     while True:
-        for episode, _stratum in pairs:
+        yielded = False
+        for episode in read_generated_split_v2(root):
+            yielded = True
             yield episode
+        if not yielded:
+            raise RuntimeError("training split is empty")
 
 
 def run_arm(torch, model, episodes, *, arm: str, budget: int, supplied=None):
@@ -271,7 +293,7 @@ def main(argv=None) -> int:
     schedule = training["supervision_schedule"]
 
     screening = load_split(Path(args.screen_root))
-    train_pairs = load_split(Path(args.train_root))
+    train_episode_count = count_split(Path(args.train_root))
     checkpoints = sorted(
         {u for u in args.eval_at if 0 < u <= updates}
         | set(range(args.eval_every, updates + 1, args.eval_every))
@@ -304,7 +326,7 @@ def main(argv=None) -> int:
                 ),
                 "train_root": str(args.train_root),
                 "screen_root": str(args.screen_root),
-                "train_episode_count": len(train_pairs),
+                "train_episode_count": train_episode_count,
                 "screening_episode_count": len(screening),
                 "device": device.type,
                 "bf16_autocast": use_bf16,
@@ -319,7 +341,7 @@ def main(argv=None) -> int:
         + "\n"
     )
 
-    batches = _batches(cycle(train_pairs), microbatch)
+    batches = _batches(cycle_split(Path(args.train_root)), microbatch)
     log = (output / "updates.jsonl").open("x", encoding="utf-8")
     screen_log = (output / "screen.jsonl").open("x", encoding="utf-8")
     try:
