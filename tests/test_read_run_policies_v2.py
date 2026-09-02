@@ -88,19 +88,43 @@ def test_policy_row_refuses_an_oversized_examined_set():
         policy_row(episode, everything, budget=BUDGET)
 
 
-def test_hybrid_leads_on_coverage_and_the_blind_walker_on_precision():
-    """The measured frontier: neither policy dominates, so both are the bar."""
+def test_stop_aware_is_the_policy_a_learned_walk_must_beat():
+    """The bar: one model-free policy matches the best coverage at the best precision.
+
+    `stop_aware` reaches the hybrid's route-completeness while examining fewer
+    edges than the blind walker, so it beats the walker on *both* axes and the
+    hybrid on precision. A learned traversal that beats only the walker, or only
+    the hybrid's coverage, has beaten nothing that needed parameters.
+    """
 
     rows = _summary(_gated(HARD, 150, 0.4))
     assert (
-        rows["hybrid"]["route_complete_fraction"]
+        rows["stop_aware"]["route_complete_fraction"]
         > rows["blind_walker"]["route_complete_fraction"]
     )
-    assert rows["blind_walker"]["precision_mean"] > rows["hybrid"]["precision_mean"]
-    assert rows["blind_walker"]["examined_mean"] < rows["hybrid"]["examined_mean"]
-    frontier = pareto_frontier(rows)
-    assert set(frontier) == {"hybrid", "blind_walker"}
-    assert "greedy_similarity" not in frontier
+    assert rows["stop_aware"]["precision_mean"] > rows["blind_walker"]["precision_mean"]
+    assert rows["stop_aware"]["examined_mean"] < rows["blind_walker"]["examined_mean"]
+    assert rows["stop_aware"]["precision_mean"] > rows["hybrid"]["precision_mean"]
+    assert rows["stop_aware"]["route_complete_fraction"] == pytest.approx(
+        rows["hybrid"]["route_complete_fraction"], abs=0.03
+    )
+    assert "stop_aware" in pareto_frontier(rows)
+    assert "greedy_similarity" not in pareto_frontier(rows)
+
+
+def test_stop_aware_stops_because_it_is_done_not_because_it_ran_out():
+    """Its precision comes from the stop rule, so the stop must actually fire."""
+
+    episodes = _gated(HARD, 100, 0.4)
+    early = [
+        policy_row(
+            episode,
+            POLICIES["stop_aware"](episode.visible, BUDGET),
+            budget=BUDGET,
+        )["stopped_early"]
+        for episode in episodes
+    ]
+    assert sum(early) / len(early) > 0.5
 
 
 def test_gamma_degrades_similarity_policies_and_spares_the_blind_walker():

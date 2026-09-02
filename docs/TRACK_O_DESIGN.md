@@ -182,27 +182,37 @@ Recorded 2026-09-03 from `experiments/track_o_v1/diagnostics/policy_ladder.json`
 non-abstain, budgets 16/32/64/128 — the four preregistered candidates, which are
 all `greedy.greedy_examined_set` accepts).
 
-**Track N's near-miss, avoided.** Had Track O been preregistered against the
-blind relation walker, a learned walk reaching 80 % route-completeness would
-have looked like a win. It is not: a three-line relation-gated similarity walk
-(`policies_v2.hybrid_examined_set`) reaches **86.3 %** on the same episodes. The
-reference is the *frontier* of what needs no learning, not the weakest member of
-it.
+**Corrected the same day it was first written.** The first version of this
+section reported a two-member frontier of `blind_walker` (precision) and
+`hybrid` (coverage) and concluded that a learned walk had to beat one on each
+axis. That reference was **incomplete**: it omitted the policy that carries the
+successor architecture's *own* two mechanics — a frontier holding only
+relation-matching entries, and the stop rule that halts once two distinct
+endpoints are reached. Adding it (`policies_v2.stop_aware_examined_set`)
+collapses the frontier. Discovered before any Track O model was built or
+trained; the superseded numbers are in git history at `abcdf8c`.
 
-**On the hard cell at γ = 0.4, B = 64 (n = 1,238), no model-free policy dominates:**
+**On the hard cell at γ = 0.4, B = 64 (n = 1238):**
 
 | policy | route-complete | Wilson LB | precision | examined | stopped early |
 |---|---|---|---|---|---|
-| blind walker | 78.3 % | 76.3 % | 0.158 | 39.7 / 64 | 75 % |
+| stop aware | 86.2 % | 84.5 % | 0.173 | 37.4 / 64 | 81 % |
 | hybrid | 86.3 % | 84.6 % | 0.093 | 60.0 / 64 | 18 % |
+| blind walker | 78.3 % | 76.3 % | 0.158 | 39.7 / 64 | 75 % |
 | greedy similarity | 22.1 % | 20.2 % | 0.044 | 64.0 / 64 | 0 % |
 
-The blind walker wins **precision** (0.158) by stopping early on 75.3 % of
-episodes; the hybrid wins **coverage** (86.3 %) by spending 60 of 64 edges.
-Neither dominates, so the Pareto frontier is `['blind_walker', 'hybrid']` and the
-meaningful Track O result is a learned policy that beats **both** members on
-**both** axes at once. The oracle floor is feasible on 98.1 % of
-these episodes, so the room above the best model-free coverage is
+`stop_aware` reaches the hybrid's coverage to within 0.1 pp while examining
+37.4 edges instead of 60.0, so it **beats the blind walker on both axes at
+once** and nearly doubles the hybrid's precision. `hybrid` survives on the
+frontier only by 0.1 pp of coverage, which is inside its Wilson interval.
+
+**So the bar is a single policy, and it is much higher than it looked.** A
+learned traversal has to beat **86.2 % route-completeness at
+0.173 precision on 37.4 examined edges** — not the
+78.3 % the blind walker manages, and not the hybrid's coverage at half the
+precision. Beating only the walker would be beating nothing that needed
+parameters. The oracle floor is feasible on 98.1 % of these episodes, so
+the remaining room above the best model-free coverage is
 +11.9 pp.
 
 **γ is fixed at 0.4** by the same coverage-only rule that chose the budget — the
@@ -211,28 +221,28 @@ measured with no model in existence:
 
 | cell | γ | band above best model-free | frontier |
 |---|---|---|---|
-| `deg3_len6_v8` | 0.0 | +0.0 pp | blind_walker |
-| `deg3_len6_v8` | 0.2 | +0.0 pp | blind_walker |
-| `deg3_len6_v8` | 0.4 | +0.0 pp | blind_walker |
-| `deg4_len8_v6_rep` | 0.0 | +0.9 pp | blind_walker, hybrid |
-| `deg4_len8_v6_rep` | 0.2 | +2.8 pp | blind_walker, hybrid |
-| `deg4_len8_v6_rep` | 0.4 | +4.1 pp | blind_walker, hybrid |
-| `deg6_len8_v4_rep` | 0.0 | +3.8 pp | blind_walker, hybrid |
-| `deg6_len8_v4_rep` | 0.2 | +8.8 pp | blind_walker, hybrid |
-| `deg6_len8_v4_rep` | 0.4 | +11.9 pp | blind_walker, hybrid |
+| `deg3_len6_v8` | 0.0 | +0.0 pp | stop_aware |
+| `deg3_len6_v8` | 0.2 | +0.0 pp | stop_aware |
+| `deg3_len6_v8` | 0.4 | +0.0 pp | stop_aware |
+| `deg4_len8_v6_rep` | 0.0 | +0.8 pp | stop_aware |
+| `deg4_len8_v6_rep` | 0.2 | +2.1 pp | stop_aware |
+| `deg4_len8_v6_rep` | 0.4 | +3.2 pp | stop_aware |
+| `deg6_len8_v4_rep` | 0.0 | +3.8 pp | hybrid, stop_aware |
+| `deg6_len8_v4_rep` | 0.2 | +8.6 pp | stop_aware |
+| `deg6_len8_v4_rep` | 0.4 | +11.9 pp | hybrid, stop_aware |
 
-**The easy cell is a sanity rung, not a comparison.** At γ = 0.4 the blind
-walker is already 100 % route-complete on 1185 episodes at
-precision 0.403, examining
-only 13.9 of 64 edges, so its band is +0.0 pp. Its
-question is "does this architecture reach 100 % where a correct policy can, and
-does it stop when it is done?" — an architecture check, never evidence of
-learning.
+**The easy cell is a sanity rung, not a comparison.** At γ = 0.4 `stop_aware` is
+100 % route-complete on 1185 episodes at precision
+0.411, examining 13.5 of 64 edges. Its question
+is "does this architecture reach 100 % where a correct policy can, and does it
+stop when it is done?" — an architecture check, never evidence of learning.
 
-**Note on greedy.** Similarity-greedy collapses to 22.1 % on the hard cell at
-γ = 0.4 and never stops early, which is the intended effect of γ: it corrupts
-the promoted edge at 40 % of route states, so a policy that reads similarity
-without gating on relations compounds failure over up to eight hops.
+**Note on γ's mechanism.** Similarity-greedy falls from 71.2 % at γ = 0 to
+22.1 % at γ = 0.4, and `stop_aware` from
+94.1 % to 86.2 %, while the blind walker is
+unmoved at 78.3 % — γ corrupts the promoted edge at 40 % of route
+states, so exactly the policies that read similarity degrade, which is the knob
+behaving as designed.
 
 ## 6. Not authorised by this document
 

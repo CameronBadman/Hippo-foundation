@@ -36,6 +36,7 @@ __all__ = [
     "blind_walker_examined_set",
     "greedy_similarity_examined_set",
     "hybrid_examined_set",
+    "stop_aware_examined_set",
     "oracle_floor",
     "policy_examined_sets",
     "policy_row",
@@ -137,6 +138,80 @@ def hybrid_examined_set(visible: dict[str, Any], budget: int) -> list[int]:
     return examined
 
 
+def stop_aware_examined_set(
+    visible: dict[str, Any], budget: int, *, stop_at_targets: bool = True
+) -> list[int]:
+    """Relation-gated similarity walk that stops when the answer is in hand.
+
+    The strongest model-free policy on this generator, and the one a learned
+    traversal must actually beat. It differs from `hybrid_examined_set` in two
+    ways, both of which the successor architecture also has, which is why it is
+    the honest reference for it:
+
+    - **the frontier holds only relation-matching entries**, so budget is never
+      spent following an edge that cannot continue the query, and
+    - **it stops when two distinct endpoints have been reached** rather than
+      spending its budget. Generation enforces that the only complete
+      relation-matching paths in the graph are the two planted routes
+      (`ceiling_sweep`/`cell_audit` record zero reached-outside-targets
+      violations), so halting at two distinct endpoints provably loses nothing.
+      The constant is generator-enforced, not a tuned threshold.
+
+    A node's whole out-edge group is examined on expansion — matching the
+    model's mechanics, where reaching a node scores all of its out-edges — and
+    states are deduplicated on `(node, depth)` exactly as
+    `relation_walker_examined_set` does, so a node revisited at a different
+    depth is a different state.
+    """
+
+    by_source: dict[int, list[dict[str, int]]] = defaultdict(list)
+    for edge in visible["edges"]:
+        by_source[edge["source"]].append(edge)
+    for values in by_source.values():
+        values.sort(key=lambda edge: _structural_order(visible["router_seed"], edge))
+    by_id = {edge["edge_id"]: edge for edge in visible["edges"]}
+    relations = visible["query_relations"]
+    length = len(relations)
+
+    examined: list[int] = []
+    scored: set[int] = set()
+    expanded_states: set[tuple[int, int]] = set()
+    frontier: dict[int, tuple[int, int]] = {}
+    endpoints: set[int] = set()
+
+    def expand(node: int, depth: int) -> None:
+        if (node, depth) in expanded_states:
+            return
+        expanded_states.add((node, depth))
+        for edge_id in [
+            edge["edge_id"] for edge in by_source[node] if edge["edge_id"] not in scored
+        ][: budget - len(examined)]:
+            examined.append(edge_id)
+            scored.add(edge_id)
+        if depth >= length:
+            return
+        for edge in by_source[node]:
+            if edge["relation"] == relations[depth]:
+                frontier.setdefault(
+                    edge["edge_id"], (edge["query_similarity_ppm"], depth + 1)
+                )
+
+    expand(visible["start_node"], 0)
+    while len(examined) < budget:
+        if stop_at_targets and len(endpoints) >= 2:
+            break
+        if not frontier:
+            break
+        chosen = max(frontier, key=lambda edge_id: (frontier[edge_id][0], -edge_id))
+        _similarity, next_depth = frontier.pop(chosen)
+        target = by_id[chosen]["target"]
+        if next_depth >= length:
+            endpoints.add(target)
+            continue
+        expand(target, next_depth)
+    return examined
+
+
 def oracle_floor(episode: GeneratedEpisode, *, out_degree: int) -> int:
     """Edges a perfect selector must still examine under whole-node expansion.
 
@@ -157,6 +232,7 @@ POLICIES = {
     "blind_walker": blind_walker_examined_set,
     "greedy_similarity": greedy_similarity_examined_set,
     "hybrid": hybrid_examined_set,
+    "stop_aware": stop_aware_examined_set,
 }
 
 
