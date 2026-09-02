@@ -109,6 +109,31 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-02: the similarity field is a leak; navigation is tested structure-only before any generator change
+
+The γ sweep's TRAV curve (99.47–100.00% exact at every γ on screening, single
+seed) is not read as shortcut-free traversal. `generator._assign_similarity`
+promotes one out-edge at every valid-path state regardless of γ, so
+`query_similarity_ppm` marks the on-path nodes at every γ, and with the field
+flattened every TRAV checkpoint is 53.56–69.13% route-complete against 87.90%
+for DIRECT's query-blind structural pool at the same budget. The recorded
+reading is that edge discrimination by relation was learned and navigation from
+structure was not demonstrated — not that it is impossible, since no TRAV has
+ever been trained without the marker.
+
+The decision is to test learnability before redesigning the generator: a
+structural-only screening ablation on the frozen v1 γ=0 buckets with
+`query_similarity_ppm` held at 0 at train and eval, equivalent to removing the
+feature at constant parameter count and identical to P0 gate 7's
+`_structural_projection`, three seeds per arm, read per seed by
+route-completeness at B=128 and at prefix budgets against model-free references
+under an outcome table committed before the first masked run. It is a
+screening ablation, not a new arm: no frozen digest, arm, metric, seed or
+threshold changes, no holdout opens, and no screening arm comparison is a
+result. The sweep's own §9 "go" recommendation is recorded as met mechanically
+and is not acted on; Amendment 10 stays pending review, and any E1-v2 waits for
+this reading and for whatever generator change it justifies.
+
 ### 2026-08-28: Phase 0 v4.2 roots OAuth and acquisition authority externally
 
 Phase 0 v4.2 supersedes v4.1 for operational authorization while preserving all

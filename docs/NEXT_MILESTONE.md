@@ -1,6 +1,6 @@
 # Next milestone: run the preregistered local READ comparison
 
-## Active status (2026-08-31)
+## Active status (2026-09-02)
 
 The public-source and Phase 0 v4.4 path below is parked, not deleted. The active
 milestone is the one-week, local-only READ experiment frozen in
@@ -8,12 +8,32 @@ milestone is the one-week, local-only READ experiment frozen in
 It tests the load-bearing traversal claim before spending time or authority on
 external corpora.
 
-The next execution boundary is to generate the five train and screening gamma
-buckets, run all seven P0 gates, and report the structural budget-selection
-result. No final holdout or training opens before those gates and a committed
-code/config freeze. If no candidate budget exceeds 90% DIRECT target-in-pool
-coverage, the main sweep stops. The exact commands and evidence order are in
-[`experiments/read_run_v1/README.md`](../experiments/read_run_v1/README.md).
+Where it stands: E1 executed and is void (its γ=0 negative control failed; the
+v1 holdout is spent); the E1-v2 overnight sequence stopped at gate G1 with no
+v2 data generated; Amendment 10 is pending review; and the Amendment 10 γ sweep
+ran on screening splits. The sweep's reading is in
+[`experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md`](../experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md):
+with the similarity field present TRAV is 99.47–100.00% exact at every γ, but
+the generator's similarity field marks the on-path nodes at every γ, and with
+it flattened every TRAV checkpoint is 53.56–69.13% route-complete against
+87.90% for DIRECT's query-blind structural pool. What was learned is relation
+discrimination on marked nodes; whether the frozen model can learn to navigate
+from structure alone has never been tested, because every TRAV trained so far
+had the marker from update 0.
+
+The next execution boundary is that test: a structural-only screening ablation
+on the frozen v1 γ=0 buckets — the same model class, training configuration
+and data, with `query_similarity_ppm` held at a constant at train and eval,
+three seeds per arm, route-completeness at B=128 and at prefix budgets as the
+primary quantity, read against DIRECT's pool and a relation-following walker
+under an outcome table committed before any masked run exists. It is a
+screening ablation, not a preregistered arm: it opens no holdout, changes no
+frozen digest, arm, metric, seed or threshold, and its reading decides whether
+the generator needs a shortcut-free similarity field before any E1-v2. Its run
+declaration and outcome table are committed to
+`experiments/read_run_v1/NOSIM_SCREENING_PREREGISTRATION.md` before the first
+masked run starts; the frozen experiment's own commands and evidence order stay
+in [`experiments/read_run_v1/README.md`](../experiments/read_run_v1/README.md).
 
 ## Parked public-source milestone
 

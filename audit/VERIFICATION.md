@@ -644,6 +644,66 @@ holdout is opened once. Changing `freeze.py`'s source inventory means the
 committed freeze at `07d18b39…` no longer validates against this tree, which is
 correct for a spent and void run.
 
+## READ run v1: the Amendment 10 γ sweep on screening splits
+
+Added 2026-09-02. Screening splits only; the holdout was not generated, read,
+or opened; no arm comparison here is a result.
+
+**Order of evidence.** Amendment 10 (the reading rule) was committed as
+`0c50d7d` at 2026-09-02T09:38:09+10:00 (2026-09-01T23:38:09Z). The first
+learned run at γ > 0 started at 2026-09-02T00:16:01Z, after it. The γ = 0 rows
+are the earlier learnability probes. Twelve runs of 9,376 updates completed
+(cuda, bf16): TRAV and DIRECT at γ ∈ {0, 0.1, 0.2, 0.3, 0.4}, seed 1729, plus
+TRAV seed 2718 at γ ∈ {0, 0.4}. `scripts/read_run_gamma_sweep_report.py`
+generated `experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md`
+and `gamma_sweep_curves.json` at 2026-09-02T08:39:26Z from the run logs, the
+per-checkpoint diagnostics and the committed coverage JSON; every number in the
+report is copied from those files.
+
+**Observed on the gated `hops_2_4` non-abstain stratum (n = 1,124), update
+8,000.** TRAV exact-set accuracy 100.00 / 99.56 / 99.56 / 99.47 / 99.64 % at
+γ = 0 … 0.4 (seed 2718: 99.64 % at γ = 0, 99.73 % at γ = 0.4); DIRECT 86.74 /
+82.47 / 75.71 / 70.20 / 62.01 %; similarity-greedy 82.65 / 75.36 / 68.33 /
+60.85 / 58.54 %. Both arms pass the Amendment 04 §5 floors at every γ.
+Shuffled-serialization Δ is +0.00 pp on all seven TRAV checkpoints;
+route-completeness equals `proof_valid` with 0 disagreements over every
+checkpoint and variant; the checkpoint diagnostics' baseline accuracy matches
+the probe's own final `screen.jsonl` row on all seven.
+
+**Two disclosures recorded ahead of the numbers (report §0).** The generator's
+similarity field marks the on-path nodes at every γ: on all 2,000 γ = 0
+screening episodes, the nodes carrying a 900,000 out-edge are exactly the nodes
+sourcing a path edge (mean 4.83 of 161.3 nodes). With `query_similarity_ppm`
+held at 500,000, the seven TRAV checkpoints are 53.56–69.13 % route-complete,
+all below the 87.90 % of DIRECT's query-blind structural pool at the same
+budget; their flattened exact-set accuracies (0.36–34.25 %) are dominated by
+the answer head's abstain rate (33.63–99.47 %) and support no inference.
+
+**Suite.** Canonical `uv run pytest -q` at `0c50d7d`: **280 passed, 1 failed
+in 460.04 s**. The failure was
+`tests/test_phase0_v4_3_publication.py::test_deterministic_publication_and_unknown_outcome_recovery`:
+its fixture carried a literal authorization window (`authorized_at`
+2026-08-30T00:04:00Z, `valid_until` 2026-09-02T00:04:00Z under a 72 h policy
+maximum) and a literal destination observation, both of which
+`publish_artifact` evaluates against the wall clock, so the test expired on its
+own on 2026-09-02. The fixture's time chain is now anchored on
+`datetime.now(UTC) − 1 h` with its relative offsets unchanged; only the test
+file changed, in a separate `test(phase0)` commit, and that file then ran
+9 passed in 34 s. The failure is Phase 0 scope and unrelated to READ code.
+`ruff check` and `ruff format --check` clean on `src tests`; `scripts/` is
+outside the lint scope.
+
+**Deleted, not published.** The per-episode row files of the generator grid
+and the ceiling sweep under `private/` (81 MB) were removed after `grep`
+confirmed no script reads them; their aggregates are committed under
+`experiments/read_run_v1/diagnostics/`.
+
+**Not established.** Nothing above compares the arms. The sweep's §9 "go"
+recommendation is recorded as mechanically met and is not an authorisation;
+Amendment 10 remains pending review. Whether the frozen model can learn to
+navigate without the similarity marker is untested: every TRAV run so far
+trained with the marker present.
+
 ## Integrity interpretation
 
 Passing tests shows that the checked-in implementation behaves as those tests

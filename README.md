@@ -11,7 +11,7 @@ older Hippocampus implementation.
 
 ## Status
 
-The active milestone is now the frozen, one-week synthetic READ experiment in
+The active milestone is the frozen, one-week synthetic READ experiment in
 [`experiments/read_run_v1/PREREGISTRATION.md`](experiments/read_run_v1/PREREGISTRATION.md).
 It asks whether learned adaptive traversal beats an equal-capacity,
 equal-examined-edge DIRECT scorer, and whether the gap grows with empirically
@@ -19,15 +19,47 @@ measured greedy-wrongness. All worlds are generated locally; no external
 corpus, Drive mount, Hub payload, rights decision, or custody ceremony is
 needed. Phase 0 v4.4 and public-source execution are parked, not deleted.
 
-The READ implementation now includes separated visible/hidden deterministic
+The READ implementation includes separated visible/hidden deterministic
 streams, a causally separate oracle, seven pre-training integrity gates, a
 query-similarity-independent structural DIRECT pool, identical 10,257,937
 parameter model classes for both arms, fixed-step training, proof-valid
-exact-set scoring, and the frozen four-way decision rule. Only small synthetic
-implementation fixtures have run. No official split, final holdout, model,
-training update, or accuracy result exists yet. The observed prototype DIRECT
-coverage remains below the preregistered 90% main-run threshold and is recorded
-without suppression in
+exact-set scoring, route-completeness measurement, and the frozen four-way
+decision rule. What has actually executed, in order, with every outcome
+retained:
+
+- **E1 ran and is void.** All 30 preregistered main runs completed under the
+  committed code freeze; the γ=0 negative control failed (the arms differed by
+  28.49pp in the gated `hops_2_4` stratum against a 1.00pp threshold), so no
+  comparison between the arms is a result. The v1 holdout was opened once and
+  is spent. [`experiments/read_run_v1/results/E1.md`](experiments/read_run_v1/results/E1.md).
+- **The cause was demonstrated.** A diagnostic probe reproduced E1's DIRECT run
+  bit for bit and continued past its 1,172-update cutoff: DIRECT reached 83.36%
+  proof-valid exact-set accuracy by update 3,500. E1 stopped about 2,300 updates
+  short of that transition.
+- **The E1-v2 overnight sequence stopped at gate G1.** No v2 data, holdout, or
+  model exists. Route-completeness — a complete relation-matching route to
+  every target inside the examined set, which is what proof-valid scoring
+  needs — is now measured beside gate 7's target-node exposure (87.90% against
+  100.00% on the gated stratum at B=128). Amendment 10, which makes it a
+  mandatory report field and redesigns the primary statistic, is pending review.
+- **The Amendment 10 γ sweep ran on screening splits only** — twelve runs of
+  9,376 updates, one seed per cell plus a second seed at γ ∈ {0, 0.4}, read
+  under a rule committed before the runs started. With the similarity field
+  present, TRAV holds 99.47–100.00% exact-set accuracy at every γ at update
+  8,000 while DIRECT falls from 86.74% to 62.01% and similarity-greedy from
+  82.65% to 58.54%. Two disclosures qualify that curve: the generator's
+  similarity field marks the on-path nodes at every γ (2,000 of 2,000 screening
+  episodes), and with the field flattened every TRAV checkpoint is only
+  53.56–69.13% route-complete — below the 87.90% that DIRECT's query-blind
+  structural pool reaches at the same budget. Edge discrimination by relation
+  was learned; navigation without the marker was not demonstrated.
+  [`experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md`](experiments/read_run_v1/diagnostics/gamma_sweep_screening_report.md)
+  is single-seed screening and inadmissible as a hypothesis result.
+
+The next run is a structural-only screening ablation: the same frozen model and
+v1 data, trained with `query_similarity_ppm` held at a constant, read by an
+outcome table committed before the run. It is not a preregistered arm and opens
+no holdout. Every observation above is recorded, with failures, in
 [`experiments/read_run_v1/DEVELOPMENT_LOG.md`](experiments/read_run_v1/DEVELOPMENT_LOG.md).
 
 ### Parked foundation programme
@@ -161,14 +193,16 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Generate the five 150,000-episode train buckets and five independently
-   seeded 2,000-episode screening buckets from the committed private seed.
-2. Run gamma measurement, gold-swap, nuisance-probe, DiRe, dual-oracle,
-   double-execution, and DIRECT-pool-invariance gates. Retain failures.
-3. If all seven pass, commit and freeze the exact code/configuration, then run
-   the 16 Day-3 budget-screening jobs and report every result.
-4. Stop if no budget clears 90% structural target coverage. Otherwise generate
-   the final holdout once and execute all 30 fixed main runs.
-5. Apply the preregistered decision without changing thresholds, arms, seeds,
-   metrics, or reporting. Only after that result should the parked external-data
-   programme be reconsidered.
+1. Run the structural-only screening ablation on the frozen v1 γ=0 buckets:
+   three seeds per arm with `query_similarity_ppm` masked at train and eval,
+   read per seed against the model-free references (DIRECT's structural pool
+   and a relation-following walker) under an outcome table committed first.
+2. Decide from that reading whether the generator needs a shortcut-free
+   similarity field before any E1-v2, and record the decision in
+   `docs/DECISIONS.md`.
+3. Review Amendment 10. Only an approved amendment, a new master seed, a full
+   regeneration, a fresh seven-gate P0 report and a new code freeze can open a
+   holdout again, once.
+4. Apply whichever preregistered decision rule is then in force without
+   changing thresholds, arms, seeds, metrics, or reporting. Only after that
+   result should the parked external-data programme be reconsidered.

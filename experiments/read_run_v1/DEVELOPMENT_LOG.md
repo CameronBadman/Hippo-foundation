@@ -4,6 +4,92 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-02 — the γ sweep read; the capability splits in two; a structural-only run is next
+
+The twelve Amendment 10 §8 screening runs completed (9,376 updates each, cuda,
+bf16; one seed per cell plus a second seed at γ ∈ {0, 0.4}) and were read by
+`scripts/read_run_gamma_sweep_report.py` at commit `0c50d7d`, the commit that
+carries the reading rule; the first γ > 0 run started after it. Report:
+[`diagnostics/gamma_sweep_screening_report.md`](diagnostics/gamma_sweep_screening_report.md),
+curves in [`diagnostics/gamma_sweep_curves.json`](diagnostics/gamma_sweep_curves.json).
+Screening splits only, single seed in most cells: inadmissible as a hypothesis
+result, and no arm comparison in it is a result.
+
+### What the curves say
+
+At update 8,000 on the gated `hops_2_4` non-abstain stratum (n = 1,124), TRAV
+holds 99.47–100.00% exact-set accuracy at every γ — right-censored above the
+99% line — while DIRECT falls from 86.74% (γ = 0) to 62.01% (γ = 0.4) and the
+model-free similarity-greedy walker from 82.65% to 58.54%. Both arms clear the
+Amendment 04 §5 floors at every γ; shuffled-serialization Δ is +0.00pp on all
+seven TRAV checkpoints; route-completeness equals `proof_valid` with 0
+disagreements over every checkpoint and variant. Amendment 10 §9's three
+criteria are mechanically met and the script's recommendation reads "go", which
+is a recommendation to a human and authorises nothing.
+
+### Two disclosures, and the reading they force
+
+**D-1.** `generator._assign_similarity` promotes exactly one out-edge to
+900,000 at every valid-path state; γ decides whether that edge is the correct
+one or a distractor, never whether the node carries a promotion. On all 2,000
+γ = 0 screening episodes the set of nodes with a 900,000 out-edge equals the set
+of nodes sourcing a path edge (mean 4.83 marked nodes of 161.3). The similarity
+field is therefore a γ-invariant on-path marker as well as a γ-degraded edge
+hint, and TRAV's flatness across γ is consistent with navigating by the marker
+and discriminating edges by relation.
+
+**D-2.** Re-scoring each TRAV checkpoint with `query_similarity_ppm` held at
+500,000 (Stage C's ablation) gives exact-set accuracies of 0.36–34.25% that are
+unstable across seeds because the answer head abstains (33.63–99.47%
+predicted-abstain); that column supports no inference. Route-completeness under
+the same flattening is stable across seeds (62.10% and 61.30% at γ = 0.4) and
+reads **53.56–69.13%** across all seven checkpoints, with no relation to
+training γ — every value below the **87.90%** that DIRECT's query-blind
+structural pool reaches at the same budget.
+
+So the capability the sweep measured splits in two. **Edge discrimination** was
+learned: with similarity present, TRAV picks relation-matching edges on marked
+nodes at every γ while greedy and DIRECT degrade. **Navigation** — finding the
+route from structure when nothing marks the on-path nodes — was not
+demonstrated: with the marker removed, every checkpoint walks worse than not
+walking adaptively at all. Navigation is the load-bearing half for a memory
+system, because no real graph carries the marker, and it has never been tested
+on this generator: every TRAV trained so far had the shortcut available from
+update 0. Full analysis in
+[`../../docs/DESIGN_NOTES_READ_PATH_SUCCESSOR.md`](../../docs/DESIGN_NOTES_READ_PATH_SUCCESSOR.md)
+§1.5 and §1.7.
+
+### The next run: structural-only screening on the frozen data
+
+The fair test needs no generator change, no new contract and no holdout: the
+same frozen model class, training configuration and v1 γ = 0 buckets, trained
+from scratch with `query_similarity_ppm` held at a constant at train and eval.
+The constant is 0, which zeroes the gradient of that input column and is
+equivalent to removing the feature while keeping the trainable parameter count;
+`model.py` reads the field on one line and no node id, edge id, position, depth
+or hop count enters any tensor. Under the mask the five γ buckets are
+byte-identical for the same `(split, index)` — the projection is
+`gates._structural_projection`, P0 gate 7's own γ-invariance check — so γ is
+inert and only `train-g00`/`screen-g00` are used. Three seeds per arm,
+route-completeness at B = 128 and at prefix budgets as the primary quantity,
+read against DIRECT's pool (87.90% at B = 128) and a relation-following walker
+under an outcome table written before any masked run exists. It is a screening
+ablation, not a preregistered arm; Amendment 10 stays pending review.
+
+### Housekeeping
+
+The canonical suite at `0c50d7d` ran 280 passed, 1 failed in 460 s. The failure
+was `test_deterministic_publication_and_unknown_outcome_recovery` in the Phase 0
+v4.3 publication tests: its fixture carried a literal authorization window
+(`authorized_at` 2026-08-30, `valid_until` 2026-09-02) and a literal destination
+observation that `publish_artifact` checks against the wall clock, so the test
+expired on its own. The fixture's time chain is now anchored on the clock with
+the same relative offsets, in a separate `test(phase0)` commit that touches
+only the test file. Unrelated to READ code. The two regenerable per-episode row
+files under `private/` from the generator grid and the ceiling sweep (81 MB)
+were deleted after confirming no script reads them; the aggregates they fed are
+committed.
+
 ## 2026-09-02 — Amendment 10 drafted; the relation-prefix ceiling measured
 
 Recorded before any learned run at γ>0 exists. The reading rule for the γ
