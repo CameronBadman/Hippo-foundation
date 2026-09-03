@@ -178,14 +178,31 @@ under `no_grad`, then score the examined set once with gradients — and estimat
 a further 1.5-2x. **Built as `model_v3`, it delivers about 1.0x per update.**
 Recorded here in full, because the reasoning error is reusable.
 
-| build | s/update | expansions/episode | edges/episode |
-|---|---|---|---|
-| v2, interleaved, budget 64 | 1.262 | 6.55 | 38.4 |
-| v3, two-pass, exhaustion | 1.289 | 7.98 | 46.5 |
+**Corrected 2026-09-04 after a like-for-like measurement.** The first reading
+of this compared v3 exhausting against v2 *stopping at two endpoints* — two
+different jobs — and concluded the two-pass forward was level or slightly
+slower. That was wrong, and the correction runs the other way: `model_v2`
+supports `stop_rule="exhaust"`, so both builds can be measured on the identical
+job, and on it the two-pass forward is **1.35x faster**.
 
-Per update the two are level; per unit of work v3 is about **1.19x** cheaper,
-and it is doing the strictly larger job of exhausting the tree rather than
-stopping at two endpoints.
+| build | job | s/update | expansions/episode | edges/episode |
+|---|---|---|---|---|
+| v2, interleaved | budget 64, stop at 2 | 1.165 | 6.55 | 38.4 |
+| v2, interleaved | **exhaust, no budget** | 1.608 | 7.96 | 46.5 |
+| v3, two-pass | **exhaust, no budget** | **1.188** | 7.98 | 46.5 |
+
+So the two-pass split does pay: 1.608 to 1.188 s/update on the same work. It is
+also worth noting that v3 exhausting (1.188 s) costs about what v2 cost while
+stopping early (1.165 s) — the restructure pays for the extra 22 % of expansions
+that Track P's exhaustive training needs.
+
+**Two errors, in opposite directions, both from comparing the wrong things.**
+The original estimate of 1.5-2x counted backward's saving and not the cost of
+pass 1's second forward. The correction to "level" then compared unequal jobs
+and normalised by expansions to compensate — a ratio invented after seeing a
+disappointing number, which happened to favour the new code and was still an
+underestimate. The measurement that settles it took one run of a flag `model_v2`
+already had. Measure the like-for-like before reaching for a normalisation.
 
 **Why the estimate was wrong.** The autograd graph does collapse from ~96 small
 block applications to one wide one, and backward was 47 % of a v2 step. But
@@ -203,12 +220,15 @@ batched across episodes, and pass 2 adds one wide call on top. Any future
 restructuring of this walk should check the *shape* of the calls it makes before
 concluding anything about the idea it is testing.
 
-**The two-pass split is kept, for supervision rather than speed.** The examined
-set, the endpoint registrations and the decision points are all fixed before any
-gradient is taken, which is what lets the stop head train off-policy on an
-exhaustive walk and what makes the answer head's inputs identical across
+**The two-pass split earns its place twice over.** Beyond the 1.35x, the
+examined set, the endpoint registrations and the decision points are all fixed
+before any gradient is taken, which is what lets the stop head train off-policy
+on an exhaustive walk and what makes the answer head's inputs identical across
 supervision modes (the design note 2.19 fix). Those were the reasons Track P
-needed it; the speed was a hoped-for bonus and did not arrive.
+needed it; the speed turned out to be real as well.
 
-**Cumulative against the original 3.003 s/update baseline: 2.33x**, on a walk
-that examines 21 % more edges per episode than the one that baseline measured.
+**Cumulative, like-for-like.** Against the original 3.003 s/update baseline
+(v2, microbatch 16 x 8, budget 64) the optimisation pass reached 1.165 s on that
+same job — **2.58x**. Track P's job is larger: v2 would need 1.608 s to exhaust,
+and v3 does it in 1.188 s. Quoting a single cumulative number across the two
+jobs would flatter the result, so both are given.
