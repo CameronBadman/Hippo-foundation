@@ -32,8 +32,10 @@
     "deterministic_algorithms": true,
     "training_walk_stop_rule": "exhaust",
     "supervision_schedule": {
-      "gold": [0.0, 0.25],
-      "on_policy": [0.25, 1.0]
+      "on_policy": [
+        0.0,
+        1.0
+      ]
     }
   },
   "selection": {
@@ -59,7 +61,7 @@
     "microbatch": "128 x 1 replaces Track O's 16 x 8. Measured 1,300 MiB peak and 1.44x faster than 16 x 8 before the featuriser work; the loss is a per-episode mean then a batch mean and each accumulated chunk is divided by the chunk count, so the two shapes are loss-equivalent by construction. Pinned by tests/test_read_run_training_v3.py::test_microbatch_shape_is_loss_equivalent.",
     "evaluation_microbatch_size": "Separate from the training microbatch on purpose. The Track O probe reused one value for both, so widening training would have silently widened evaluation; evaluation stays at Track O's 16.",
     "expected_target_count": "Deleted, not set to 2. Track O's config carried it and model_v2.coverage_features encoded it three times, which is why a stop head reading those features could only rediscover stop_aware's hard-coded rule. model_v3.stop_features contains no target constant and tests/test_read_run_model_v3.py asserts no column saturates as the endpoint count varies.",
-    "supervision_schedule": "The walker phase is dropped. Under exhaustion a walker-ordered and an on-policy walk examine the same prefix tree in a different order, and f is order-invariant (test_stable_score_is_invariant_to_visit_order), so they are the same edge-loss data; on-policy still differs for the stop head's state distribution. A preregistered schedule change, not a sweep.",
+    "supervision_schedule": "on_policy for the whole run. Track O's gold phase is dropped, and so is the walker phase. Measured before any Track P result was read: a gold walk expands exactly the two planted route prefixes, so both target endpoints register during its final expansion and no decision point ever observes the walk as complete \u2014 the stop label is 0 at every decision point of every episode, structurally, on both cells (0/212 and 0/228 decision points over 48 episodes each). A stop head trained on that reaches 1.000 label agreement by predicting the constant 'never stop'. On-policy exhaustive walks give 7-9% positive decision points, which is the signal the head needs. Under exhaustion on-policy also examines the whole relation-matching prefix tree, a superset of the route prefixes gold supplies, so dropping gold removes no edge-loss data.",
     "loss_weights": "Three separately supervised heads with exactly derivable labels, so the mixture changes how fast each converges, never where. This is not the budget-versus-coverage trade-off design note 2.16 rules out: no weight here sets an operating point on a single quantity.",
     "training_walk_stop_rule": "Training always exhausts and ignores the stop head's own output, which decouples what that head learns from what it does and yields decision points on both sides of route-completeness."
   },

@@ -160,3 +160,72 @@ So that an over- or under-shoot is visible rather than rationalised afterwards:
   sweep.
 - Nothing here authorises training on real data, opens the write path, or
   promotes any Track P result into the frozen v1 experiment.
+
+---
+
+## Amendment 1 — 2026-09-04, at 250 of 8,000 updates, before any checkpoint was read
+
+The first launch was stopped after roughly 250 updates and the runs discarded.
+No screening checkpoint had been evaluated, so nothing below was chosen in
+response to a result. Amending here rather than later is deliberate: this is the
+point of least available data.
+
+### What was wrong
+
+The training diagnostics reported stop-label agreement of exactly 1.000 on every
+seed and both cells, with **`stop_positive_fraction` of exactly 0.000 and no
+episode possessing a T\***. The stop head was scoring perfect agreement by
+predicting the constant "never stop", against a label that was 0 everywhere.
+
+The cause is structural, not a coding fault. Section 3 declared a supervision
+schedule of `gold` for the first 25 % of updates. A gold walk expands exactly the
+two planted route prefixes, so **both target endpoints register during its final
+expansion and no decision point ever observes the walk as complete.** The label
+`route_complete_now` is therefore 0 at every decision point of every episode, by
+construction. Measured directly, 48 episodes per cell:
+
+| supervision | episodes with a positive | positive decision points |
+|---|---|---|
+| gold, easy cell | 0 / 48 | 0 / 212 |
+| gold, hard cell | 0 / 48 | 0 / 228 |
+| on-policy, easy cell | 12 / 48 | 21 / 299 (0.070) |
+| on-policy, hard cell | 16 / 48 | 33 / 361 (0.091) |
+
+This is the same failure mode as Track O's untrained coverage head — a head that
+appears to be working while learning nothing — and it was caught by a diagnostic
+added because of that earlier miss.
+
+### The change
+
+`supervision_schedule` becomes `{"on_policy": [0.0, 1.0]}`. Gold supervision is
+dropped entirely. Under exhaustion an on-policy walk examines the whole
+relation-matching prefix tree, which is a superset of the route prefixes gold
+supplies, so this removes no edge-loss data; it only removes the states in which
+the stop label cannot exist. `tests/test_read_run_training_v3.py` now holds the
+measurement as a test, and that test fails if gold ever produces a positive.
+
+### A second fact, recorded now because it bounds what the result can show
+
+The same diagnostic measured how much room the stop actually has. **On average
+only about 0.43 expansions occur after both targets are registered** — the
+walker's measured overhead in `policy_ladder_v3.json`. The walk usually becomes
+complete at the same moment it exhausts, so a perfect stop saves roughly 0.4 of
+7.9 expansions, about 5 %.
+
+The larger saving in the ladder belongs to *ordering*, not stopping: the oracle
+needs 4 expansions against exhaustion's 7.9 because it never expands a dead end,
+and `stop_aware` reaches 6.03 only by halting at two endpoints that are often
+not the targets. So a trained model can only approach `stop_aware`'s cost by
+finding the targets *earlier*, which then makes an early stop worth taking. The
+two capabilities are coupled, and the stop's own contribution is small.
+
+This is stated before the runs so that a band B result — completeness holds, cost
+beats the untrained line but not `stop_aware` — is read as the outcome it is,
+and not explained afterwards as a surprise. It also means the expected early-stop
+rate in section 6 should be read as "small but nonzero", not "large".
+
+### What is unchanged
+
+Every band, primary quantity, reference, and expected result in sections 2, 4, 5
+and 6 stands as written. The data, the K, the model, the loss weights, the seeds
+and the update count are unchanged. No threshold was introduced or tuned.

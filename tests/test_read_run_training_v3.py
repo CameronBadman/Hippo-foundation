@@ -42,13 +42,73 @@ def test_evaluation_microbatch_is_separate_from_training():
     )
 
 
-def test_the_walker_phase_is_gone_and_the_schedule_covers_the_run():
+def test_the_schedule_is_on_policy_throughout():
+    """Gold supervision cannot produce a positive stop label — see below."""
+
     schedule = CONFIG["training"]["supervision_schedule"]
-    assert set(schedule) == {"gold", "on_policy"}
-    assert schedule["gold"][0] == 0.0
-    assert schedule["gold"][1] == schedule["on_policy"][0]
-    assert schedule["on_policy"][1] == 1.0
+    assert set(schedule) == {"on_policy"}
+    assert schedule["on_policy"] == [0.0, 1.0]
     assert CONFIG["training"]["training_walk_stop_rule"] == "exhaust"
+
+
+def test_gold_supervision_cannot_produce_a_positive_stop_label():
+    """The measurement that forced the schedule change, held as a test.
+
+    A gold walk expands exactly the two planted route prefixes, so both target
+    endpoints register during its final expansion and no decision point ever
+    observes the walk as complete. Every stop label is 0, and a head trained on
+    that scores perfect agreement by predicting the constant "never stop" — the
+    same silent nothing Track O's coverage head did. An on-policy exhaustive
+    walk continues past completion often enough to give real positives.
+    """
+
+    torch = _torch()
+    import hashlib
+
+    from hippocampus_foundation.read_run.errors import GenerationError
+    from hippocampus_foundation.read_run.generator_v3 import (
+        CELLS_V3,
+        generate_episode_v3,
+    )
+    from hippocampus_foundation.read_run.model_v2 import route_prefixes
+    from hippocampus_foundation.read_run.model_v3 import build_read_model_v3
+    from hippocampus_foundation.read_run.training_v3 import stop_labels
+
+    seed = hashlib.sha256(b"gold-stop-label-test").digest()
+    episodes = []
+    for index in range(60):
+        try:
+            episodes.append(
+                generate_episode_v3(
+                    seed,
+                    config=CELLS_V3["deg3_len6_v8-k1"],
+                    split="test-fixture",
+                    index=index,
+                    count=60,
+                    gamma=0.4,
+                    gold_mask=1 + index % 15,
+                )
+            )
+        except GenerationError:
+            continue
+        if len(episodes) == 24:
+            break
+
+    torch.manual_seed(1729)
+    model = build_read_model_v3(CONFIG)
+
+    supplied = [route_prefixes(e.visible, e.hidden["valid_routes"]) for e in episodes]
+    gold = model([e.visible for e in episodes], stop_rule="exhaust", supplied=supplied)
+    gold_labels = stop_labels(episodes, gold["decisions"])
+    assert sum(sum(row) for row in gold_labels) == 0.0, (
+        "gold supervision produced a positive stop label; the schedule change "
+        "that removed it may no longer be needed"
+    )
+
+    on_policy = model([e.visible for e in episodes], stop_rule="exhaust")
+    on_policy_labels = stop_labels(episodes, on_policy["decisions"])
+    assert sum(sum(row) for row in on_policy_labels) > 0.0
+    assert sum(1 for row in on_policy_labels if any(row)) >= 3
 
 
 def test_capacity_matches_track_o_exactly():
