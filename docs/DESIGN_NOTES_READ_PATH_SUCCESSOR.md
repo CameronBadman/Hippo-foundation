@@ -1594,6 +1594,56 @@ selective-return change — both are cases of one representation being asked to
 serve two purposes, and both are fixed by giving the second purpose its own
 parameters rather than a larger share of the first's.
 
+# 2.19 The supervision schedule starved the answer head — a third dilution
+
+Found 2026-09-03 at update ~4,150 of the Track O runs, while checking whether the
+hard cell's answer head was failing. It was not; it had barely been trained on
+the input it is evaluated on.
+
+**The mechanism.** `model_v2.forward` has two paths. On-policy, the walk runs its
+frontier, reaches endpoints, and fills `endpoints` and `routes`. Under supplied
+prefixes — the M6 `gold` and `walker` phases — it replays the supplied expansions
+and `continue`s past the frontier block entirely, so `routes` comes back empty
+and `stop_reason` is `tree_exhausted` on every episode. Verified directly:
+on-policy returns 2 routes per episode, `gold` and `walker` return 0.
+
+The answer head's input is `[LayerNorm(summary), endpoint mask bits (8),
+agreement, route-count one-hot]`. With no endpoints those twelve dimensions are
+**identically zero**. So for the first half of training — the preregistered
+schedule puts `gold` on [0, 0.25] and `walker` on [0.25, 0.5] — the head learned
+to answer from the 256-dimensional summary alone, with the eight bits that
+actually carry the label held at zero, and only met its real input at update
+4,000.
+
+**The evidence is unusually clean.** Easy-cell exact accuracy per checkpoint:
+0.019 at 3,500, 0.040 at 4,000, **0.989 at 4,500**. The schedule switches to
+on-policy at 4,000 and the jump lands in the next checkpoint interval, on all
+three seeds. Nothing else changes at that update.
+
+**Consequence for the run in flight.** The primary quantities are untouched:
+route-completeness and examined-set precision are computed from the walk's own
+examined set under on-policy screening, and the edge loss — which drives the walk
+— gets correct targets under every supervision source. What is compromised is the
+head's *effective* training budget: it is 4,000 updates, not 8,000. That belongs
+in the report as a stated limitation of the accuracy reading, not as a reason to
+discard it, and band G was already the preregistered home for a floor failure.
+
+**The fix, and the pattern.** The supplied path should still run the frontier so
+that supplied and on-policy produce the same answer-head input; teacher forcing
+should change *which prefixes are scored*, never *what the head sees*. That is a
+one-branch change and it is not made mid-run.
+
+More usefully, this is the third instance of one pattern in as many days:
+section 2.17 (returned set read off the edge head as a side effect),
+section 2.18 (answer competing with the walk summary for the same 256
+dimensions), and now the answer head's input silently changing shape with the
+training phase. Each is a representation asked to serve two purposes, and each is
+fixed by giving the second purpose its own parameters and its own guaranteed
+input rather than a share of the first's. The successor design should treat
+"every training mode presents the head an identically-shaped input" as an
+invariant with a test, in the register of the visit-order invariance test that
+already guards `f`.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under
