@@ -1688,6 +1688,57 @@ answer is a *set* the traversal has to select, not a value it can read off a nod
 it already found. Until then, accuracy on this generator should be read as a
 consistency check on the walk, not as a second capability.
 
+# 2.21 Selective return belongs in the read contract — Cameron was right
+
+Recorded 2026-09-03. I argued that selective return was an insert-time concern
+because on the read path the returned set is the route and `proof_valid` already
+scores it. Cameron disagreed: it is fundamentally what makes precision high
+enough for relevance, on read. He is right and the argument I gave was reasoning
+from this generator's shape rather than from what a read *is*.
+
+**Where my argument failed.** A read in the system being built does not return a
+path; it returns the evidence relevant to the query, and which facts are relevant
+is a selection the model makes. This generator hides that by planting exactly two
+routes and making them the answer, so relevance and route coincide *by
+construction*. Designing the read path against that coincidence yields an output
+contract of "a path" where it should be "a relevant set", and insert then
+inherits the wrong substrate. The coincidence is a property of the task, not of
+the capability.
+
+**What follows for the output contract.** The read path should emit a relevance
+set as its product, with the examined set remaining its cost. Three quantities,
+not one: examined count (what it paid), returned precision and recall (what it
+asserts), and route-completeness (whether the evidence actually supports the
+answer). The examined-precision ceiling of ~0.20 measured in section 2.16 is a
+property of whole-node expansion and cannot be beaten by any reordering of the
+walk; only a narrower *report* escapes it.
+
+**What this generator can and cannot measure.** It can measure the classifier
+half: thresholding the edge head at a positive logit — the BCE loss's own
+boundary, not a tuned constant — gives a returned set that is not trivially the
+routes, because the classifier errs. Returned precision and recall are therefore
+real numbers here, and are computed post hoc from the Track O checkpoints as the
+section 2.17 descriptive.
+
+It cannot measure the judgment half. Scoring "return only what is relevant"
+requires evidence that is structurally valid but not relevant — paths a correct
+walk may legitimately reach and should decline to return. Generation currently
+enforces that the only complete matching paths are the two planted routes
+(`cell_audit` records zero reached-outside-targets violations), so no such
+evidence exists and the capability has no wrong answer available to it beyond
+classifier noise. **A successor generator needs planted distractor evidence:
+complete, rule-valid, query-matching paths that are deliberately not targets.**
+That is a generator change of the same kind as section 2.6's content rule, and it is
+the precondition for relevance being a scored capability rather than an exercised
+one.
+
+**Degeneracy, and how to score it without a threshold.** Returning nothing gives
+perfect precision at zero recall; returning everything gives perfect recall at
+the examined-set precision. Any fixed weighting between them is a threshold
+wearing a different hat (section 2.16). Report the precision-recall curve or average
+precision, which has no operating point, and leave the training objective as the
+per-edge BCE it already is.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under
