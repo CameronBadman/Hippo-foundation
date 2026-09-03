@@ -21,28 +21,34 @@ discrimination on marked nodes; whether the frozen model can learn to navigate
 from structure alone has never been tested, because every TRAV trained so far
 had the marker from update 0.
 
-That test has now run (Track N, 2026-09-02/03) and read **band D —
-pool-indistinguishable** under its pre-committed table
-([`experiments/read_run_v1/diagnostics/nosim_screening_report.md`](../experiments/read_run_v1/diagnostics/nosim_screening_report.md)):
-every masked TRAV seed's route-completeness at update 8,000 sits inside the
-null band around the query-blind pool, with all controls clean and no curve
-plateaued. Structure-only navigation learns (~2–5% → 82.6–85.1% exact), but no
-better than not walking at B = 128, and far below a relation walker's precision
-at B = 32; the head-only reference showed the similarity marker had been
-carrying the answer head as well (46.9–48.4% masked vs 98.68% with the field).
+Track N read band D, and Track O — the path-scoped rebuild it motivated — has now
+run and read **band A, learned and dominant**
+([`track_o_screening_report.md`](../experiments/track_o_v1/diagnostics/track_o_screening_report.md)).
+Twelve runs, zero stderr, no harness defect, order of evidence verified. Every
+TRAVV2 seed improved on both primary axes over its own untrained line and cleared
+every model-free policy; the equal-capacity frozen v1 comparator reached 14.7–16.2%
+route-completeness and failed the accuracy floors on every hard-cell seed. The
+returned set — six of thirty-three examined edges at 89.3% precision, 88.1% recall
+— is the strongest evidence that the read path's product should be a relevance set
+rather than a route.
 
-The active milestone is now **Track O** (decision recorded in
-[`docs/DECISIONS.md`](DECISIONS.md), 2026-09-03, taken before the band was
-read): generator v2 — similarity-leak fix, content-rule edges with unbiased
-rule-valid planting, and a difficulty regime where neither blind breadth nor
-the computed walker suffices — built together with the path-scoped traversal
-architecture of [`DESIGN_NOTES_READ_PATH_SUCCESSOR.md`](DESIGN_NOTES_READ_PATH_SUCCESSOR.md)
-§2.12–§2.16, screened under its own preregistered outcome table with
-route-completeness *and* examined-set precision as primary quantities. Good
-results advance to the insert objective; insufficient ones iterate on
-traversal. E1-v2 stays recorded and not in force, superseded by Track O; the
-v2 holdout seed remains sealed and unspent; Amendment 10 remains pending
-review.
+**The active milestone is the optimisation pass**, then the question band A leaves
+open. The training loop runs at 2.56 s/update; measurement puts the levers at
+vectorised featurisers (a numpy prototype of the hottest one is 5.1x) and a wider
+microbatch (1.44x measured), against a 4–6x target
+([`TRACK_O_PERFORMANCE_BRIEF.md`](TRACK_O_PERFORMANCE_BRIEF.md)). Three known
+defects are fixed in the same pass: the supervision path that zeroes the answer
+head's label inputs (§2.19), the answer competing with the walk summary for the
+same representation (§2.18), and the relevance set becoming a first-class output
+(§2.17/§2.21).
+
+After that: whether the learned component is necessary rather than helpful. An
+untrained TRAVV2 already reaches 85.7% because the frontier restriction and stop
+rule are structural, so training contributes roughly eight points. Establishing
+necessity requires a regime where the computed policy fails badly — planted
+distractor evidence and a harder ambiguity profile — with its own preregistration.
+E1-v2 stays recorded and not in force; both holdout seeds remain sealed; Amendment
+10 remains pending review.
 
 ## Parked public-source milestone
 

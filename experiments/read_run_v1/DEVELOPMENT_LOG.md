@@ -4,6 +4,73 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-03 — Track O read band A; the returned set is where relevance lives
+
+Twelve runs of 8,000 updates (TRAVV2 and the equal-capacity frozen v1, two cells,
+three seeds) completed with zero stderr. The reader was written and its 76 tests
+passed while every run was below update 2,400, recorded in
+`private/track-o-v1/preflight.md`.
+
+### The band
+
+**A — learned and dominant.** Every TRAVV2 seed improved on both axes over its own
+untrained line and cleared every model-free policy, on the hard cell at update 8,000:
+
+| seed | route-complete | Wilson LB | examined-set precision | edges examined |
+|---|---|---|---|---|
+| 1729 | 82.7 % → **93.41 %** (+10.74 pp) | 92.15 % | 0.166 → **0.1922** | 37.8 → 32.7 |
+| 2718 | 84.9 % → **93.33 %** (+8.38 pp) | 92.06 % | 0.165 → **0.1923** | 38.3 → 32.7 |
+| 3141 | 89.4 % → **93.73 %** (+4.31 pp) | 92.50 % | 0.172 → **0.1926** | 37.1 → 32.7 |
+
+Against the references measured before any training: `stop_aware` 86.19 % at
+precision 0.173, the blind walker 78.27 % at 0.158, the oracle feasible on
+98.14 %. Every Wilson lower bound clears both the seed's own untrained estimate
+and `stop_aware`, precision beats both, and the walk examines about five fewer
+edges. No harness defect; order of evidence verified.
+
+### The comparator makes the architecture case
+
+The frozen v1 model at equal capacity (10,257,937 against 10,257,896), same data,
+same budget, same harness, reached route-completeness
+16.2/14.7/15.4 %
+at precision 0.038, spending all 64 edges in
+every episode. It fails the Amendment 04 §5 floors on all three hard-cell seeds —
+band G, reported beside the letter as preregistered, and a v1 failure rather than
+a v2 one.
+
+### The returned set
+
+Cameron's argument during the runs (design notes §2.21) was that selective return
+is what makes precision high enough for relevance, and that it belongs in the read
+path rather than being deferred to insert. Measured from the checkpoints at a
+positive edge logit — the BCE loss's own boundary, no fitted threshold:
+
+| cell | returned precision | returned recall | examined → returned |
+|---|---|---|---|
+| `deg3_len6_v8` | 96.0 % | 97.0 % | 13.2 → 5.3 |
+| `deg6_len8_v4_rep` | 89.8 % | 87.5 % | 32.7 → 5.8 |
+
+The traversal examines about thirty-three edges on the hard cell and reports about
+six of them at roughly nine-tenths precision and recall, average precision 0.93.
+The examined-precision ceiling of about 0.20 — a property of whole-node expansion,
+since reaching a node costs all its out-edges — is simply bypassed by reporting
+narrowly. This is the strongest single argument in the run for making the relevance
+set the read path's product.
+
+### What this does not establish
+
+Exact accuracy (90.5–91.1 % on the hard cell) is largely a restatement of
+route-completeness: `exact_correct` requires `proof_valid`, so on a proof-valid
+episode the endpoint masks the head reads are the gold answer by construction
+(§2.20). The answer head also trained on the wrong input for half the run — under
+supplied-prefix supervision the walk skips the frontier block, leaving its twelve
+label-carrying input dimensions identically zero, so its effective budget was 4,000
+updates (§2.19). And an untrained TRAVV2 already sits near the strongest model-free
+policy, because the frontier restriction and stop rule are structural: training
+adds roughly eight points on top of a strong hand-coded prior. Whether the learned
+component is *necessary* rather than merely helpful needs a regime where the
+computed policy fails badly, which this generator does not provide.
+
 ## 2026-09-03 — Track N executed: band D, every control clean, nothing plateaued
 
 Six runs (TRAV and DIRECT × seeds 1729/2718/3141, `--input-ablation

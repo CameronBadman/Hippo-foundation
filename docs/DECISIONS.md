@@ -109,6 +109,47 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-03: Track O read band A — the architecture is validated, its necessity is not
+
+The path-scoped traversal (design notes §2.10–§2.16) read **band A, learned and
+dominant**, under the preregistration committed before the runs. Every TRAVV2 seed
+improved on both primary axes over its own untrained line and cleared every
+model-free policy: route-completeness 93.3–93.7 % (Wilson lower bounds ≥ 92.1 %)
+against `stop_aware`'s 86.2 %, examined-set precision 0.192 against 0.173, on 32.7
+edges instead of 37.4. All twelve runs completed with zero stderr and no harness
+defect. The equal-capacity frozen v1 comparator reached 14.7–16.2 %
+route-completeness at precision 0.038, spending all 64 edges every episode, and
+failed the Amendment 04 §5 floors on every hard-cell seed — band G, reported beside
+the letter. The four defects §2.9–§2.12 identified in v1 were correctly diagnosed
+and are fixed by the rebuild.
+
+**Cameron's selective-return argument was right and is now measured.** He held,
+against my position, that the returned set belongs in the read path rather than
+being deferred to the insert objective, because it is what makes precision high
+enough for relevance. At a positive edge logit — the BCE loss's own boundary, no
+fitted threshold — the traversal reports about six of the thirty-three edges it
+examines at 89.3 % precision and 88.1 % recall (average precision 0.93) on the hard
+cell, and 96 %/96 % on the easy one. The examined-precision ceiling of about 0.20,
+which is a property of whole-node expansion, is bypassed entirely by reporting
+narrowly. The read path's product should be a relevance set, with the examined
+count remaining its cost.
+
+**What the band does not establish, recorded so it is not overread.** Exact
+accuracy is largely a restatement of route-completeness (§2.20); the answer head
+trained on identically-zero label dimensions for half the run (§2.19); and an
+untrained TRAVV2 already sits at 85.7 % because the frontier restriction and stop
+rule are structural, so training contributes roughly eight points on top of a
+strong hand-coded prior. Whether the learned component is *necessary* rather than
+helpful is the open question, and answering it requires a regime where the computed
+policy fails badly rather than marginally — planted distractor evidence (§2.21) and
+a harder ambiguity profile (§1.6). That is the next experiment, and it gets its own
+preregistration.
+
+The immediate next work is the optimisation pass, at Cameron's direction: the
+training loop runs at 2.56 s/update and the measured levers are vectorised
+featurisers and a wider microbatch (`docs/TRACK_O_PERFORMANCE_BRIEF.md`), so the
+harder-generator runs are affordable.
+
 ### 2026-09-03: Track N read band D; the walker design changes, the generator follows
 
 The structural-only screening ran exactly as preregistered and read **band D —

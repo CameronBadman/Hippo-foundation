@@ -573,7 +573,70 @@ def render(record: dict[str, Any]) -> str:
                 f"{plateau['plateau_point'] if plateau['plateaued'] else 'not plateaued'} |"
             )
     w("")
-    w("## 6. What this report does not do")
+    w("## 6. The returned set — what the walk asserts is relevant")
+    w("")
+    returned = record.get("returned_set")
+    if returned is None:
+        w("Not measured.")
+    else:
+        w(
+            "Examined-set precision is a **cost**: reaching a node examines all of its "
+            "out-edges, so even a perfect selector pays ~30 edges for ~6 on-route ones on "
+            "the hard cell, capping examined precision near 0.20. What a write operation "
+            "adjudicates is the **returned** set. The edge head is already a relevance "
+            "classifier — its loss is BCE against route membership — so the returned set "
+            "is read at a **positive logit**, the loss's own boundary, with no threshold "
+            "fitted to any result. Declared as a descriptive in design notes §2.17 before "
+            "any run reached its read point."
+        )
+        w("")
+        w(
+            "| cell | seed | examined | returned | examined precision | returned precision | "
+            "returned recall | average precision |"
+        )
+        w("|---|---|---|---|---|---|---|---|")
+        for cell, seeds in sorted(returned["cells"].items()):
+            for seed, row in sorted(seeds.items()):
+                w(
+                    f"| `{cell}` | {seed} | {row['examined_mean']:.1f} | "
+                    f"**{row['returned_mean']:.1f}** | {row['examined_precision_micro']:.3f} | "
+                    f"**{row['returned_precision_micro']:.3f}** | "
+                    f"{row['returned_recall_micro']:.3f} | {row['average_precision']:.3f} |"
+                )
+        w("")
+        w(
+            "The traversal reports about six edges from the thirty-three it examined, at "
+            "roughly nine-tenths precision and recall. Average precision is computed over "
+            "the whole precision-recall curve, so it commits to no operating point at all."
+        )
+    w("")
+    w("## 7. Stated limitations of this reading")
+    w("")
+    w(
+        "- **Exact accuracy is largely a restatement of route-completeness** (design notes "
+        "§2.20). `exact_correct` requires `proof_valid`, which requires the emitted routes "
+        "to be valid routes whose endpoints are exactly the targets — so on a proof-valid "
+        "episode the endpoint assertion masks the head reads are the gold answer by "
+        "construction. Read the `acc / RC` column, not raw accuracy."
+    )
+    w(
+        "- **The answer head trained on the wrong input for half the run** (§2.19). Under "
+        "supplied-prefix supervision the walk skips the frontier block, so `endpoints` and "
+        "`routes` are empty and the head's twelve label-carrying dimensions are identically "
+        "zero. Its effective budget was 4,000 updates, not 8,000."
+    )
+    w(
+        "- **One generator, screening only, no holdout.** The band is evidence about this "
+        "task at this budget, not about graph memory generally."
+    )
+    w(
+        "- **The architecture carries much of the base performance.** An untrained TRAVV2 "
+        "is already near the strongest model-free policy, because the frontier restriction "
+        "and stop rule are structural. Training adds roughly eight points of "
+        "route-completeness on top of that, which is what the paired comparison measures."
+    )
+    w("")
+    w("## 8. What this report does not do")
     w("")
     w(
         "It records no hypothesis verdict. It changes no threshold, arm, metric, seed or "
@@ -599,6 +662,10 @@ def main() -> None:
     parser.add_argument(
         "--audit", default="experiments/track_o_v1/diagnostics/cell_audit.json"
     )
+    parser.add_argument(
+        "--returned-set",
+        default="experiments/track_o_v1/diagnostics/returned_set.json",
+    )
     parser.add_argument("--preregistration-commit", required=True)
     parser.add_argument("--json-output", required=True)
     parser.add_argument("--md-output", required=True)
@@ -611,6 +678,10 @@ def main() -> None:
         json.loads(Path(args.untrained).read_text()),
         json.loads(Path(args.audit).read_text()),
         args.preregistration_commit,
+    )
+    returned = Path(args.returned_set)
+    record["returned_set"] = (
+        json.loads(returned.read_text()) if returned.exists() else None
     )
     Path(args.json_output).write_text(json.dumps(record, indent=2, sort_keys=True))
     Path(args.md_output).write_text(render(record))

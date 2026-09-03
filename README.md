@@ -205,16 +205,32 @@ configurations into this project.
 
 ## Immediate programme
 
-1. Track O (decided before Track N's band was read; `docs/DECISIONS.md`
-   2026-09-03): generator v2 — similarity-leak fix, content-rule edges with
-   unbiased rule-valid planting, and a difficulty regime where neither blind
-   breadth nor a computed relation walker suffices — built together with the
-   path-scoped traversal architecture of
-   `docs/DESIGN_NOTES_READ_PATH_SUCCESSOR.md` §2.12–§2.16, screened under its
-   own preregistered outcome table.
-2. After Track O's table: good results advance to the insert objective;
-   insufficient ones iterate on traversal — the fundamental building block —
-   with the gate preregistered, never judged after the fact.
+Track O has run and read **band A — learned and dominant**
+([`experiments/track_o_v1/diagnostics/track_o_screening_report.md`](experiments/track_o_v1/diagnostics/track_o_screening_report.md)).
+The path-scoped traversal improved on both primary axes over its own untrained
+line in every seed and cleared every model-free policy: route-completeness
+93.3–93.7% against a parameterless `stop_aware` policy's 86.2%, examined-set
+precision 0.192 against 0.173, examining 32.7 edges of a 64 budget instead of
+37.4. The equal-capacity frozen v1 architecture reached 14.7–16.2% on the same
+data, spending its whole budget every episode. At a positive edge logit the
+traversal reports about six of the thirty-three edges it examines at 89.3%
+precision and 88.1% recall, so the relevance set — not the route — is the read
+path's natural product.
+
+What the band does not establish is recorded with it: exact accuracy is largely a
+restatement of route-completeness, the answer head trained on zeroed label inputs
+for half the run, and an untrained model already sits at 85.7% because the walk's
+frontier restriction and stop rule are structural. Training adds roughly eight
+points on top of a strong hand-coded prior.
+
+1. Optimise the training loop. It runs at 2.56 s/update; the measured levers are
+   vectorised featurisers and a wider microbatch
+   ([`docs/TRACK_O_PERFORMANCE_BRIEF.md`](docs/TRACK_O_PERFORMANCE_BRIEF.md)),
+   for a realistic 4–6x, which makes the next experiment affordable.
+2. Then the open question: whether the learned component is *necessary* rather
+   than helpful. That needs a regime where the computed policy fails badly rather
+   than marginally — planted distractor evidence and a harder ambiguity profile —
+   and it gets its own preregistration.
 3. Review Amendment 10. Only an approved amendment, a new master seed, a full
    regeneration, a fresh seven-gate P0 report and a new code freeze can open a
    holdout again, once. E1-v2 stays recorded and not in force, superseded by

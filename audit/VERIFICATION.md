@@ -644,6 +644,74 @@ holdout is opened once. Changing `freeze.py`'s source inventory means the
 committed freeze at `07d18b39…` no longer validates against this tree, which is
 correct for a spent and void run.
 
+## Track O: path-scoped traversal v2, executed
+
+Added 2026-09-03. Screening splits only; no holdout was generated, read, or
+opened; the runs are a screening ablation on new v2 data, not an arm of the frozen
+READ v1 experiment.
+
+**Order of evidence.** The preregistration
+(`experiments/track_o_v1/SCREENING_PREREGISTRATION.md`) was committed as
+`e5511596a704` at 2026-09-03T07:47:05+10:00. Every one of the
+twelve `probe.json` files carries a `git_head` that **descends from** that commit
+and a `started_at` after it, verified mechanically by the report's order check
+(12/12). The single commit between them streams the training split from disk
+instead of materialising it — a memory fix that changes no model code, no loss, no
+outcome-table constant and no measured quantity; the diff is recorded in
+`private/track-o-v1/preflight.md`. First three runs:
+
+  - `probe-TRAVV1-deg3_len6_v8-s1729` git_head `5eb93999df69` descends True, started 2026-09-03T04:07:07+00:00
+  - `probe-TRAVV1-deg3_len6_v8-s2718` git_head `5eb93999df69` descends True, started 2026-09-03T04:08:07+00:00
+  - `probe-TRAVV1-deg3_len6_v8-s3141` git_head `5eb93999df69` descends True, started 2026-09-03T04:09:07+00:00
+
+The report reader and its 76 tests were finished at 2026-09-02T23:31:36Z, when the
+furthest run had completed 2,361 of 8,000 updates and none had reached the 8,000
+read point — recorded in the preflight with the per-run progress at that moment.
+
+**Execution.** Twelve runs of 8,000 updates (cuda, bf16, MPS): TRAVV2 and the
+frozen v1 comparator at equal capacity, on `deg6_len8_v4_rep` and `deg3_len6_v8`
+at γ = 0.4, B = 64, seeds 1729/2718/3141. All completed; **zero stderr content
+across all twelve**. Measured 2.56 s/update for TRAVV2 against 0.69 for v1.
+
+**Observed reading.** Band **A — learned and dominant**. TRAVV2 route-completeness
+at update 8,000 on the hard cell: 0.9341, 0.9333, 0.9373, Wilson lower bounds
+0.9215/0.9206/0.9250, every one clearing both its own untrained line
+(0.827/0.849/0.894) and the strongest model-free policy (0.8619). Examined-set
+precision 0.192 against untrained 0.165–0.172 and `stop_aware` 0.173, on 32.7
+edges against 37.4. No harness defect. Band G recorded for the three v1 hard-cell
+seeds, which fail the Amendment 04 §5 accuracy floors.
+
+**Returned set** (descriptive, declared in design notes §2.17 before any run
+reached its read point): at a positive edge logit, 5.9 of 32.7 examined edges
+returned at 0.893 precision and 0.881 recall, average precision 0.931 on the hard
+cell; 5.2 of 13.2 at 0.963/0.960, AP 0.994 on the easy cell.
+
+**Contamination check.** Train and screen share zero episode ids, zero
+paired-world ids and zero identical visible payloads on both cells
+(16,432/1,652 and 20,000/2,000 episodes).
+
+**Stated limitations, recorded with the result.** Exact accuracy is largely a
+restatement of route-completeness (§2.20). The answer head trained on
+identically-zero label inputs under supplied-prefix supervision, so its effective
+budget was 4,000 updates rather than 8,000 (§2.19). An untrained TRAVV2 already
+reaches 0.857, so training contributes about eight points above a structural prior.
+
+**Suite.** Full canonical suite at the working tree that produced the report:
+`uv run pytest -q` → **557 passed in 608.92s**. `ruff check`, `ruff format --check`
+and `uv lock --check` clean. The frozen v1 contracts pass untouched.
+
+**Performance baseline, measured for the optimisation pass.** 2.56 s/update for
+TRAVV2 (90-update runs, solo) against 0.69 for the frozen v1 model; six concurrent
+runs under MPS cost 2.84 s/update each, so concurrency is near-linear. cProfile of
+one accumulation step (0.377 s: forward 0.275, backward and optimiser 0.186) puts
+`score_expansions` at 82 % of the forward, and within it `pair_features` at 25 %,
+the eight traversal blocks at 31 % and `torch.tensor` construction at 11 %.
+Featurisation totals 0.46 s of a 2.56 s update — 18 % — so the remaining 82 % is
+launch overhead, which the GPU counters corroborate at 5 % memory utilisation and
+74 W of a 300 W budget with the clock unthrottled. Widening the microbatch from
+16×8 to 128×1 is worth 1.44x measured; a numpy prototype of `pair_features` is
+5.1x and reproduces its adjacency and relation bits exactly.
+
 ## READ run v1: Track N structural-only screening executed
 
 Added 2026-09-03. Screening split only; the holdout was not generated, read, or
