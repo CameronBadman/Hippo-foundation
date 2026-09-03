@@ -208,12 +208,42 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
             features = torch.tensor(rows, dtype=torch.float32, device=self.device)
             return self.coverage_head(features).squeeze(-1)
 
+        def _answer_batch(
+            self, answer_inputs: list[tuple[Any, ...]], cuts: list[int]
+        ) -> Any:
+            return torch.stack(
+                [
+                    self.answer(
+                        tokens[: cuts[slot]],
+                        scores[: cuts[slot]],
+                        index,
+                        endpoints,
+                        routes,
+                    )
+                    for slot, (tokens, scores, index, endpoints, routes) in enumerate(
+                        answer_inputs
+                    )
+                ]
+            )
+
+        def answer_at_cuts(self, out: dict[str, Any], cuts: list[int]) -> Any:
+            """Re-read the answer head at a different cut, with no second walk.
+
+            Training reads the answer at T*, the first route-complete decision
+            point, which is derived from hidden truth and so cannot be computed
+            inside `forward`. The walk and its scored tokens are unchanged; only
+            how many of them the answer summarises differs.
+            """
+
+            return self._answer_batch(out["answer_inputs"], cuts)
+
         def _walk_batch(
             self,
             indexes: list[EpisodeIndex],
             *,
             supplied: list[list[tuple[Prefix, list[int]]]] | None,
             stop_rule: str,
+            stop_decision: str,
             query_cache: dict[int, tuple[Any, Any]],
             array_cache: dict[int, Any],
         ) -> list[dict[str, Any]]:
@@ -316,7 +346,30 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
                     logits = self.stop_logits([d.features for d in decisions])
                     keep = []
                     for row, (slot, prefix, group) in enumerate(offers):
-                        if float(logits[row]) > 0.0:
+                        stop_logit = float(logits[row])
+                        if stop_decision == "probability":
+                            # The BCE's own boundary: P(stop) > 0.5.
+                            halt = stop_logit > 0.0
+                        else:
+                            # Constant-free: "done" is more probable than "the
+                            # best edge left is on-route". Compares two learned
+                            # logits and carries no threshold of its own.
+                            #
+                            # The default is +inf, not -inf. An empty frontier
+                            # means there is no "best remaining edge" to be more
+                            # confident than, which is the state before the very
+                            # first expansion — with -inf the rule fired
+                            # immediately on every episode and the walk returned
+                            # zero expansions, which reads as a perfectly cheap
+                            # policy that never finds anything. No frontier is an
+                            # absence of evidence for stopping, so the rule
+                            # abstains and the walk exhausts naturally instead.
+                            best_edge = max(
+                                (score for score, _child in frontier[slot].values()),
+                                default=float("inf"),
+                            )
+                            halt = stop_logit > best_edge
+                        if halt:
                             walks[slot]["stop_reason"] = STOP_LEARNED
                             active.remove(slot)
                         else:
@@ -405,18 +458,24 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
             *,
             supplied: list[list[tuple[Prefix, list[int]]]] | None = None,
             stop_rule: str = "exhaust",
+            stop_decision: str = "probability",
             answer_at: list[int] | None = None,
         ) -> dict[str, Any]:
             """Two passes: walk without gradients, then score everything with them.
 
             `stop_rule` is `exhaust` (training, and the reference walk) or
-            `learned` (evaluation). `answer_at` gives, per episode, how many
-            examined edges the answer head may read — training passes T*, the
-            first route-complete decision point; evaluation passes the stop.
+            `learned` (evaluation). `stop_decision` selects which of the two
+            reported rules a learned walk halts on. `answer_at` gives, per
+            episode, how many examined edges the answer head may read; when the
+            cut is not known until the walk has run — training reads at T*,
+            which is derived from hidden truth the model must not see — leave it
+            unset and call `answer_at_cuts` on the result instead.
             """
 
             if stop_rule not in {"exhaust", "learned"}:
                 raise TrainingBlocked(f"unknown stop rule: {stop_rule}")
+            if stop_decision not in {"probability", "logit_margin"}:
+                raise TrainingBlocked(f"unknown stop decision: {stop_decision}")
             indexes = [EpisodeIndex(visible) for visible in visible_batch]
             query_cache: dict[int, tuple[Any, Any]] = {}
             array_cache: dict[int, Any] = {}
@@ -426,6 +485,7 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
                     indexes,
                     supplied=supplied,
                     stop_rule=stop_rule,
+                    stop_decision=stop_decision,
                     query_cache=query_cache,
                     array_cache=array_cache,
                 )
@@ -477,19 +537,21 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
                 stop_logits.append(stop_all[cursor : cursor + size])
                 cursor += size
 
+            # Everything the answer head needs, kept so a caller who only learns
+            # the cut *after* the walk (training reads at T*, derived from hidden
+            # truth) can re-read the answer without a second forward.
+            answer_inputs = [
+                (
+                    kept_tokens[slot],
+                    kept_scores[slot],
+                    indexes[slot],
+                    walks[slot]["endpoints"],
+                    walks[slot]["routes"],
+                )
+                for slot in range(count)
+            ]
             cuts = answer_at or [len(walk["examined"]) for walk in walks]
-            logits = torch.stack(
-                [
-                    self.answer(
-                        kept_tokens[slot][: cuts[slot]],
-                        kept_scores[slot][: cuts[slot]],
-                        indexes[slot],
-                        walks[slot]["endpoints"],
-                        walks[slot]["routes"],
-                    )
-                    for slot in range(count)
-                ]
-            )
+            logits = self._answer_batch(answer_inputs, cuts)
 
             width = max((len(values) for values in kept_scores), default=1) or 1
             zero = torch.zeros((), device=self.device)
@@ -504,6 +566,7 @@ def build_read_model_v3(config: dict[str, Any]) -> Any:
                 masks.append([True] * len(kept_scores[slot]) + [False] * pad)
             return {
                 "logits": logits,
+                "answer_inputs": answer_inputs,
                 "scores": torch.stack(score_rows),
                 "score_mask": torch.tensor(masks, device=self.device),
                 "stop_logits": stop_logits,
