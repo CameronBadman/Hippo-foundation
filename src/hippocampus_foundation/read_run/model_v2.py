@@ -104,11 +104,14 @@ class EpisodeIndex:
         groups: dict[int, list[dict[str, int]]] = defaultdict(list)
         for edge in visible["edges"]:
             groups[edge["source"]].append(edge)
-        for values in groups.values():
-            values.sort(
-                key=lambda edge: _structural_order(visible["router_seed"], edge)
-            )
+        # Groups are sorted by `_structural_order` lazily, on first access.
+        # Sorting every node up front costs a SHA-256 per edge for the whole
+        # graph — measured at 122,706 calls per training update — when a walk
+        # expands only about ten nodes per episode. The order is identical
+        # either way; only the work that is never used disappears.
         self._groups = groups
+        self._sorted: set[int] = set()
+        self._router_seed = visible["router_seed"]
         self._content = {
             node["node"]: tuple(node["content"]) for node in visible["nodes"]
         }
@@ -119,8 +122,17 @@ class EpisodeIndex:
         self._similarity_stats: dict[int, tuple[float, float, dict[int, int]]] = {}
 
     def group(self, node: int) -> list[dict[str, int]]:
-        """The full out-edge group. Reachable only from the walk's expansion."""
+        """The full out-edge group, in `_structural_order`.
 
+        Reachable only from the walk's expansion. The sort happens here, once
+        per node, rather than for every node at construction.
+        """
+
+        if node not in self._sorted:
+            self._groups[node].sort(
+                key=lambda edge: _structural_order(self._router_seed, edge)
+            )
+            self._sorted.add(node)
         return self._groups[node]
 
     def out_edges(self, node: int, *, expanded: frozenset[int]) -> list[dict[str, int]]:
@@ -134,7 +146,7 @@ class EpisodeIndex:
             raise TrainingBlocked(
                 "model_v2 may not read the out-edges of an unexpanded node"
             )
-        return self._groups[node]
+        return self.group(node)
 
     def content(self, node: int) -> tuple[int, ...]:
         return self._content[node]
@@ -147,7 +159,7 @@ class EpisodeIndex:
 
         cached = self._similarity_stats.get(node)
         if cached is None:
-            group = self._groups[node]
+            group = self.group(node)
             values = [edge["query_similarity_ppm"] for edge in group]
             order = sorted(
                 group, key=lambda e: (-e["query_similarity_ppm"], e["edge_id"])

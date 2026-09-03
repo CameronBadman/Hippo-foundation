@@ -103,3 +103,68 @@ Three from the design notes, all cheap and all found during the first runs:
   dimensions; give it its own path and combine at the logit level.
 - **§2.17 / §2.21** the read path should emit a relevance set as its product,
   scored by precision and recall, with the examined count remaining its cost.
+
+
+---
+
+# Results of the optimisation pass (2026-09-03)
+
+**Achieved 2.25x**, from 3.003 s/update to 1.337 s at microbatch 128 x 1.
+Short of the 4-6x target, and the reason is structural rather than a missed
+optimisation — recorded below so the next attempt does not re-tread it.
+
+| step | s/update | cumulative |
+|---|---|---|
+| baseline (microbatch 16 x 8) | 3.003 | — |
+| microbatch 128 x 1 alone | 1.773 | 1.44x |
+| + vectorised featurisers | 1.398 | 2.15x |
+| + lazy structural sort | 1.337 | **2.25x** |
+
+**What worked.**
+
+- *Vectorised featurisers* (`features_v2.py`). The pair grid alone is 9.0x
+  faster; end to end this contributed 1.27x on top of the batch shape. The
+  scalar versions stay as the reference and are checked elementwise.
+- *Wider microbatch.* Same arithmetic — the loss is a per-episode mean before
+  the batch mean — with a quarter of the rounds of small tensors.
+- *Lazy structural sort.* `EpisodeIndex.__init__` was SHA-256-sorting every
+  node's out-edge group at construction: 122,706 `_structural_order` calls per
+  update, when a walk expands about ten nodes per episode. Sorting on first
+  access to a node's group is identical in output and removes the rest.
+
+**What was tried and rejected, with the measurement.**
+
+- *`torch.compile` on the traversal blocks* (`dynamic=True`): **1.02x**, and it
+  **changed the walk** — `edge_ids`, `routes` and `stop_reason` all differed
+  from eager. Inductor is free to re-associate reductions, and the frontier
+  tie-break sums two detached float32 values, so a near-tie flips and the walk
+  diverges. Both a failure on speed and a failure against the golden fixture, so
+  it is out. CUDA graphs were not attempted for the related reason that the
+  candidate group and context length vary per round, so the shapes are not
+  static without bucketing that would itself change the masked-attention
+  numerics.
+
+**Where the floor is, and why it is not an optimisation problem.**
+
+At the current shape the backward pass is **47 % of the step** (0.62 s of
+1.34 s) and nothing above reaches it. The remaining forward-side Python —
+`candidate_features` and `context_features` still looping internally, the last
+`torch.tensor` and `torch.stack` calls — totals about 10 % of the step, so
+eliminating all of it would give roughly 2.5x, not 4x.
+
+The cause is the walk's shape: a training update runs about twelve *sequential*
+rounds, each applying eight traversal blocks, so the autograd graph is roughly
+ninety-six small block applications and the backward is ninety-six small
+backward passes. The work is not large; the launches are many, and they cannot
+be batched because round k+1 depends on the edge chosen in round k.
+
+**The one idea that reaches it, not attempted here.** Because `f` is a pure
+function of `(query, prefix, edge)` and the walk's decisions are made on
+`.detach()`ed scores, the walk does not need gradients. A two-pass forward —
+run the walk under `no_grad` to determine the examined `(prefix, candidate)`
+set, then score that whole set **once** with gradients — would collapse ninety-six
+small backward passes into one large one. The walk is fully determined by pass
+one, so pass two's float differences cannot change `edge_ids`, `routes` or
+`stop_reason`, which is exactly what the golden fixture asserts. It costs a
+second forward (cheaper without graph construction) and is a real restructuring
+of `forward`, so it is a decision to take deliberately rather than a tidy-up.
