@@ -1644,6 +1644,50 @@ input rather than a share of the first's. The successor design should treat
 invariant with a test, in the register of the visit-order invariance test that
 already guards `f`.
 
+# 2.20 Exact accuracy is nearly a restatement of route-completeness
+
+Audited 2026-09-03 at update ~5,000 of the Track O runs, prompted by Cameron
+asking whether the results were "a bit too well". Two checks; the first came
+back clean and the second found something that changes how the report reads.
+
+**No contamination.** Train and screen share zero episode ids, zero
+paired-world ids and zero identical visible payloads, on both cells
+(16,432/1,652 and 20,000/2,000). The splits are disjoint worlds, as the
+derivation labels intend.
+
+**But the headline number is not independent evidence.** Conditioning accuracy
+on the walk succeeding — `acc / RC`, the head's hit rate given a correct
+traversal — gives 0.994, 0.981 and 0.997 on the easy cell and 0.904, 0.717,
+0.906 on the hard one. On the easy cell the head is right essentially whenever
+the walk is, and the reason is structural rather than empirical:
+`exact_correct = class_correct AND proof_valid`, and `proof_valid` requires the
+emitted routes to *be* valid routes whose endpoints are exactly the targets. So
+on any proof-valid episode the endpoint assertion masks the head reads are the
+gold answer by construction. Given a correct walk, naming the answer is close to
+mechanical.
+
+This is not a leak. Assertion masks are public `visible` data, and the model
+still had to identify which nodes to read them from — that identification is the
+whole task. But it does mean **exact-set accuracy carries little information
+beyond route-completeness here**, and a report that leads with 99 % is reporting
+the walk twice.
+
+**Consequence for the reading.** The preregistration already made
+route-completeness and examined-set precision primary and accuracy a
+descriptive, which this vindicates — though for a sharper reason than was
+written down. The reason recorded there was that a weak head must not make the
+navigation measurement unreadable. The reason found here is the converse and
+stronger: a *strong* head must not make the navigation measurement look better
+than it is. Both point the same way, and the report should state the acc/RC
+decomposition rather than the raw accuracy so the redundancy is visible.
+
+**Consequence for the successor.** If the answer head is to measure anything the
+walk does not, it needs a task the walk does not already determine — which is
+another way of saying what section 2.6 says about insert: the objective whose
+answer is a *set* the traversal has to select, not a value it can read off a node
+it already found. Until then, accuracy on this generator should be read as a
+consistency check on the walk, not as a second capability.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under
