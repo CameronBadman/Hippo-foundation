@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "config_id": "hippocampus-track-p-training-p1",
+  "derived_from": "hippocampus-track-o-training-o1",
+  "model": {
+    "hidden_dimension": 256,
+    "self_attention_heads": 8,
+    "feedforward_multiplier": 4,
+    "query_blocks": 2,
+    "traversal_blocks": 8,
+    "score_hidden_dimension": 283,
+    "coverage_hidden_dimension": 64,
+    "output_classes": 16,
+    "dropout": 0.0,
+    "content_features": true
+  },
+  "training": {
+    "optimizer": "adamw",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "microbatch_size": 128,
+    "gradient_accumulation_steps": 1,
+    "effective_batch_size": 128,
+    "evaluation_microbatch_size": 16,
+    "update_count": 8000,
+    "answer_loss_weight": 1.0,
+    "edge_loss_weight": 0.25,
+    "stop_loss_weight": 0.25,
+    "early_stopping": false,
+    "mixed_precision": "bf16_if_supported_else_fp32",
+    "deterministic_algorithms": true,
+    "training_walk_stop_rule": "exhaust",
+    "supervision_schedule": {
+      "gold": [0.0, 0.25],
+      "on_policy": [0.25, 1.0]
+    }
+  },
+  "selection": {
+    "cost_unit": "expansions",
+    "cost_unit_source": "featurisers_read_a_whole_out_edge_group_so_whole_group_examination_is_paid_for",
+    "budget": null,
+    "budget_source": "removed_the_walk_runs_to_its_stop_rule_or_exhaustion",
+    "gamma": 0.4,
+    "gamma_source": "widest_band_between_best_model_free_policy_and_oracle",
+    "distractor_paths": 1,
+    "distractor_paths_source": "smallest_k_passing_ladder_gates_1_to_3_in_policy_ladder_v3_json",
+    "capacity_source": "identical_to_track_o_10257896_by_shared_module_definition",
+    "threshold_tuning": false,
+    "model_selection": false,
+    "holdout_forbidden": true
+  },
+  "fairness": {
+    "identical_episode_order_for_paired_arms": true,
+    "maximum_trainable_parameter_relative_difference": 0.01,
+    "arm_specific_hyperparameters_allowed": false
+  },
+  "notes": {
+    "microbatch": "128 x 1 replaces Track O's 16 x 8. Measured 1,300 MiB peak and 1.44x faster than 16 x 8 before the featuriser work; the loss is a per-episode mean then a batch mean and each accumulated chunk is divided by the chunk count, so the two shapes are loss-equivalent by construction. Pinned by tests/test_read_run_training_v3.py::test_microbatch_shape_is_loss_equivalent.",
+    "evaluation_microbatch_size": "Separate from the training microbatch on purpose. The Track O probe reused one value for both, so widening training would have silently widened evaluation; evaluation stays at Track O's 16.",
+    "expected_target_count": "Deleted, not set to 2. Track O's config carried it and model_v2.coverage_features encoded it three times, which is why a stop head reading those features could only rediscover stop_aware's hard-coded rule. model_v3.stop_features contains no target constant and tests/test_read_run_model_v3.py asserts no column saturates as the endpoint count varies.",
+    "supervision_schedule": "The walker phase is dropped. Under exhaustion a walker-ordered and an on-policy walk examine the same prefix tree in a different order, and f is order-invariant (test_stable_score_is_invariant_to_visit_order), so they are the same edge-loss data; on-policy still differs for the stop head's state distribution. A preregistered schedule change, not a sweep.",
+    "loss_weights": "Three separately supervised heads with exactly derivable labels, so the mixture changes how fast each converges, never where. This is not the budget-versus-coverage trade-off design note 2.16 rules out: no weight here sets an operating point on a single quantity.",
+    "training_walk_stop_rule": "Training always exhausts and ignores the stop head's own output, which decouples what that head learns from what it does and yields decision points on both sides of route-completeness."
+  },
+  "training_authorized": false
+}

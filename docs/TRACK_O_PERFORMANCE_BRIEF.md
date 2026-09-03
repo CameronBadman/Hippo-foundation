@@ -168,3 +168,47 @@ one, so pass two's float differences cannot change `edge_ids`, `routes` or
 `stop_reason`, which is exactly what the golden fixture asserts. It costs a
 second forward (cheaper without graph construction) and is a real restructuring
 of `forward`, so it is a decision to take deliberately rather than a tidy-up.
+
+---
+
+# The two-pass forward: a prediction that was wrong (2026-09-04)
+
+The brief above proposed one idea that reached the backward-pass floor — walk
+under `no_grad`, then score the examined set once with gradients — and estimated
+a further 1.5-2x. **Built as `model_v3`, it delivers about 1.0x per update.**
+Recorded here in full, because the reasoning error is reusable.
+
+| build | s/update | expansions/episode | edges/episode |
+|---|---|---|---|
+| v2, interleaved, budget 64 | 1.262 | 6.55 | 38.4 |
+| v3, two-pass, exhaustion | 1.289 | 7.98 | 46.5 |
+
+Per update the two are level; per unit of work v3 is about **1.19x** cheaper,
+and it is doing the strictly larger job of exhausting the tree rather than
+stopping at two endpoints.
+
+**Why the estimate was wrong.** The autograd graph does collapse from ~96 small
+block applications to one wide one, and backward was 47 % of a v2 step. But
+pass 1 is a *second forward* that v2 never paid. Halving something that is 47 %
+of the step while adding back most of the other 53 % nets out near zero. The
+estimate counted the saving and not the new cost.
+
+**A larger error found on the way, worth more than the result.** The first
+version of `model_v3` walked each episode independently, calling
+`score_expansions` once per expansion with a batch of one — roughly a thousand
+batch-size-1 calls per update where v2 issues a dozen wide ones. It ran at
+**7.308 s/update, six times slower than v2**, and the two-pass idea looked
+refuted. It was not; the batching was. Pass 1 now keeps v2's round structure,
+batched across episodes, and pass 2 adds one wide call on top. Any future
+restructuring of this walk should check the *shape* of the calls it makes before
+concluding anything about the idea it is testing.
+
+**The two-pass split is kept, for supervision rather than speed.** The examined
+set, the endpoint registrations and the decision points are all fixed before any
+gradient is taken, which is what lets the stop head train off-policy on an
+exhaustive walk and what makes the answer head's inputs identical across
+supervision modes (the design note 2.19 fix). Those were the reasons Track P
+needed it; the speed was a hoped-for bonus and did not arrive.
+
+**Cumulative against the original 3.003 s/update baseline: 2.33x**, on a walk
+that examines 21 % more edges per episode than the one that baseline measured.
