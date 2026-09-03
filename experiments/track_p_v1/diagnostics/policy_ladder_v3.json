@@ -1,0 +1,2100 @@
+{
+  "budget": null,
+  "cells": {
+    "deg3_len6_v8": {
+      "config": "deg3_len6_v8|d3|n64-256|r8-16|l2-6|rep0|a3-5|v6-10|f1-2",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 1168,
+      "generation_success": {
+        "count": 2000,
+        "fraction": 1.0,
+        "n": 2000,
+        "wilson_lower_bound": 0.9986490557920816
+      },
+      "oracle_expansions": {
+        "max": 10,
+        "mean": 4.2063356164383565,
+        "median": 4,
+        "min": 2,
+        "n": 1168,
+        "p25": 2,
+        "p75": 6,
+        "p95": 8
+      },
+      "path_length": {
+        "max": 6,
+        "mean": 3.5565068493150687,
+        "median": 3,
+        "min": 2,
+        "n": 1168,
+        "p25": 2,
+        "p75": 4,
+        "p95": 6
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 13.720890410958905,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 16,
+            "mean": 4.589897260273973,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "expansions_at_rc": {
+            "max": 16,
+            "mean": 4.589897260273973,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.4069077980143905,
+          "registered_only_targets": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "two_endpoints": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 13.913527397260275,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 16,
+            "mean": 4.655821917808219,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "expansions_at_rc": {
+            "max": 16,
+            "mean": 4.589897260273973,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.06592465753424658,
+          "precision_mean": 0.40107542088492426,
+          "registered_only_targets": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "exhausted": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 13.913527397260275,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 16,
+            "mean": 4.655821917808219,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "expansions_at_rc": {
+            "max": 13,
+            "mean": 4.449486301369863,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.20633561643835616,
+          "precision_mean": 0.40107542088492426,
+          "registered_only_targets": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "exhausted": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 13.320205479452055,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 13,
+            "mean": 4.449486301369863,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "expansions_at_rc": {
+            "max": 13,
+            "mean": 4.449486301369863,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.41663967295388527,
+          "registered_only_targets": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "two_endpoints": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 0
+    },
+    "deg3_len6_v8-k1": {
+      "config": "deg3_len6_v8|d3|n64-256|r8-16|l2-6|rep0|a3-5|v6-10|f1-2|k1",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 1122,
+      "generation_success": {
+        "count": 2000,
+        "fraction": 1.0,
+        "n": 2000,
+        "wilson_lower_bound": 0.9986490557920816
+      },
+      "oracle_expansions": {
+        "max": 10,
+        "mean": 4.285204991087344,
+        "median": 4,
+        "min": 2,
+        "n": 1122,
+        "p25": 2,
+        "p75": 6,
+        "p95": 8
+      },
+      "path_length": {
+        "max": 6,
+        "mean": 3.6033868092691623,
+        "median": 4,
+        "min": 2,
+        "n": 1122,
+        "p25": 2,
+        "p75": 4,
+        "p95": 6
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 2,
+            "fraction": 0.0017825311942959,
+            "n": 1122,
+            "wilson_lower_bound": 0.0005900561048642737
+          },
+          "distractor_endpoints_reached_mean": 0.7272727272727273,
+          "edges_examined_mean": 16.074866310160427,
+          "endpoints_registered_mean": 2.501782531194296,
+          "expansions": {
+            "max": 16,
+            "mean": 5.380570409982175,
+            "median": 5,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 7,
+            "p95": 11
+          },
+          "expansions_at_rc": {
+            "max": 16,
+            "mean": 4.712313003452244,
+            "median": 4,
+            "min": 2,
+            "n": 869,
+            "p25": 2,
+            "p75": 6,
+            "p95": 10
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.35840108099466383,
+          "registered_only_targets": {
+            "count": 306,
+            "fraction": 0.2727272727272727,
+            "n": 1122,
+            "wilson_lower_bound": 0.2514237224994875
+          },
+          "route_complete": {
+            "count": 871,
+            "fraction": 0.7762923351158645,
+            "n": 1122,
+            "wilson_lower_bound": 0.7551778345629545
+          },
+          "stop_reasons": {
+            "two_endpoints": 1122
+          },
+          "targets_registered": {
+            "count": 869,
+            "fraction": 0.7745098039215687,
+            "n": 1122,
+            "wilson_lower_bound": 0.7533420643629238
+          },
+          "targets_registered_wilson_upper": 0.7943568454407887
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 1.0,
+          "edges_examined_mean": 17.796791443850267,
+          "endpoints_registered_mean": 3.0,
+          "expansions": {
+            "max": 17,
+            "mean": 5.959893048128342,
+            "median": 5,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 8,
+            "p95": 12
+          },
+          "expansions_at_rc": {
+            "max": 17,
+            "mean": 5.622994652406417,
+            "median": 5,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 8,
+            "p95": 12
+          },
+          "overhead_expansions_mean": 0.33689839572192515,
+          "precision_mean": 0.3335344546200948,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1122,
+            "fraction": 1.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.997594442856762
+          },
+          "stop_reasons": {
+            "exhausted": 1122
+          },
+          "targets_registered": {
+            "count": 1122,
+            "fraction": 1.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.997594442856762
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 1.0,
+          "edges_examined_mean": 17.796791443850267,
+          "endpoints_registered_mean": 3.0,
+          "expansions": {
+            "max": 17,
+            "mean": 5.959893048128342,
+            "median": 5,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 8,
+            "p95": 12
+          },
+          "expansions_at_rc": {
+            "max": 17,
+            "mean": 5.175579322638146,
+            "median": 4,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 7,
+            "p95": 11
+          },
+          "overhead_expansions_mean": 0.7843137254901961,
+          "precision_mean": 0.3335344546200948,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1122,
+            "fraction": 1.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.997594442856762
+          },
+          "stop_reasons": {
+            "exhausted": 1122
+          },
+          "targets_registered": {
+            "count": 1122,
+            "fraction": 1.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.997594442856762
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1122,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.6515151515151515,
+          "edges_examined_mean": 14.443850267379679,
+          "endpoints_registered_mean": 2.4224598930481283,
+          "expansions": {
+            "max": 14,
+            "mean": 4.82620320855615,
+            "median": 4,
+            "min": 2,
+            "n": 1122,
+            "p25": 3,
+            "p75": 6,
+            "p95": 10
+          },
+          "expansions_at_rc": {
+            "max": 14,
+            "mean": 4.343352601156069,
+            "median": 4,
+            "min": 2,
+            "n": 865,
+            "p25": 2,
+            "p75": 6,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.383990320599055,
+          "registered_only_targets": {
+            "count": 391,
+            "fraction": 0.3484848484848485,
+            "n": 1122,
+            "wilson_lower_bound": 0.32547630527455174
+          },
+          "route_complete": {
+            "count": 865,
+            "fraction": 0.7709447415329769,
+            "n": 1122,
+            "wilson_lower_bound": 0.7496721146833577
+          },
+          "stop_reasons": {
+            "two_endpoints": 1122
+          },
+          "targets_registered": {
+            "count": 865,
+            "fraction": 0.7709447415329769,
+            "n": 1122,
+            "wilson_lower_bound": 0.7496721146833577
+          },
+          "targets_registered_wilson_upper": 0.7909138222657611
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 1
+    },
+    "deg3_len6_v8-k2": {
+      "config": "deg3_len6_v8|d3|n64-256|r8-16|l2-6|rep0|a3-5|v6-10|f1-2|k2",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 1168,
+      "generation_success": {
+        "count": 2000,
+        "fraction": 1.0,
+        "n": 2000,
+        "wilson_lower_bound": 0.9986490557920816
+      },
+      "oracle_expansions": {
+        "max": 10,
+        "mean": 4.178082191780822,
+        "median": 4,
+        "min": 2,
+        "n": 1168,
+        "p25": 2,
+        "p75": 6,
+        "p95": 8
+      },
+      "path_length": {
+        "max": 6,
+        "mean": 3.521404109589041,
+        "median": 3,
+        "min": 2,
+        "n": 1168,
+        "p25": 2,
+        "p75": 4,
+        "p95": 6
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 3,
+            "fraction": 0.0025684931506849314,
+            "n": 1168,
+            "wilson_lower_bound": 0.001026946581590472
+          },
+          "distractor_endpoints_reached_mean": 1.2457191780821917,
+          "edges_examined_mean": 17.79708904109589,
+          "endpoints_registered_mean": 2.714041095890411,
+          "expansions": {
+            "max": 20,
+            "mean": 5.954623287671233,
+            "median": 5,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 8,
+            "p95": 13
+          },
+          "expansions_at_rc": {
+            "max": 17,
+            "mean": 5.014684287812041,
+            "median": 4,
+            "min": 2,
+            "n": 681,
+            "p25": 3,
+            "p75": 6,
+            "p95": 11
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.29962722174750755,
+          "registered_only_targets": {
+            "count": 132,
+            "fraction": 0.11301369863013698,
+            "n": 1168,
+            "wilson_lower_bound": 0.09866133807522609
+          },
+          "route_complete": {
+            "count": 684,
+            "fraction": 0.5856164383561644,
+            "n": 1168,
+            "wilson_lower_bound": 0.5617361344975218
+          },
+          "stop_reasons": {
+            "two_endpoints": 1168
+          },
+          "targets_registered": {
+            "count": 681,
+            "fraction": 0.5830479452054794,
+            "n": 1168,
+            "wilson_lower_bound": 0.5591524980296574
+          },
+          "targets_registered_wilson_upper": 0.6065595386859242
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.0,
+          "edges_examined_mean": 21.464897260273972,
+          "endpoints_registered_mean": 4.0,
+          "expansions": {
+            "max": 23,
+            "mean": 7.189212328767123,
+            "median": 6,
+            "min": 3,
+            "n": 1168,
+            "p25": 4,
+            "p75": 9,
+            "p95": 15
+          },
+          "expansions_at_rc": {
+            "max": 22,
+            "mean": 6.504280821917808,
+            "median": 6,
+            "min": 2,
+            "n": 1168,
+            "p25": 4,
+            "p75": 9,
+            "p95": 14
+          },
+          "overhead_expansions_mean": 0.684931506849315,
+          "precision_mean": 0.2648069007343945,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "exhausted": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.0,
+          "edges_examined_mean": 21.464897260273972,
+          "endpoints_registered_mean": 4.0,
+          "expansions": {
+            "max": 23,
+            "mean": 7.189212328767123,
+            "median": 6,
+            "min": 3,
+            "n": 1168,
+            "p25": 4,
+            "p75": 9,
+            "p95": 15
+          },
+          "expansions_at_rc": {
+            "max": 23,
+            "mean": 5.68236301369863,
+            "median": 5,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 8,
+            "p95": 12
+          },
+          "overhead_expansions_mean": 1.5068493150684932,
+          "precision_mean": 0.2648069007343945,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "stop_reasons": {
+            "exhausted": 1168
+          },
+          "targets_registered": {
+            "count": 1168,
+            "fraction": 1.0,
+            "n": 1168,
+            "wilson_lower_bound": 0.9976889633185534
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 1,
+            "fraction": 0.0008561643835616438,
+            "n": 1168,
+            "wilson_lower_bound": 0.00019102679301395348
+          },
+          "distractor_endpoints_reached_mean": 1.0351027397260273,
+          "edges_examined_mean": 14.730308219178083,
+          "endpoints_registered_mean": 2.5864726027397262,
+          "expansions": {
+            "max": 19,
+            "mean": 4.924657534246576,
+            "median": 4,
+            "min": 2,
+            "n": 1168,
+            "p25": 3,
+            "p75": 6,
+            "p95": 10
+          },
+          "expansions_at_rc": {
+            "max": 15,
+            "mean": 4.142465753424657,
+            "median": 3,
+            "min": 2,
+            "n": 730,
+            "p25": 2,
+            "p75": 5,
+            "p95": 9
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.35360329358617026,
+          "registered_only_targets": {
+            "count": 218,
+            "fraction": 0.18664383561643835,
+            "n": 1168,
+            "wilson_lower_bound": 0.16862346489174154
+          },
+          "route_complete": {
+            "count": 731,
+            "fraction": 0.6258561643835616,
+            "n": 1168,
+            "wilson_lower_bound": 0.6023007952185703
+          },
+          "stop_reasons": {
+            "two_endpoints": 1168
+          },
+          "targets_registered": {
+            "count": 730,
+            "fraction": 0.625,
+            "n": 1168,
+            "wilson_lower_bound": 0.6014359689947144
+          },
+          "targets_registered_wilson_upper": 0.647986271834924
+        }
+      },
+      "room_stop_aware_minus_oracle_median": -1,
+      "room_walker_minus_oracle_median": 2
+    },
+    "deg3_len6_v8-k4": {
+      "config": "deg3_len6_v8|d3|n64-256|r8-16|l2-6|rep0|a3-5|v6-10|f1-2|k4",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 860,
+      "generation_success": {
+        "count": 1628,
+        "fraction": 0.814,
+        "n": 2000,
+        "wilson_lower_bound": 0.7992678232450895
+      },
+      "oracle_expansions": {
+        "max": 10,
+        "mean": 4.924418604651163,
+        "median": 4,
+        "min": 3,
+        "n": 860,
+        "p25": 4,
+        "p75": 6,
+        "p95": 8
+      },
+      "path_length": {
+        "max": 6,
+        "mean": 3.9662790697674417,
+        "median": 4,
+        "min": 3,
+        "n": 860,
+        "p25": 3,
+        "p75": 4,
+        "p95": 6
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 2,
+            "fraction": 0.002325581395348837,
+            "n": 860,
+            "wilson_lower_bound": 0.0007698870106311776
+          },
+          "distractor_endpoints_reached_mean": 1.7023255813953488,
+          "edges_examined_mean": 24.753488372093024,
+          "endpoints_registered_mean": 2.5325581395348835,
+          "expansions": {
+            "max": 25,
+            "mean": 8.279069767441861,
+            "median": 7,
+            "min": 3,
+            "n": 860,
+            "p25": 6,
+            "p75": 10,
+            "p95": 16
+          },
+          "expansions_at_rc": {
+            "max": 19,
+            "mean": 7.613496932515337,
+            "median": 6,
+            "min": 4,
+            "n": 163,
+            "p25": 5,
+            "p75": 9,
+            "p95": 14
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.21018532966208756,
+          "registered_only_targets": {
+            "count": 10,
+            "fraction": 0.011627906976744186,
+            "n": 860,
+            "wilson_lower_bound": 0.006963677387640613
+          },
+          "route_complete": {
+            "count": 165,
+            "fraction": 0.19186046511627908,
+            "n": 860,
+            "wilson_lower_bound": 0.17075447888710926
+          },
+          "stop_reasons": {
+            "two_endpoints": 860
+          },
+          "targets_registered": {
+            "count": 163,
+            "fraction": 0.18953488372093022,
+            "n": 860,
+            "wilson_lower_bound": 0.16853830819176507
+          },
+          "targets_registered_wilson_upper": 0.2124787676207144
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 860,
+            "wilson_lower_bound": -2.161603980436571e-19
+          },
+          "distractor_endpoints_reached_mean": 4.0,
+          "edges_examined_mean": 33.04883720930233,
+          "endpoints_registered_mean": 6.0,
+          "expansions": {
+            "max": 29,
+            "mean": 11.07325581395349,
+            "median": 10,
+            "min": 4,
+            "n": 860,
+            "p25": 8,
+            "p75": 14,
+            "p95": 19
+          },
+          "expansions_at_rc": {
+            "max": 29,
+            "mean": 9.746511627906976,
+            "median": 9,
+            "min": 4,
+            "n": 860,
+            "p25": 7,
+            "p75": 12,
+            "p95": 18
+          },
+          "overhead_expansions_mean": 1.3267441860465117,
+          "precision_mean": 0.189947794475205,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 860,
+            "wilson_lower_bound": -2.161603980436571e-19
+          },
+          "route_complete": {
+            "count": 860,
+            "fraction": 1.0,
+            "n": 860,
+            "wilson_lower_bound": 0.9968638853956323
+          },
+          "stop_reasons": {
+            "exhausted": 860
+          },
+          "targets_registered": {
+            "count": 860,
+            "fraction": 1.0,
+            "n": 860,
+            "wilson_lower_bound": 0.9968638853956323
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 860,
+            "wilson_lower_bound": -2.161603980436571e-19
+          },
+          "distractor_endpoints_reached_mean": 4.0,
+          "edges_examined_mean": 33.04883720930233,
+          "endpoints_registered_mean": 6.0,
+          "expansions": {
+            "max": 29,
+            "mean": 11.07325581395349,
+            "median": 10,
+            "min": 4,
+            "n": 860,
+            "p25": 8,
+            "p75": 14,
+            "p95": 19
+          },
+          "expansions_at_rc": {
+            "max": 24,
+            "mean": 8.046511627906977,
+            "median": 7,
+            "min": 3,
+            "n": 860,
+            "p25": 5,
+            "p75": 10,
+            "p95": 16
+          },
+          "overhead_expansions_mean": 3.0267441860465114,
+          "precision_mean": 0.189947794475205,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 860,
+            "wilson_lower_bound": -2.161603980436571e-19
+          },
+          "route_complete": {
+            "count": 860,
+            "fraction": 1.0,
+            "n": 860,
+            "wilson_lower_bound": 0.9968638853956323
+          },
+          "stop_reasons": {
+            "exhausted": 860
+          },
+          "targets_registered": {
+            "count": 860,
+            "fraction": 1.0,
+            "n": 860,
+            "wilson_lower_bound": 0.9968638853956323
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 860,
+            "wilson_lower_bound": -2.161603980436571e-19
+          },
+          "distractor_endpoints_reached_mean": 1.4686046511627906,
+          "edges_examined_mean": 17.83953488372093,
+          "endpoints_registered_mean": 2.5348837209302326,
+          "expansions": {
+            "max": 17,
+            "mean": 5.962790697674419,
+            "median": 5,
+            "min": 3,
+            "n": 860,
+            "p25": 4,
+            "p75": 7,
+            "p95": 11
+          },
+          "expansions_at_rc": {
+            "max": 16,
+            "mean": 5.326771653543307,
+            "median": 5,
+            "min": 3,
+            "n": 254,
+            "p25": 4,
+            "p75": 6,
+            "p95": 10
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.29039976983547433,
+          "registered_only_targets": {
+            "count": 46,
+            "fraction": 0.053488372093023255,
+            "n": 860,
+            "wilson_lower_bound": 0.0422105886436781
+          },
+          "route_complete": {
+            "count": 254,
+            "fraction": 0.29534883720930233,
+            "n": 860,
+            "wilson_lower_bound": 0.2704349524328401
+          },
+          "stop_reasons": {
+            "two_endpoints": 860
+          },
+          "targets_registered": {
+            "count": 254,
+            "fraction": 0.29534883720930233,
+            "n": 860,
+            "wilson_lower_bound": 0.2704349524328401
+          },
+          "targets_registered_wilson_upper": 0.32154634098662205
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 1,
+      "room_walker_minus_oracle_median": 6
+    },
+    "deg6_len8_v4_rep": {
+      "config": "deg6_len8_v4_rep|d6|n64-256|r4-6|l2-8|rep1|a3-5|v6-10|f1-2",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 1235,
+      "generation_success": {
+        "count": 1652,
+        "fraction": 0.826,
+        "n": 2000,
+        "wilson_lower_bound": 0.8116183919393324
+      },
+      "oracle_expansions": {
+        "max": 14,
+        "mean": 4.982186234817814,
+        "median": 5,
+        "min": 2,
+        "n": 1235,
+        "p25": 3,
+        "p75": 7,
+        "p95": 9
+      },
+      "path_length": {
+        "max": 8,
+        "mean": 4.502024291497976,
+        "median": 4,
+        "min": 2,
+        "n": 1235,
+        "p25": 3,
+        "p75": 6,
+        "p95": 8
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 43.78785425101215,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 43,
+            "mean": 7.45587044534413,
+            "median": 6,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 10,
+            "p95": 18
+          },
+          "expansions_at_rc": {
+            "max": 43,
+            "mean": 7.45587044534413,
+            "median": 6,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 10,
+            "p95": 18
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.16881991089722417,
+          "registered_only_targets": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "route_complete": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "stop_reasons": {
+            "two_endpoints": 1235
+          },
+          "targets_registered": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "targets_registered_wilson_upper": 0.9999999999999998
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 45.26477732793522,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 44,
+            "mean": 7.721457489878542,
+            "median": 6,
+            "min": 2,
+            "n": 1235,
+            "p25": 4,
+            "p75": 10,
+            "p95": 18
+          },
+          "expansions_at_rc": {
+            "max": 43,
+            "mean": 7.45587044534413,
+            "median": 6,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 10,
+            "p95": 18
+          },
+          "overhead_expansions_mean": 0.26558704453441295,
+          "precision_mean": 0.16274091188692966,
+          "registered_only_targets": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "route_complete": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "stop_reasons": {
+            "exhausted": 1235
+          },
+          "targets_registered": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "targets_registered_wilson_upper": 0.9999999999999998
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 45.26477732793522,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 44,
+            "mean": 7.721457489878542,
+            "median": 6,
+            "min": 2,
+            "n": 1235,
+            "p25": 4,
+            "p75": 10,
+            "p95": 18
+          },
+          "expansions_at_rc": {
+            "max": 38,
+            "mean": 6.460728744939272,
+            "median": 5,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 8,
+            "p95": 16
+          },
+          "overhead_expansions_mean": 1.2607287449392712,
+          "precision_mean": 0.16274091188692966,
+          "registered_only_targets": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "route_complete": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "stop_reasons": {
+            "exhausted": 1235
+          },
+          "targets_registered": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "targets_registered_wilson_upper": 0.9999999999999998
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 0.0,
+          "edges_examined_mean": 38.239676113360325,
+          "endpoints_registered_mean": 2.0,
+          "expansions": {
+            "max": 38,
+            "mean": 6.460728744939272,
+            "median": 5,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 8,
+            "p95": 16
+          },
+          "expansions_at_rc": {
+            "max": 38,
+            "mean": 6.460728744939272,
+            "median": 5,
+            "min": 2,
+            "n": 1235,
+            "p25": 3,
+            "p75": 8,
+            "p95": 16
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.18531104303706136,
+          "registered_only_targets": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "route_complete": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "stop_reasons": {
+            "two_endpoints": 1235
+          },
+          "targets_registered": {
+            "count": 1235,
+            "fraction": 1.0,
+            "n": 1235,
+            "wilson_lower_bound": 0.9978140653337101
+          },
+          "targets_registered_wilson_upper": 0.9999999999999998
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 1
+    },
+    "deg6_len8_v4_rep-k1": {
+      "config": "deg6_len8_v4_rep|d6|n64-256|r4-6|l2-8|rep1|a3-5|v6-10|f1-2|k1",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 1080,
+      "generation_success": {
+        "count": 1444,
+        "fraction": 0.722,
+        "n": 2000,
+        "wilson_lower_bound": 0.7052305408044718
+      },
+      "oracle_expansions": {
+        "max": 14,
+        "mean": 4.7064814814814815,
+        "median": 4,
+        "min": 2,
+        "n": 1080,
+        "p25": 3,
+        "p75": 6,
+        "p95": 9
+      },
+      "path_length": {
+        "max": 8,
+        "mean": 4.310185185185185,
+        "median": 4,
+        "min": 2,
+        "n": 1080,
+        "p25": 3,
+        "p75": 6,
+        "p95": 8
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 4,
+            "fraction": 0.003703703703703704,
+            "n": 1080,
+            "wilson_lower_bound": 0.0016638154953178082
+          },
+          "distractor_endpoints_reached_mean": 0.837037037037037,
+          "edges_examined_mean": 42.95,
+          "endpoints_registered_mean": 2.678703703703704,
+          "expansions": {
+            "max": 41,
+            "mean": 7.325925925925926,
+            "median": 6,
+            "min": 2,
+            "n": 1080,
+            "p25": 3,
+            "p75": 10,
+            "p95": 19
+          },
+          "expansions_at_rc": {
+            "max": 34,
+            "mean": 6.787280701754386,
+            "median": 5,
+            "min": 2,
+            "n": 912,
+            "p25": 3,
+            "p75": 9,
+            "p95": 18
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.16313231790512822,
+          "registered_only_targets": {
+            "count": 179,
+            "fraction": 0.16574074074074074,
+            "n": 1080,
+            "wilson_lower_bound": 0.1479690593536988
+          },
+          "route_complete": {
+            "count": 916,
+            "fraction": 0.8481481481481481,
+            "n": 1080,
+            "wilson_lower_bound": 0.8293172722256648
+          },
+          "stop_reasons": {
+            "two_endpoints": 1080
+          },
+          "targets_registered": {
+            "count": 912,
+            "fraction": 0.8444444444444444,
+            "n": 1080,
+            "wilson_lower_bound": 0.8254456996037303
+          },
+          "targets_registered_wilson_upper": 0.8617217435650358
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 1.0,
+          "edges_examined_mean": 46.45,
+          "endpoints_registered_mean": 3.0,
+          "expansions": {
+            "max": 44,
+            "mean": 7.930555555555555,
+            "median": 6,
+            "min": 2,
+            "n": 1080,
+            "p25": 4,
+            "p75": 10,
+            "p95": 20
+          },
+          "expansions_at_rc": {
+            "max": 42,
+            "mean": 7.4981481481481485,
+            "median": 6,
+            "min": 2,
+            "n": 1080,
+            "p25": 3,
+            "p75": 10,
+            "p95": 19
+          },
+          "overhead_expansions_mean": 0.4324074074074074,
+          "precision_mean": 0.153230365719467,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1080,
+            "fraction": 1.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.9975011271804669
+          },
+          "stop_reasons": {
+            "exhausted": 1080
+          },
+          "targets_registered": {
+            "count": 1080,
+            "fraction": 1.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.9975011271804669
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 1.0,
+          "edges_examined_mean": 46.45,
+          "endpoints_registered_mean": 3.0,
+          "expansions": {
+            "max": 44,
+            "mean": 7.930555555555555,
+            "median": 6,
+            "min": 2,
+            "n": 1080,
+            "p25": 4,
+            "p75": 10,
+            "p95": 20
+          },
+          "expansions_at_rc": {
+            "max": 35,
+            "mean": 6.299074074074074,
+            "median": 5,
+            "min": 2,
+            "n": 1080,
+            "p25": 3,
+            "p75": 8,
+            "p95": 16
+          },
+          "overhead_expansions_mean": 1.6314814814814815,
+          "precision_mean": 0.153230365719467,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 1080,
+            "fraction": 1.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.9975011271804669
+          },
+          "stop_reasons": {
+            "exhausted": 1080
+          },
+          "targets_registered": {
+            "count": 1080,
+            "fraction": 1.0,
+            "n": 1080,
+            "wilson_lower_bound": 0.9975011271804669
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 2,
+            "fraction": 0.001851851851851852,
+            "n": 1080,
+            "wilson_lower_bound": 0.0006130098074319793
+          },
+          "distractor_endpoints_reached_mean": 0.7703703703703704,
+          "edges_examined_mean": 35.71666666666667,
+          "endpoints_registered_mean": 2.6416666666666666,
+          "expansions": {
+            "max": 35,
+            "mean": 6.033333333333333,
+            "median": 5,
+            "min": 2,
+            "n": 1080,
+            "p25": 3,
+            "p75": 8,
+            "p95": 14
+          },
+          "expansions_at_rc": {
+            "max": 35,
+            "mean": 5.780487804878049,
+            "median": 4,
+            "min": 2,
+            "n": 943,
+            "p25": 3,
+            "p75": 7,
+            "p95": 14
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.18438624124044328,
+          "registered_only_targets": {
+            "count": 250,
+            "fraction": 0.23148148148148148,
+            "n": 1080,
+            "wilson_lower_bound": 0.21105758893839696
+          },
+          "route_complete": {
+            "count": 945,
+            "fraction": 0.875,
+            "n": 1080,
+            "wilson_lower_bound": 0.8575041688592384
+          },
+          "stop_reasons": {
+            "two_endpoints": 1080
+          },
+          "targets_registered": {
+            "count": 943,
+            "fraction": 0.8731481481481481,
+            "n": 1080,
+            "wilson_lower_bound": 0.8555529925892462
+          },
+          "targets_registered_wilson_upper": 0.888878404176917
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 2
+    },
+    "deg6_len8_v4_rep-k2": {
+      "config": "deg6_len8_v4_rep|d6|n64-256|r4-6|l2-8|rep1|a3-5|v6-10|f1-2|k2",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 889,
+      "generation_success": {
+        "count": 1202,
+        "fraction": 0.601,
+        "n": 2000,
+        "wilson_lower_bound": 0.5828642855539442
+      },
+      "oracle_expansions": {
+        "max": 14,
+        "mean": 4.404949381327334,
+        "median": 4,
+        "min": 2,
+        "n": 889,
+        "p25": 3,
+        "p75": 6,
+        "p95": 8
+      },
+      "path_length": {
+        "max": 8,
+        "mean": 3.986501687289089,
+        "median": 4,
+        "min": 2,
+        "n": 889,
+        "p25": 3,
+        "p75": 5,
+        "p95": 7
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 3,
+            "fraction": 0.003374578177727784,
+            "n": 889,
+            "wilson_lower_bound": 0.001349425925953932
+          },
+          "distractor_endpoints_reached_mean": 1.5916760404949382,
+          "edges_examined_mean": 39.34083239595051,
+          "endpoints_registered_mean": 3.3408323959505064,
+          "expansions": {
+            "max": 39,
+            "mean": 6.665916760404949,
+            "median": 5,
+            "min": 2,
+            "n": 889,
+            "p25": 3,
+            "p75": 9,
+            "p95": 16
+          },
+          "expansions_at_rc": {
+            "max": 39,
+            "mean": 5.955007256894049,
+            "median": 4,
+            "min": 2,
+            "n": 689,
+            "p25": 3,
+            "p75": 8,
+            "p95": 15
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.1623965083452628,
+          "registered_only_targets": {
+            "count": 25,
+            "fraction": 0.0281214848143982,
+            "n": 889,
+            "wilson_lower_bound": 0.020335063111353406
+          },
+          "route_complete": {
+            "count": 692,
+            "fraction": 0.7784026996625422,
+            "n": 889,
+            "wilson_lower_bound": 0.754665304835246
+          },
+          "stop_reasons": {
+            "two_endpoints": 889
+          },
+          "targets_registered": {
+            "count": 689,
+            "fraction": 0.7750281214848144,
+            "n": 889,
+            "wilson_lower_bound": 0.7511779092736189
+          },
+          "targets_registered_wilson_upper": 0.7972093959188752
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 889,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.0,
+          "edges_examined_mean": 44.247469066366705,
+          "endpoints_registered_mean": 4.0,
+          "expansions": {
+            "max": 39,
+            "mean": 7.508436445444319,
+            "median": 6,
+            "min": 2,
+            "n": 889,
+            "p25": 4,
+            "p75": 10,
+            "p95": 18
+          },
+          "expansions_at_rc": {
+            "max": 39,
+            "mean": 6.9482564679415075,
+            "median": 5,
+            "min": 2,
+            "n": 889,
+            "p25": 3,
+            "p75": 9,
+            "p95": 17
+          },
+          "overhead_expansions_mean": 0.5601799775028121,
+          "precision_mean": 0.14854931094619028,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 889,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 889,
+            "fraction": 1.0,
+            "n": 889,
+            "wilson_lower_bound": 0.9969658779470908
+          },
+          "stop_reasons": {
+            "exhausted": 889
+          },
+          "targets_registered": {
+            "count": 889,
+            "fraction": 1.0,
+            "n": 889,
+            "wilson_lower_bound": 0.9969658779470908
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 889,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.0,
+          "edges_examined_mean": 44.247469066366705,
+          "endpoints_registered_mean": 4.0,
+          "expansions": {
+            "max": 39,
+            "mean": 7.508436445444319,
+            "median": 6,
+            "min": 2,
+            "n": 889,
+            "p25": 4,
+            "p75": 10,
+            "p95": 18
+          },
+          "expansions_at_rc": {
+            "max": 25,
+            "mean": 5.843644544431946,
+            "median": 5,
+            "min": 2,
+            "n": 889,
+            "p25": 3,
+            "p75": 7,
+            "p95": 15
+          },
+          "overhead_expansions_mean": 1.6647919010123735,
+          "precision_mean": 0.14854931094619028,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 889,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 889,
+            "fraction": 1.0,
+            "n": 889,
+            "wilson_lower_bound": 0.9969658779470908
+          },
+          "stop_reasons": {
+            "exhausted": 889
+          },
+          "targets_registered": {
+            "count": 889,
+            "fraction": 1.0,
+            "n": 889,
+            "wilson_lower_bound": 0.9969658779470908
+          },
+          "targets_registered_wilson_upper": 1.0
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 3,
+            "fraction": 0.003374578177727784,
+            "n": 889,
+            "wilson_lower_bound": 0.001349425925953932
+          },
+          "distractor_endpoints_reached_mean": 1.4656917885264342,
+          "edges_examined_mean": 31.82902137232846,
+          "endpoints_registered_mean": 3.2452193475815525,
+          "expansions": {
+            "max": 25,
+            "mean": 5.354330708661418,
+            "median": 4,
+            "min": 2,
+            "n": 889,
+            "p25": 3,
+            "p75": 7,
+            "p95": 13
+          },
+          "expansions_at_rc": {
+            "max": 25,
+            "mean": 4.997183098591549,
+            "median": 4,
+            "min": 2,
+            "n": 710,
+            "p25": 3,
+            "p75": 6,
+            "p95": 11
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.18826168101915802,
+          "registered_only_targets": {
+            "count": 40,
+            "fraction": 0.04499437570303712,
+            "n": 889,
+            "wilson_lower_bound": 0.03487353734030919
+          },
+          "route_complete": {
+            "count": 713,
+            "fraction": 0.8020247469066367,
+            "n": 889,
+            "wilson_lower_bound": 0.7791401889661178
+          },
+          "stop_reasons": {
+            "two_endpoints": 889
+          },
+          "targets_registered": {
+            "count": 710,
+            "fraction": 0.7986501687289089,
+            "n": 889,
+            "wilson_lower_bound": 0.7756367342204252
+          },
+          "targets_registered_wilson_upper": 0.8198513211113018
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 2
+    },
+    "deg6_len8_v4_rep-k4": {
+      "config": "deg6_len8_v4_rep|d6|n64-256|r4-6|l2-8|rep1|a3-5|v6-10|f1-2|k4",
+      "gate4_disagreements": 0,
+      "gated_non_abstain": 575,
+      "generation_success": {
+        "count": 766,
+        "fraction": 0.383,
+        "n": 2000,
+        "wilson_lower_bound": 0.36528998951236213
+      },
+      "oracle_expansions": {
+        "max": 12,
+        "mean": 3.3843478260869566,
+        "median": 3,
+        "min": 2,
+        "n": 575,
+        "p25": 2,
+        "p75": 4,
+        "p95": 6
+      },
+      "path_length": {
+        "max": 8,
+        "mean": 3.1182608695652174,
+        "median": 3,
+        "min": 2,
+        "n": 575,
+        "p25": 2,
+        "p75": 4,
+        "p95": 5
+      },
+      "policies": {
+        "bfs_two_stop": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.9182608695652172,
+          "edges_examined_mean": 30.36521739130435,
+          "endpoints_registered_mean": 4.476521739130435,
+          "expansions": {
+            "max": 34,
+            "mean": 5.113043478260869,
+            "median": 4,
+            "min": 2,
+            "n": 575,
+            "p25": 3,
+            "p75": 6,
+            "p95": 12
+          },
+          "expansions_at_rc": {
+            "max": 22,
+            "mean": 4.316708229426434,
+            "median": 3,
+            "min": 2,
+            "n": 401,
+            "p25": 2,
+            "p75": 5,
+            "p95": 10
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.16048924226013164,
+          "registered_only_targets": {
+            "count": 3,
+            "fraction": 0.0052173913043478265,
+            "n": 575,
+            "wilson_lower_bound": 0.0020869906390960902
+          },
+          "route_complete": {
+            "count": 401,
+            "fraction": 0.697391304347826,
+            "n": 575,
+            "wilson_lower_bound": 0.6650154230348729
+          },
+          "stop_reasons": {
+            "two_endpoints": 575
+          },
+          "targets_registered": {
+            "count": 401,
+            "fraction": 0.697391304347826,
+            "n": 575,
+            "wilson_lower_bound": 0.6650154230348729
+          },
+          "targets_registered_wilson_upper": 0.7279183172972161
+        },
+        "blind_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 4.0,
+          "edges_examined_mean": 37.77391304347826,
+          "endpoints_registered_mean": 6.0,
+          "expansions": {
+            "max": 36,
+            "mean": 6.358260869565218,
+            "median": 5,
+            "min": 2,
+            "n": 575,
+            "p25": 3,
+            "p75": 8,
+            "p95": 15
+          },
+          "expansions_at_rc": {
+            "max": 35,
+            "mean": 5.582608695652174,
+            "median": 5,
+            "min": 2,
+            "n": 575,
+            "p25": 3,
+            "p75": 7,
+            "p95": 13
+          },
+          "overhead_expansions_mean": 0.7756521739130435,
+          "precision_mean": 0.139729010180369,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 575,
+            "fraction": 1.0,
+            "n": 575,
+            "wilson_lower_bound": 0.995316743131944
+          },
+          "stop_reasons": {
+            "exhausted": 575
+          },
+          "targets_registered": {
+            "count": 575,
+            "fraction": 1.0,
+            "n": 575,
+            "wilson_lower_bound": 0.995316743131944
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "similarity_exhaust": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 4.0,
+          "edges_examined_mean": 37.77391304347826,
+          "endpoints_registered_mean": 6.0,
+          "expansions": {
+            "max": 36,
+            "mean": 6.358260869565218,
+            "median": 5,
+            "min": 2,
+            "n": 575,
+            "p25": 3,
+            "p75": 8,
+            "p95": 15
+          },
+          "expansions_at_rc": {
+            "max": 28,
+            "mean": 4.514782608695652,
+            "median": 4,
+            "min": 2,
+            "n": 575,
+            "p25": 2,
+            "p75": 6,
+            "p95": 10
+          },
+          "overhead_expansions_mean": 1.8434782608695652,
+          "precision_mean": 0.139729010180369,
+          "registered_only_targets": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "route_complete": {
+            "count": 575,
+            "fraction": 1.0,
+            "n": 575,
+            "wilson_lower_bound": 0.995316743131944
+          },
+          "stop_reasons": {
+            "exhausted": 575
+          },
+          "targets_registered": {
+            "count": 575,
+            "fraction": 1.0,
+            "n": 575,
+            "wilson_lower_bound": 0.995316743131944
+          },
+          "targets_registered_wilson_upper": 1.0000000000000002
+        },
+        "stop_aware": {
+          "complete_but_unregistered": {
+            "count": 0,
+            "fraction": 0.0,
+            "n": 575,
+            "wilson_lower_bound": 0.0
+          },
+          "distractor_endpoints_reached_mean": 2.754782608695652,
+          "edges_examined_mean": 23.72869565217391,
+          "endpoints_registered_mean": 4.44695652173913,
+          "expansions": {
+            "max": 22,
+            "mean": 3.973913043478261,
+            "median": 3,
+            "min": 2,
+            "n": 575,
+            "p25": 2,
+            "p75": 5,
+            "p95": 8
+          },
+          "expansions_at_rc": {
+            "max": 22,
+            "mean": 3.5986238532110093,
+            "median": 3,
+            "min": 2,
+            "n": 436,
+            "p25": 2,
+            "p75": 4,
+            "p95": 8
+          },
+          "overhead_expansions_mean": 0.0,
+          "precision_mean": 0.1922100790655778,
+          "registered_only_targets": {
+            "count": 5,
+            "fraction": 0.008695652173913044,
+            "n": 575,
+            "wilson_lower_bound": 0.0042390413667315755
+          },
+          "route_complete": {
+            "count": 436,
+            "fraction": 0.7582608695652174,
+            "n": 575,
+            "wilson_lower_bound": 0.7277271442065676
+          },
+          "stop_reasons": {
+            "two_endpoints": 575
+          },
+          "targets_registered": {
+            "count": 436,
+            "fraction": 0.7582608695652174,
+            "n": 575,
+            "wilson_lower_bound": 0.7277271442065676
+          },
+          "targets_registered_wilson_upper": 0.7863755909415845
+        }
+      },
+      "room_stop_aware_minus_oracle_median": 0,
+      "room_walker_minus_oracle_median": 2
+    }
+  },
+  "cost_unit": "expansions",
+  "episodes_per_cell": 2000,
+  "finished_at": "2026-09-03T13:19:33+00:00",
+  "gamma": 0.4,
+  "gated_stratum": "hops_2_4",
+  "gates": {
+    "chosen_k": 1,
+    "gate_4_everywhere": true,
+    "per_k": {
+      "1": {
+        "easy_success": 1.0,
+        "gate_1_stop_is_a_decision": true,
+        "gate_2_room_to_order": true,
+        "gate_3_easy_is_sane": true,
+        "gate_4_coverage_agrees": true,
+        "passes_1_to_3": true,
+        "room_hard": 2,
+        "stop_aware_rc_hard": 0.8731481481481481,
+        "stop_aware_rc_upper_hard": 0.888878404176917
+      },
+      "2": {
+        "easy_success": 1.0,
+        "gate_1_stop_is_a_decision": true,
+        "gate_2_room_to_order": true,
+        "gate_3_easy_is_sane": true,
+        "gate_4_coverage_agrees": true,
+        "passes_1_to_3": true,
+        "room_hard": 2,
+        "stop_aware_rc_hard": 0.7986501687289089,
+        "stop_aware_rc_upper_hard": 0.8198513211113018
+      },
+      "4": {
+        "easy_success": 0.814,
+        "gate_1_stop_is_a_decision": true,
+        "gate_2_room_to_order": true,
+        "gate_3_easy_is_sane": true,
+        "gate_4_coverage_agrees": true,
+        "passes_1_to_3": true,
+        "room_hard": 2,
+        "stop_aware_rc_hard": 0.7582608695652174,
+        "stop_aware_rc_upper_hard": 0.7863755909415845
+      }
+    },
+    "rule": "K is the smallest value passing gates 1-3; gate 4 must hold at every K. Gate 1: stop_aware RC <= 0.9 and Wilson upper < 0.95 on the hard cell. Gate 2: median(blind_exhaust expansions) - median(oracle expansions) >= 2 on the hard cell. Gate 3: easy-cell generation success >= 0.5 and blind_exhaust route-complete on every gated easy episode."
+  },
+  "ks": [
+    0,
+    1,
+    2,
+    4
+  ],
+  "record_kind": "read_run_v3_policy_ladder",
+  "seed_label": "track-p-v3-policy-ladder",
+  "started_at": "2026-09-03T13:15:52+00:00",
+  "touches_holdout": false
+}

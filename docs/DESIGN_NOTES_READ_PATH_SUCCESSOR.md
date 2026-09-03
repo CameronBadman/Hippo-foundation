@@ -1791,6 +1791,56 @@ loss is a real supervised term, so the same failure cannot recur silently — bu
 the gradient-coverage test goes in regardless, because the next component to be
 wired in half-way will not announce itself either.
 
+# 2.23 Registering endpoints at examination: three facts the v3 walk forced
+
+Building the model-free walks for Track P (`policies_v3.py`, 2026-09-03) under
+the rule "an endpoint registers the moment its final edge is examined" turned
+up three facts that the model's stop head and the reading rules have to respect.
+Each was found by a failing test or a crashing script, not by reasoning, and
+each is now held by a test.
+
+**One expansion can register several endpoints at once.** A node at depth L−1
+whose out-edge group holds a target's final edge *and* a sibling distractor's
+final edge registers both in the same expansion; a trace on the hard cell
+registered four endpoints in one step. Two consequences. A two-endpoint stop
+fires at "at least two", never "exactly two", so any feature or label written as
+`endpoints == 2` is wrong on v3 data — the stop head reads the raw count. And
+"were the first two endpoints the targets" is not a well-defined quantity when
+several arrive together; the selectivity question is whether *everything*
+registered at the stop is a target (`registered_only_targets`).
+
+**Set-based route-completeness over-credits a stop policy.** `route_coverage`
+asks whether both target routes lie inside the examined *set*. A target's final
+edge can enter that set because its source node was expanded at a *different*
+depth — reached by a shorter matching prefix — while the correct-depth prefix
+still sits unpopped in the frontier when the stop fires. Coverage then says
+complete; the walk registered one target. The two coincide at exhaustion (every
+correct-depth prefix has been popped) and differ only for policies that stop,
+which is exactly the case Track P is about. So the ladder records both, and
+defines expansions-at-RC, overhead, and gate 1 on **registration** — what a
+stop decision can see. The training label for the stop head must be defined
+the same way (P-4): a set-based label can be 1 while the model's own endpoint
+count is 1, which no structural feature can explain.
+
+**The v1 evaluator caps decoded routes at two.** `decode_best_routes` returns
+the best two routes by score — a constant 2 that is harmless on v2 data and
+wrong on v3, where a returned set holding three endpoints would be silently
+truncated before `proof_valid` saw the third. `evaluation_v3.decode_all_routes`
+decodes every complete route in the supplied set and lets `score_prediction`'s
+own rule — the supplied routes must be exactly the targets — do the selecting.
+Proof-validity on v3 is therefore a statement about the *returned* set (it
+contains the targets and nothing else), while route-completeness is a statement
+about the *examined* set (it covers the targets, distractors allowed). That is
+the cost-versus-product split of 2.17 and 2.21, and neither v1 function changed
+to produce it.
+
+A fourth, smaller fact: the lost start-only prototype's rejection rates were far
+too pessimistic. Distractors that branch off a target route at a random depth
+(2.21's sibling case included) relax node-disjointness to "beyond the branch
+point", and the hard cell at K = 2 generates with 0.60 success at 1.36 s per
+episode — a 20,000-episode split in about fifteen minutes on thirty cores, with
+no mitigation lever needed.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under

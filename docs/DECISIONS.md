@@ -109,6 +109,44 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-04: Track P data fixed — generator v3 at K = 1, cost in expansions, no budget
+
+Track P is the one further traversal experiment before the pivot to insert
+(user's choice, 2026-09-03), and its premise was measured first: on v2 data the
+blind relation walker's cost equals the oracle's on 65 % of episodes and the
+two-endpoint stop is exact on 100 %, so there was nothing for a model to learn
+about stopping and one expansion to learn about ordering. Three decisions
+follow, each recorded before any Track P model exists.
+
+**Generator v3 plants K distractor paths** — complete, rule-valid,
+query-matching paths to non-target endpoints — each branching off a target
+route at a uniformly drawn depth (a refinement of the approved "from the start
+node": depth L−1 makes the distractor a sibling endpoint distinguishable only
+by evidence, and start-only cannot fit K > 2 on the easy cell). K = 0 is
+byte-identical to v2 on both payloads, by test. Targets and distractors are
+distinguished by evidence the generator already produces: similarity is
+promoted along a target route with probability 1 − γ and along a distractor's
+interior at 1/out-degree; target endpoints share a mask, distractor masks are
+random, and the 1/15 collision is reported, not suppressed.
+
+**The cost unit is expansions and there is no budget.** Featurisers read a
+node's whole out-edge group, so whole-group examination is what is paid for;
+exhaustion is bounded by `(node, depth)` deduplication and a relation-matching
+frontier. Endpoints register at examination. `policies_v3` re-implements every
+model-free reference under those rules; `evaluation_v3` drops the v1 decoder's
+top-two cap, which is harmless on v2 and wrong on v3.
+
+**K = 1, by the rule "smallest K passing gates 1–3", written into the ladder
+script before it ran** (`experiments/track_p_v1/LADDER_PREFLIGHT.md`): the
+hard-coded stop registers both targets on 0.873 of hard-cell episodes (Wilson
+upper 0.889), the oracle needs 2 fewer expansions than the exhausted walker at
+the median, the easy cell generates at 1.000, and the two coverage
+implementations disagree on zero episodes. K = 2 and K = 4 also pass and are
+not run, by the rule. Gate 1 reads the walk-based "targets registered" rather
+than set-based coverage, for the reason in design note §2.23: coverage can
+credit a stop policy with a target whose final edge entered the set at another
+depth; the stop label in training is defined the same way.
+
 ### 2026-09-03: the Track O coverage head received no gradient — band A unaffected
 
 Verified on all three hard-cell seeds: `coverage_head` is byte-identical to

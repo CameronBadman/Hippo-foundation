@@ -143,6 +143,37 @@ def route_coverage(
     }
 
 
+def route_coverage_v3(
+    episode: GeneratedEpisode, examined_edge_ids: Sequence[int]
+) -> dict[str, Any]:
+    """`route_coverage` on generator-v3 data, where distractor endpoints are expected.
+
+    On v2 data `reached_outside_targets` is a premise check: the generator
+    admits no complete matching path but the two routes, so a third endpoint
+    would falsify the construction. v3 plants K such paths deliberately, so
+    reaching one is a *descriptive* event — counted here as
+    `distractor_endpoints_reached` — while an endpoint that is neither a target
+    nor a planted distractor is still a falsified premise and raises.
+
+    `route_complete` keeps its meaning: both *target* routes are examined. That
+    is the cost-side quantity; whether the *returned* routes are exactly the
+    targets is `evaluation.score_prediction`'s `proof_valid`, the product side.
+    """
+
+    row = route_coverage(episode, examined_edge_ids)
+    distractors = set(episode.hidden.get("distractor_endpoints", ()))
+    outside = set(row["reached_outside_targets"])
+    unexplained = outside - distractors
+    if unexplained:
+        raise ValueError(
+            "reached an endpoint that is neither a target nor a planted "
+            f"distractor: {sorted(unexplained)}"
+        )
+    row["distractor_endpoints_reached"] = sorted(outside & distractors)
+    row["distractor_endpoint_count"] = len(distractors)
+    return row
+
+
 def prefix_route_coverage(
     episode: GeneratedEpisode,
     examined_edge_ids: Sequence[int],
