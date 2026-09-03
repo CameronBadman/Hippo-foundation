@@ -696,6 +696,15 @@ identically-zero label inputs under supplied-prefix supervision, so its effectiv
 budget was 4,000 updates rather than 8,000 (§2.19). An untrained TRAVV2 already
 reaches 0.857, so training contributes about eight points above a structural prior.
 
+**Disclosure (added 2026-09-03).** The `coverage_head` of every Track O model is
+byte-identical to its initialisation after 8,000 updates, verified with
+`torch.equal` against a model rebuilt from the same seed on all three hard-cell
+seeds (1,153 parameters). The edge loss reads the stable score term alone and the
+coverage bonus enters selection only under `.detach()`, so that head received no
+gradient. Band A is unaffected — it is read on the walk's route-completeness and
+examined-set precision — but the event-triggered coverage term of design notes
+section 2.15 was not exercised in any Track O run.
+
 **Suite.** Full canonical suite at the working tree that produced the report:
 `uv run pytest -q` → **557 passed in 608.92s**. `ruff check`, `ruff format --check`
 and `uv lock --check` clean. The frozen v1 contracts pass untouched.

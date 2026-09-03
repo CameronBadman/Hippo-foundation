@@ -1739,6 +1739,58 @@ wearing a different hat (section 2.16). Report the precision-recall curve or ave
 precision, which has no operating point, and leave the training objective as the
 per-edge BCE it already is.
 
+# 2.22 The Track O coverage term was never trained — a disclosure
+
+Found 2026-09-03 while designing Track P, and verified three ways before being
+written down. It does not overturn band A, but it retires a claim this document
+has been making since section 2.15.
+
+**The finding.** After 8,000 updates, every parameter of `coverage_head` is
+**byte-identical to its initialisation**, on all three hard-cell seeds (1,153
+parameters; checked with `torch.equal` against a model rebuilt from the same
+seed). The `score_head` parameters moved, as expected. So the coverage term
+received exactly zero gradient for the whole of Track O.
+
+**The mechanism, and it is two lines.** `model_v2.py:1025-1026` appends
+`scores[row, column]` — the score head's output, `f` alone — to *both*
+`kept_scores` and `stable`, and the edge loss reads `kept_scores`. The coverage
+bonus enters only inside the selection `max` at `:1068-1076`, wrapped in
+`.detach()`. Detached values have no gradient path, so `g` influenced *which
+edge was walked* but never appeared in any loss. Zero input gradient means the
+head's weights could not move.
+
+**What this does and does not change.**
+
+- **Band A stands.** It was read on route-completeness and examined-set
+  precision, both properties of the walk, and the walk was ordered by `f` plus a
+  fixed random `g`. The result is "a learned ordering beats every model-free
+  policy", which is exactly what was measured; it simply had one fewer trained
+  component than the design claimed.
+- **Section 2.15's event-triggered coverage term is unevidenced.** The argument
+  for it — that cross-branch coverage information should modulate frontier
+  scores — may well be right, but Track O did not test it. The section stands as
+  a design argument, not as something demonstrated.
+- **`training_v2.py`'s module docstring was false** where it said the loss reads
+  "`scores` (the stable term plus the coverage term, as used for selection)". It
+  reads the stable term only. Corrected in place.
+- It also explains a small puzzle: a randomly initialised `g` added a fixed
+  per-depth offset to every frontier score, which is why the walk still behaved
+  sensibly. Since `bonus_by_depth` is memoised per epoch, the offset was
+  constant within a round and mostly cancelled in the comparison.
+
+**Why it went unnoticed, which is the more useful lesson.** Every test asserted
+properties of the *walk* — invariance, stop behaviour, route validity, capacity —
+and none asserted that a declared component receives gradient. A parameter that
+never moves is invisible to any output-based test. Track P adds the obvious
+guard: after a short training run, assert that every module with parameters has
+a non-zero gradient at least once, which is cheap and would have caught this on
+the first smoke test.
+
+**Consequence for Track P.** The stop head takes `coverage_head`'s place and its
+loss is a real supervised term, so the same failure cannot recur silently — but
+the gradient-coverage test goes in regardless, because the next component to be
+wired in half-way will not announce itself either.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under

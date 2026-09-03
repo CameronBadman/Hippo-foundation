@@ -109,6 +109,24 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-03: the Track O coverage head received no gradient — band A unaffected
+
+Verified on all three hard-cell seeds: `coverage_head` is byte-identical to
+initialisation after 8,000 updates, because the edge loss reads the stable term
+alone and the coverage bonus enters selection only under `.detach()`
+(design notes §2.22). Band A is unaffected — it was read on the walk's
+route-completeness and examined-set precision, and the walk was ordered by a
+trained `f` plus a fixed random offset — but §2.15's event-triggered coverage
+term was never exercised and is demoted to an untested design argument. The
+false docstring in `training_v2.py` is corrected.
+
+The generalisable lesson, and the reason this is recorded as a decision rather
+than a footnote: the Track O suite asserted only *output* properties, and a
+component that never trains produces no wrong output, so nothing caught it.
+Track P adds a gradient-coverage assertion — after a short run, every
+parameterised module must have taken a non-zero gradient at least once — which
+is cheap and catches the whole class.
+
 ### 2026-09-03: Track O read band A — the architecture is validated, its necessity is not
 
 The path-scoped traversal (design notes §2.10–§2.16) read **band A, learned and

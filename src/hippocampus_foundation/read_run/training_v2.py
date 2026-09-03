@@ -8,11 +8,14 @@ needs a padded, masked form. Two consequences are deliberate:
 - the per-episode mean is taken **before** the batch mean, so an episode that
   stops at twelve edges is weighted equally with one that spends sixty-four
   rather than contributing a fifth as much signal;
-- the loss reads `scores` (the stable term plus the coverage term, as used for
-  selection) rather than the stable term alone, so the coverage head has a
-  gradient path without a second loss weight. A separate budget-versus-coverage
-  objective would need a weight, and design notes 2.16 records why that weight
-  is a threshold wearing a different hat.
+- the loss reads `scores`, which is the stable term alone. This was intended to
+  give the coverage head a gradient path without a second loss weight, and it
+  does not: `model_v2.forward` appends the score head's output to `kept_scores`
+  and admits the coverage bonus only under `.detach()` in the selection step, so
+  the coverage head received zero gradient for the whole of Track O and its
+  parameters are byte-identical to initialisation. Recorded in design notes
+  2.22. Track P replaces that head with a supervised stop head, which has a real
+  loss term; a budget-versus-coverage weight remains ruled out by 2.16.
 
 The supervision schedule is the M6 mix. Because scoring is path-scoped, a route
 edge can be supervised under its *true* prefix no matter where the model's own

@@ -4,6 +4,32 @@ This log records generator and harness observations made before any model was
 instantiated and before any accuracy was observed. It is not an experiment
 result.
 
+## 2026-09-03 — Disclosure: the Track O coverage head was never trained
+
+Found while designing Track P, verified before recording. After 8,000 updates
+every `coverage_head` parameter is byte-identical to its initialisation on all
+three hard-cell seeds (1,153 parameters, compared with `torch.equal` against a
+model rebuilt from the same seed); `score_head` moved as expected.
+
+The mechanism is two lines. `model_v2.py:1025-1026` appends the score head's
+output — the stable term `f` alone — to both `kept_scores` and `stable`, and the
+edge loss reads `kept_scores`. The coverage bonus enters only inside the
+selection `max` under `.detach()`, which has no gradient path. So `g` influenced
+which edge was walked but appeared in no loss, and its weights could not move.
+
+**Band A stands**: it was read on route-completeness and examined-set precision,
+both properties of the walk, and the walk was ordered by `f` plus a fixed random
+per-depth offset. What retires is the claim that the event-triggered coverage
+term of design notes §2.15 was exercised — it was not, and that section is now a
+design argument rather than a demonstrated one. `training_v2.py`'s docstring,
+which asserted the loss read `f + g`, was false and is corrected.
+
+Every Track O test asserted properties of the walk — invariance, stop behaviour,
+route validity, capacity — and none asserted that a declared component receives
+gradient, which is why a parameter that never moved was invisible. Track P adds
+that guard: after a short run, assert every parameterised module has taken a
+non-zero gradient at least once.
+
 ## 2026-09-03 — Track O read band A; the returned set is where relevance lives
 
 Twelve runs of 8,000 updates (TRAVV2 and the equal-capacity frozen v1, two cells,
