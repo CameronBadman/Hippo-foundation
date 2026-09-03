@@ -739,6 +739,27 @@ def build_read_model_v2(config: dict[str, Any]) -> Any:
         def _tensor(self, rows: list[list[list[float]]]) -> Any:
             return torch.tensor(rows, dtype=torch.float32, device=self.device)
 
+        def _arrays(self, index: EpisodeIndex, cache: dict[int, Any]) -> Any:
+            """Per-episode numpy columns, built once per call and reused.
+
+            The cache is **per-call**, passed in, never stored on the module.
+            An id-keyed cache that outlives a `forward` is silently wrong:
+            `forward` holds its `EpisodeIndex` objects alive only for the call,
+            so a later call allocates new ones that can reuse a freed address
+            and receive the previous episode's edge columns. That bug produced
+            an out-of-bounds edge id on the second update; `query_cache` avoids
+            it by being local, and this now does too.
+            """
+
+            from .features_v2 import EpisodeArrays
+
+            key = id(index)
+            cached = cache.get(key)
+            if cached is None:
+                cached = EpisodeArrays(index)
+                cache[key] = cached
+            return cached
+
         def _float_mask(self, mask: Any) -> Any:
             """Bool padding mask as an additive float mask.
 
@@ -781,6 +802,7 @@ def build_read_model_v2(config: dict[str, Any]) -> Any:
             self,
             items: list[tuple[EpisodeIndex, Prefix, list[int], frozenset[int]]],
             query_cache: dict[int, tuple[Any, Any]],
+            array_cache: dict[int, Any] | None = None,
         ) -> Any:
             """Stable score `f` for a bag of (episode, prefix, candidate group).
 
@@ -803,62 +825,74 @@ def build_read_model_v2(config: dict[str, Any]) -> Any:
                 context_lists.append(seen)
             context_width = max(1, max(len(values) for values in context_lists))
 
-            candidate_rows, context_rows, pair_rows, cross_rows = [], [], [], []
+            # Feature arrays are built with numpy and handed to torch, rather
+            # than as four-deep Python lists to `torch.tensor`. The scalar
+            # featurisers remain the reference implementation; `features_v2`
+            # reproduces them elementwise (asserted by
+            # `tests/test_read_run_features_v2.py`) and is about nine times
+            # faster on the pair grid, which dominates at roughly 322,560 calls
+            # per training update. numpy arrives through `require_numpy`, lazily,
+            # because it lives in the `read-run` extra like torch.
+            from .features_v2 import (
+                candidate_feature_rows,
+                context_feature_rows,
+                pair_feature_grid,
+                query_cross_grid,
+                require_numpy,
+            )
+
+            numpy = require_numpy()
+            if array_cache is None:
+                array_cache = {}
+            candidate_batch = numpy.zeros(
+                (len(items), width, CANDIDATE_FEATURE_DIM), dtype=numpy.float32
+            )
+            context_batch = numpy.zeros(
+                (len(items), context_width, CONTEXT_FEATURE_DIM), dtype=numpy.float32
+            )
+            pair_batch = numpy.zeros(
+                (len(items), width, context_width, PAIR_FEATURE_DIM),
+                dtype=numpy.float32,
+            )
+            cross_batch = numpy.zeros(
+                (len(items), width, MAX_QUERY_LENGTH, QUERY_CROSS_FEATURE_DIM),
+                dtype=numpy.float32,
+            )
             candidate_mask, context_mask = [], []
-            for (index, prefix, group, _expanded), contexts in zip(
-                items, context_lists, strict=True
+            for row, ((index, prefix, group, _expanded), contexts) in enumerate(
+                zip(items, context_lists, strict=True)
             ):
+                arrays = self._arrays(index, array_cache)
                 padded_group = list(group) + [group[0]] * (width - len(group))
-                candidate_rows.append(
-                    [
-                        candidate_features(
-                            index, prefix, edge_id, content_features=use_content
-                        )
-                        for edge_id in padded_group
-                    ]
-                )
-                candidate_mask.append(
-                    [False] * len(group) + [True] * (width - len(group))
-                )
                 padded_context = contexts + [contexts[0]] * (
                     context_width - len(contexts)
                 )
-                context_rows.append(
-                    [
-                        context_features(index, prefix, edge_id, depth)
-                        for edge_id, depth in padded_context
-                    ]
+                candidate_batch[row] = candidate_feature_rows(
+                    index, arrays, prefix, padded_group, content_features=use_content
+                )
+                context_batch[row] = context_feature_rows(
+                    index, arrays, prefix, padded_context
+                )
+                pair_batch[row] = pair_feature_grid(
+                    index, arrays, padded_group, [edge for edge, _d in padded_context]
+                )
+                cross_batch[row] = query_cross_grid(index, arrays, prefix, padded_group)
+                candidate_mask.append(
+                    [False] * len(group) + [True] * (width - len(group))
                 )
                 context_mask.append(
                     [False] * len(contexts) + [True] * (context_width - len(contexts))
                 )
-                pair_rows.append(
-                    [
-                        [
-                            pair_features(index, edge_id, context_id)
-                            for context_id, _depth in padded_context
-                        ]
-                        for edge_id in padded_group
-                    ]
-                )
-                cross_rows.append(
-                    [
-                        [
-                            query_cross_features(index, prefix, edge_id, position)
-                            for position in range(MAX_QUERY_LENGTH)
-                        ]
-                        for edge_id in padded_group
-                    ]
-                )
+
+            def _to_device(array: Any) -> Any:
+                return torch.from_numpy(array).to(self.device)
 
             candidates = self.candidate_norm(
-                self.candidate_encoder(self._tensor(candidate_rows))
+                self.candidate_encoder(_to_device(candidate_batch))
             )
-            context = self.context_norm(
-                self.context_encoder(self._tensor(context_rows))
-            )
-            pair = self._tensor(pair_rows)
-            cross = self._tensor(cross_rows)
+            context = self.context_norm(self.context_encoder(_to_device(context_batch)))
+            pair = _to_device(pair_batch)
+            cross = _to_device(cross_batch)
             context_key_padding = self._float_mask(
                 torch.tensor(context_mask, device=self.device)
             )
@@ -949,6 +983,7 @@ def build_read_model_v2(config: dict[str, Any]) -> Any:
                 raise TrainingBlocked(f"unknown stop rule: {stop_rule}")
             indexes = [EpisodeIndex(visible) for visible in visible_batch]
             query_cache: dict[int, tuple[Any, Any]] = {}
+            array_cache: dict[int, Any] = {}
             count = len(indexes)
 
             examined: list[list[int]] = [[] for _ in range(count)]
@@ -1009,6 +1044,7 @@ def build_read_model_v2(config: dict[str, Any]) -> Any:
                         for slot, index, prefix, group in batch
                     ],
                     query_cache,
+                    array_cache,
                 )
                 for row, (slot, index, prefix, group) in enumerate(batch):
                     walk_state[slot].expansions += 1
