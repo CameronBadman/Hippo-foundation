@@ -1841,6 +1841,102 @@ point", and the hard cell at K = 2 generates with 0.60 success at 1.36 s per
 episode — a 20,000-episode split in about fifteen minutes on thirty cores, with
 no mitigation lever needed.
 
+# 2.24 Why v3's distractors are unidentifiable at any γ — two construction facts
+
+Track P's selective return failed (proof-validity 0.117), and the first reading
+was that the edge head could not express a route-set comparison. That is true and
+Track Q builds the head. But a γ sweep run before Track Q
+(`experiments/track_q_v1/diagnostics/gamma_sweep_v3.json`, 1,500 episodes per
+cell per bucket, abstain included) says something prior to the model: **on v3
+data the planted similarity signal cannot separate a target route from its
+distractor at any γ.** Ranking routes by promoted-edge fraction puts the worst
+target above the best distractor on 0.382 of hard-cell episodes at γ = 0 and
+0.229 at γ = 0.4, with ties between 0.61 and 0.66 throughout. A model given only
+that evidence has nothing to learn, and the fact that Track P's trained edge
+logits separate on 0.552 means the model was already extracting more than was
+planted.
+
+The cause is two properties of the construction, verified directly at γ = 0,
+where every target route state promotes a route edge:
+
+1. **The two targets' branch node promotes exactly one continuation.**
+   `_assign_similarity_v2` picks one winner per node; at the node where the two
+   target routes diverge there are two valid edges and one is promoted. So on
+   **100 % of episodes one target route carries an unpromoted edge**, and the
+   worst target's promoted fraction is at most (L−1)/L.
+2. **A v3 distractor branches off a target at a uniform depth and inherits its
+   promoted prefix.** 85 % branch at depth ≥ L−2. A distractor that shares L−1
+   promoted edges with a target and adds one unpromoted edge of its own sits at
+   exactly (L−1)/L — a tie with the worst target, on 58 % of episodes at γ = 0.
+
+Neither is a function of γ, which is why lowering it does nothing. The
+random-branch-depth rule was my refinement of the approved design (2.21 wanted
+the sibling case for selective return; it got it, and the sibling case is
+precisely what erases the evidence). A simulation I ran before this sweep
+predicted separability near 1.0 at γ = 0 because it modelled every target edge
+as promoted independently; it missed fact 1 and led me to withdraw a generator
+fix on a wrong argument. The sweep, whose rule was written first, corrected it.
+
+**What was left as a discriminator on v3, and why it is not one.** The only
+visible evidence that separates targets from a prefix-sharing distractor is the
+endpoint assertion mask — the two targets share one when the episode is
+non-abstain. That is the answer label. A zero-parameter rule that returns the
+largest mask-agreeing group scores 0.929 proof-valid on non-abstain episodes and
+0.000 on abstain ones. Selective return on v3 therefore reduces to reading the
+label on three quarters of episodes and is unidentifiable on the rest; the
+route-mean rule's 0.12 on abstain episodes is roughly that floor.
+
+**Generator v3.2** removes both facts under two switches that default to v3
+(byte-identity test): distractors leave from the start node, sharing no prefix;
+and distractor interior nodes are promoted at their own rate 1 − `distractor_gamma`,
+chosen by a rule written before its sweep. The rule requires identifiability ≥
+0.80 with ties ≤ 0.10 while the ladder's gate 1 still holds — the hard-coded stop
+must still fail on ≥ 10 % of episodes, or the stop experiment collapses along
+with the selection one. Fact 1 is not removed: the worst target still loses the
+branch-node tie-break, so at γ = 0.4 it sits near 0.6·(L−1)/L. What changes is
+that the distractor no longer inherits anything, so its fraction is set by its own
+rate alone, and the gap between the two is now a design parameter rather than an
+accident of where it branched.
+
+# 2.25 The stop and the selection want opposite evidence — a structural tension
+
+Generator v3.2 was swept twice, both times under a rule written before the run.
+The second sweep (`experiments/track_q_v1/diagnostics/evidence_sweep_v3_2_second.json`,
+γ × distractor rate, 1,500 episodes per point) produced a result worth stating on
+its own, because it constrains every future experiment on this generator.
+
+**Identifiability is fixable, and was fixed.** Removing the distractor's inherited
+prefix (start-node branching) and giving it its own promotion rate takes the
+hard cell from v3's 0.229 separability with 0.662 ties to **0.916 with 0.073
+ties** at γ = 0.2 with the distractor never promoted. The mechanism runs through a
+third quantity the sweep records: the fraction of episodes whose *worst target
+route has no promoted edge at all* falls from 0.177 at γ = 0.4 to 0.070 at
+γ = 0.2. A target edge is promoted 1 − γ of the time and the branch-node loser has
+only L−1 chances, so γ, not the distractor, sets that floor.
+
+**But making the evidence clearer makes the hard-coded stop better.** With the
+distractor never promoted, similarity-following reaches the target endpoints
+first, so `stop_aware`'s two-endpoint rule registers both targets more often:
+0.899 at γ = 0.4, rising to 0.906 at γ = 0.2 and 0.933 at
+`distractor_gamma` = 0.8. The ladder's gate 1 asks that it fail on at least 10 %
+of episodes, so a *stop* experiment needs the evidence to be ambiguous, while a
+*selection* experiment needs it not to be.
+
+**No point on the grid satisfies both**, on the hard cell, at either sweep. That
+is not a tuning failure to be swept again with a wider grid; it is a property of
+a generator in which one similarity field carries both the ordering signal and the
+identifying signal. Separating them would need a second, independent evidence
+channel — for instance content that is diagnostic of route membership rather than
+merely rule-valid, which §2.24's closing paragraph notes is exactly what the
+read-path generators do not currently have and what the insert objective will
+need anyway.
+
+The practical consequence for Track Q: it runs at γ = 0.2 with the distractor
+never promoted, taking the easy cell as the gate-clean primary and the hard cell
+as a disclosed secondary that misses gate 1 by 0.0064. Gate 1 governs the question
+Track P already answered; carrying it into Track Q's sweep was the error, and the
+relaxation is recorded rather than quietly dropped.
+
 # 3. Open, and deliberately not answered here
 
 - Whether the current architecture can learn relation-following at all under

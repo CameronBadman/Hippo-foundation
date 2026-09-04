@@ -1,0 +1,757 @@
+{
+  "abstain_included": true,
+  "cells": {
+    "deg3_len6_v8-k1": {
+      "gamma_0.2_dg_0.8": {
+        "gated": 1148,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.7839721254355401,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.087108013937282,
+          "median": 4,
+          "min": 2,
+          "n": 1148,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 2,
+        "similarity_expansions_at_rc": {
+          "max": 20,
+          "mean": 5.224738675958188,
+          "median": 4,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 15,
+          "mean": 4.944250871080139,
+          "median": 4,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 10
+        },
+        "stop_aware_registered": {
+          "count": 956,
+          "fraction": 0.8327526132404182,
+          "n": 1148,
+          "wilson_lower_bound": 0.8138573292948998
+        },
+        "stop_aware_registered_wilson_upper": 0.8500831586484243,
+        "ties": 0.1602787456445993,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.072299651567945,
+          "median": 6,
+          "min": 3,
+          "n": 1148,
+          "p25": 3,
+          "p75": 9,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.06184668989547038
+      },
+      "gamma_0.2_dg_1.0": {
+        "gated": 1115,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.9183856502242153,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.150672645739911,
+          "median": 4,
+          "min": 2,
+          "n": 1115,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 21,
+          "mean": 5.1955156950672645,
+          "median": 4,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 7,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 18,
+          "mean": 4.981165919282511,
+          "median": 4,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "stop_aware_registered": {
+          "count": 964,
+          "fraction": 0.8645739910313901,
+          "n": 1115,
+          "wilson_lower_bound": 0.8468332814651989
+        },
+        "stop_aware_registered_wilson_upper": 0.8805497084120363,
+        "ties": 0.04932735426008968,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.260089686098655,
+          "median": 7,
+          "min": 3,
+          "n": 1115,
+          "p25": 3,
+          "p75": 10,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.059192825112107626
+      },
+      "gamma_0.3_dg_0.8": {
+        "gated": 1148,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.695993031358885,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.087108013937282,
+          "median": 4,
+          "min": 2,
+          "n": 1148,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 2,
+        "similarity_expansions_at_rc": {
+          "max": 18,
+          "mean": 5.33623693379791,
+          "median": 5,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 18,
+          "mean": 5.075783972125436,
+          "median": 5,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "stop_aware_registered": {
+          "count": 952,
+          "fraction": 0.8292682926829268,
+          "n": 1148,
+          "wilson_lower_bound": 0.8102324501154865
+        },
+        "stop_aware_registered_wilson_upper": 0.8467557814095827,
+        "ties": 0.18989547038327526,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.072299651567945,
+          "median": 6,
+          "min": 3,
+          "n": 1148,
+          "p25": 3,
+          "p75": 9,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.11846689895470383
+      },
+      "gamma_0.3_dg_1.0": {
+        "gated": 1115,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.8475336322869955,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.150672645739911,
+          "median": 4,
+          "min": 2,
+          "n": 1115,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 21,
+          "mean": 5.446636771300448,
+          "median": 5,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 7,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 18,
+          "mean": 5.208071748878924,
+          "median": 5,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "stop_aware_registered": {
+          "count": 953,
+          "fraction": 0.8547085201793722,
+          "n": 1115,
+          "wilson_lower_bound": 0.8364909107898638
+        },
+        "stop_aware_registered_wilson_upper": 0.871208898549488,
+        "ties": 0.09865470852017937,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.260089686098655,
+          "median": 7,
+          "min": 3,
+          "n": 1115,
+          "p25": 3,
+          "p75": 10,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.10582959641255606
+      },
+      "gamma_0.4_dg_0.8": {
+        "gated": 1148,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.6027874564459931,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.087108013937282,
+          "median": 4,
+          "min": 2,
+          "n": 1148,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 2,
+        "similarity_expansions_at_rc": {
+          "max": 21,
+          "mean": 5.493031358885017,
+          "median": 5,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 18,
+          "mean": 5.234320557491289,
+          "median": 5,
+          "min": 2,
+          "n": 1148,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "stop_aware_registered": {
+          "count": 945,
+          "fraction": 0.823170731707317,
+          "n": 1148,
+          "wilson_lower_bound": 0.8038954869126484
+        },
+        "stop_aware_registered_wilson_upper": 0.8409262958804751,
+        "ties": 0.23693379790940766,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.072299651567945,
+          "median": 6,
+          "min": 3,
+          "n": 1148,
+          "p25": 3,
+          "p75": 9,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.17073170731707318
+      },
+      "gamma_0.4_dg_1.0": {
+        "gated": 1115,
+        "generation_success": {
+          "count": 1500,
+          "fraction": 1.0,
+          "n": 1500,
+          "wilson_lower_bound": 0.9981995518244535
+        },
+        "identifiability": 0.7533632286995515,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.150672645739911,
+          "median": 4,
+          "min": 2,
+          "n": 1115,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 20,
+          "mean": 5.597309417040359,
+          "median": 5,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        },
+        "stop_aware_expansions": {
+          "max": 18,
+          "mean": 5.350672645739911,
+          "median": 5,
+          "min": 2,
+          "n": 1115,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "stop_aware_registered": {
+          "count": 938,
+          "fraction": 0.841255605381166,
+          "n": 1115,
+          "wilson_lower_bound": 0.8224311242497232
+        },
+        "stop_aware_registered_wilson_upper": 0.8584279843561514,
+        "ties": 0.16233183856502242,
+        "walker_expansions": {
+          "max": 21,
+          "mean": 7.260089686098655,
+          "median": 7,
+          "min": 3,
+          "n": 1115,
+          "p25": 3,
+          "p75": 10,
+          "p95": 14
+        },
+        "worst_target_zero_evidence": 0.17309417040358743
+      }
+    },
+    "deg6_len8_v4_rep-k1": {
+      "gamma_0.2_dg_0.8": {
+        "gated": 747,
+        "generation_success": {
+          "count": 749,
+          "fraction": 0.49933333333333335,
+          "n": 1500,
+          "wilson_lower_bound": 0.4781187082857362
+        },
+        "identifiability": 0.8165997322623829,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 3.887550200803213,
+          "median": 3,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 34,
+          "mean": 5.398929049531459,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 7,
+          "p95": 14
+        },
+        "stop_aware_expansions": {
+          "max": 29,
+          "mean": 5.257028112449799,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 7,
+          "p95": 14
+        },
+        "stop_aware_registered": {
+          "count": 697,
+          "fraction": 0.9330655957161981,
+          "n": 747,
+          "wilson_lower_bound": 0.9164087830549013
+        },
+        "stop_aware_registered_wilson_upper": 0.9465967070994019,
+        "ties": 0.14190093708165996,
+        "walker_expansions": {
+          "max": 42,
+          "mean": 8.725568942436412,
+          "median": 6,
+          "min": 3,
+          "n": 747,
+          "p25": 3,
+          "p75": 11,
+          "p95": 24
+        },
+        "worst_target_zero_evidence": 0.06827309236947791
+      },
+      "gamma_0.2_dg_1.0": {
+        "gated": 716,
+        "generation_success": {
+          "count": 718,
+          "fraction": 0.4786666666666667,
+          "n": 1500,
+          "wilson_lower_bound": 0.45750851718597324
+        },
+        "identifiability": 0.9162011173184358,
+        "oracle_expansions": {
+          "max": 14,
+          "mean": 3.9664804469273744,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 40,
+          "mean": 5.540502793296089,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 2,
+          "p75": 7,
+          "p95": 15
+        },
+        "stop_aware_expansions": {
+          "max": 36,
+          "mean": 5.332402234636872,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 2,
+          "p75": 6,
+          "p95": 14
+        },
+        "stop_aware_registered": {
+          "count": 649,
+          "fraction": 0.9064245810055865,
+          "n": 716,
+          "wilson_lower_bound": 0.8869603015215785
+        },
+        "stop_aware_registered_wilson_upper": 0.922828916470133,
+        "ties": 0.07262569832402235,
+        "walker_expansions": {
+          "max": 44,
+          "mean": 8.983240223463687,
+          "median": 7,
+          "min": 3,
+          "n": 716,
+          "p25": 4,
+          "p75": 12,
+          "p95": 23
+        },
+        "worst_target_zero_evidence": 0.06983240223463687
+      },
+      "gamma_0.3_dg_0.8": {
+        "gated": 747,
+        "generation_success": {
+          "count": 749,
+          "fraction": 0.49933333333333335,
+          "n": 1500,
+          "wilson_lower_bound": 0.4781187082857362
+        },
+        "identifiability": 0.7282463186077643,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 3.887550200803213,
+          "median": 3,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 33,
+          "mean": 5.721552878179384,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 7,
+          "p95": 16
+        },
+        "stop_aware_expansions": {
+          "max": 31,
+          "mean": 5.542168674698795,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 7,
+          "p95": 15
+        },
+        "stop_aware_registered": {
+          "count": 676,
+          "fraction": 0.9049531459170014,
+          "n": 747,
+          "wilson_lower_bound": 0.8858129492311989
+        },
+        "stop_aware_registered_wilson_upper": 0.921170546199023,
+        "ties": 0.20481927710843373,
+        "walker_expansions": {
+          "max": 42,
+          "mean": 8.725568942436412,
+          "median": 6,
+          "min": 3,
+          "n": 747,
+          "p25": 3,
+          "p75": 11,
+          "p95": 24
+        },
+        "worst_target_zero_evidence": 0.12985274431057564
+      },
+      "gamma_0.3_dg_1.0": {
+        "gated": 716,
+        "generation_success": {
+          "count": 718,
+          "fraction": 0.4786666666666667,
+          "n": 1500,
+          "wilson_lower_bound": 0.45750851718597324
+        },
+        "identifiability": 0.8505586592178771,
+        "oracle_expansions": {
+          "max": 14,
+          "mean": 3.9664804469273744,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 43,
+          "mean": 5.879888268156424,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 3,
+          "p75": 7,
+          "p95": 16
+        },
+        "stop_aware_expansions": {
+          "max": 41,
+          "mean": 5.73463687150838,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 3,
+          "p75": 7,
+          "p95": 15
+        },
+        "stop_aware_registered": {
+          "count": 656,
+          "fraction": 0.9162011173184358,
+          "n": 716,
+          "wilson_lower_bound": 0.8975616182477277
+        },
+        "stop_aware_registered_wilson_upper": 0.9317070654688704,
+        "ties": 0.1340782122905028,
+        "walker_expansions": {
+          "max": 44,
+          "mean": 8.983240223463687,
+          "median": 7,
+          "min": 3,
+          "n": 716,
+          "p25": 4,
+          "p75": 12,
+          "p95": 23
+        },
+        "worst_target_zero_evidence": 0.12849162011173185
+      },
+      "gamma_0.4_dg_0.8": {
+        "gated": 747,
+        "generation_success": {
+          "count": 749,
+          "fraction": 0.49933333333333335,
+          "n": 1500,
+          "wilson_lower_bound": 0.4781187082857362
+        },
+        "identifiability": 0.6211512717536813,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 3.887550200803213,
+          "median": 3,
+          "min": 2,
+          "n": 747,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 33,
+          "mean": 6.2275769745649265,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 3,
+          "p75": 8,
+          "p95": 17
+        },
+        "stop_aware_expansions": {
+          "max": 31,
+          "mean": 6.053547523427041,
+          "median": 4,
+          "min": 2,
+          "n": 747,
+          "p25": 3,
+          "p75": 8,
+          "p95": 16
+        },
+        "stop_aware_registered": {
+          "count": 664,
+          "fraction": 0.8888888888888888,
+          "n": 747,
+          "wilson_lower_bound": 0.8685541377147309
+        },
+        "stop_aware_registered_wilson_upper": 0.90641678930173,
+        "ties": 0.2583668005354752,
+        "walker_expansions": {
+          "max": 42,
+          "mean": 8.725568942436412,
+          "median": 6,
+          "min": 3,
+          "n": 747,
+          "p25": 3,
+          "p75": 11,
+          "p95": 24
+        },
+        "worst_target_zero_evidence": 0.21686746987951808
+      },
+      "gamma_0.4_dg_1.0": {
+        "gated": 716,
+        "generation_success": {
+          "count": 718,
+          "fraction": 0.4786666666666667,
+          "n": 1500,
+          "wilson_lower_bound": 0.45750851718597324
+        },
+        "identifiability": 0.7918994413407822,
+        "oracle_expansions": {
+          "max": 14,
+          "mean": 3.9664804469273744,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 2,
+          "p75": 5,
+          "p95": 8
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 44,
+          "mean": 6.07122905027933,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 3,
+          "p75": 8,
+          "p95": 16
+        },
+        "stop_aware_expansions": {
+          "max": 34,
+          "mean": 5.85754189944134,
+          "median": 4,
+          "min": 2,
+          "n": 716,
+          "p25": 3,
+          "p75": 7,
+          "p95": 16
+        },
+        "stop_aware_registered": {
+          "count": 644,
+          "fraction": 0.8994413407821229,
+          "n": 716,
+          "wilson_lower_bound": 0.8794243000761537
+        },
+        "stop_aware_registered_wilson_upper": 0.9164510138263532,
+        "ties": 0.1787709497206704,
+        "walker_expansions": {
+          "max": 44,
+          "mean": 8.983240223463687,
+          "median": 7,
+          "min": 3,
+          "n": 716,
+          "p25": 4,
+          "p75": 12,
+          "p95": 23
+        },
+        "worst_target_zero_evidence": 0.17737430167597765
+      }
+    }
+  },
+  "chosen": null,
+  "episodes_per_point": 1500,
+  "finished_at": "2026-09-04T04:03:13+00:00",
+  "gated_stratum": "hops_2_4",
+  "passing_hard_cell": [],
+  "record_kind": "read_run_v3_2_evidence_sweep_2",
+  "rule": {
+    "choose": "largest gamma, then smallest distractor_gamma, satisfying all four on the hard cell",
+    "distractor_gammas": [
+      0.8,
+      1.0
+    ],
+    "first_sweep": "experiments/track_q_v1/diagnostics/evidence_sweep_v3_2.json",
+    "first_sweep_outcome": "no point passed at gamma 0.4; ties 0.165 at dg 1.0, 91% of them episodes where the worst target has zero promoted edges",
+    "gammas": [
+      0.2,
+      0.3,
+      0.4
+    ],
+    "gate_1_max_stop_aware_registered": 0.9,
+    "gate_1_max_wilson_upper": 0.95,
+    "max_ties": 0.1,
+    "min_identifiability": 0.8,
+    "min_ordering_room": 2
+  },
+  "seed_label": "track-q-v3-2-evidence-sweep-2",
+  "started_at": "2026-09-04T03:57:45+00:00",
+  "touches_holdout": false
+}

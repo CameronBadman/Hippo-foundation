@@ -1,0 +1,393 @@
+{
+  "abstain_included": true,
+  "cells": {
+    "deg3_len6_v8-k1": {
+      "gamma_0.0": {
+        "gated": 1149,
+        "identifiability": 0.546562228024369,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.253263707571802,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 8
+        },
+        "ordering_room_median": 1,
+        "similarity_expansions_at_rc": {
+          "max": 16,
+          "mean": 4.635335073977371,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 10
+        },
+        "ties": 0.453437771975631,
+        "walker_expansions": {
+          "max": 19,
+          "mean": 5.827676240208877,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        }
+      },
+      "gamma_0.1": {
+        "gated": 1149,
+        "identifiability": 0.4725848563968668,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.253263707571802,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 8
+        },
+        "ordering_room_median": 1,
+        "similarity_expansions_at_rc": {
+          "max": 17,
+          "mean": 4.758920800696258,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 10
+        },
+        "ties": 0.4621409921671018,
+        "walker_expansions": {
+          "max": 19,
+          "mean": 5.827676240208877,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        }
+      },
+      "gamma_0.2": {
+        "gated": 1149,
+        "identifiability": 0.4308093994778068,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.253263707571802,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 8
+        },
+        "ordering_room_median": 1,
+        "similarity_expansions_at_rc": {
+          "max": 17,
+          "mean": 4.856396866840731,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 6,
+          "p95": 10
+        },
+        "ties": 0.43690165361183636,
+        "walker_expansions": {
+          "max": 19,
+          "mean": 5.827676240208877,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        }
+      },
+      "gamma_0.3": {
+        "gated": 1149,
+        "identifiability": 0.37162750217580504,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.253263707571802,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 8
+        },
+        "ordering_room_median": 1,
+        "similarity_expansions_at_rc": {
+          "max": 18,
+          "mean": 4.939947780678851,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 6,
+          "p95": 10
+        },
+        "ties": 0.4046997389033943,
+        "walker_expansions": {
+          "max": 19,
+          "mean": 5.827676240208877,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        }
+      },
+      "gamma_0.4": {
+        "gated": 1149,
+        "identifiability": 0.30548302872062666,
+        "oracle_expansions": {
+          "max": 10,
+          "mean": 4.253263707571802,
+          "median": 4,
+          "min": 2,
+          "n": 1149,
+          "p25": 2,
+          "p75": 6,
+          "p95": 8
+        },
+        "ordering_room_median": 1,
+        "similarity_expansions_at_rc": {
+          "max": 17,
+          "mean": 5.106179286335944,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "ties": 0.402088772845953,
+        "walker_expansions": {
+          "max": 19,
+          "mean": 5.827676240208877,
+          "median": 5,
+          "min": 2,
+          "n": 1149,
+          "p25": 3,
+          "p75": 8,
+          "p95": 12
+        }
+      }
+    },
+    "deg6_len8_v4_rep-k1": {
+      "gamma_0.0": {
+        "gated": 1092,
+        "identifiability": 0.38186813186813184,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 4.750915750915751,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 6,
+          "p95": 9
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 25,
+          "mean": 5.172161172161172,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 7,
+          "p95": 11
+        },
+        "ties": 0.6181318681318682,
+        "walker_expansions": {
+          "max": 31,
+          "mean": 7.91941391941392,
+          "median": 7,
+          "min": 2,
+          "n": 1092,
+          "p25": 4,
+          "p75": 11,
+          "p95": 19
+        }
+      },
+      "gamma_0.1": {
+        "gated": 1092,
+        "identifiability": 0.34706959706959706,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 4.750915750915751,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 6,
+          "p95": 9
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 26,
+          "mean": 5.554945054945055,
+          "median": 5,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 7,
+          "p95": 13
+        },
+        "ties": 0.6263736263736264,
+        "walker_expansions": {
+          "max": 31,
+          "mean": 7.91941391941392,
+          "median": 7,
+          "min": 2,
+          "n": 1092,
+          "p25": 4,
+          "p75": 11,
+          "p95": 19
+        }
+      },
+      "gamma_0.2": {
+        "gated": 1092,
+        "identifiability": 0.32875457875457875,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 4.750915750915751,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 6,
+          "p95": 9
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 25,
+          "mean": 5.784798534798535,
+          "median": 5,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 8,
+          "p95": 13
+        },
+        "ties": 0.6117216117216118,
+        "walker_expansions": {
+          "max": 31,
+          "mean": 7.91941391941392,
+          "median": 7,
+          "min": 2,
+          "n": 1092,
+          "p25": 4,
+          "p75": 11,
+          "p95": 19
+        }
+      },
+      "gamma_0.3": {
+        "gated": 1092,
+        "identifiability": 0.2619047619047619,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 4.750915750915751,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 6,
+          "p95": 9
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 28,
+          "mean": 6.059523809523809,
+          "median": 5,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 8,
+          "p95": 14
+        },
+        "ties": 0.63003663003663,
+        "walker_expansions": {
+          "max": 31,
+          "mean": 7.91941391941392,
+          "median": 7,
+          "min": 2,
+          "n": 1092,
+          "p25": 4,
+          "p75": 11,
+          "p95": 19
+        }
+      },
+      "gamma_0.4": {
+        "gated": 1092,
+        "identifiability": 0.22893772893772893,
+        "oracle_expansions": {
+          "max": 13,
+          "mean": 4.750915750915751,
+          "median": 4,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 6,
+          "p95": 9
+        },
+        "ordering_room_median": 3,
+        "similarity_expansions_at_rc": {
+          "max": 26,
+          "mean": 6.298534798534798,
+          "median": 5,
+          "min": 2,
+          "n": 1092,
+          "p25": 3,
+          "p75": 8,
+          "p95": 15
+        },
+        "ties": 0.6620879120879121,
+        "walker_expansions": {
+          "max": 31,
+          "mean": 7.91941391941392,
+          "median": 7,
+          "min": 2,
+          "n": 1092,
+          "p25": 4,
+          "p75": 11,
+          "p95": 19
+        }
+      }
+    }
+  },
+  "chosen_gamma": null,
+  "episodes_per_cell_per_gamma": 1500,
+  "fallback_applies": true,
+  "finished_at": "2026-09-04T03:23:31+00:00",
+  "gamma_buckets": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4
+  ],
+  "gated_stratum": "hops_2_4",
+  "passing_gammas_hard_cell": [],
+  "record_kind": "read_run_v3_gamma_sweep",
+  "rule": {
+    "choose": "largest gamma satisfying all three on the hard cell",
+    "fallback": "gamma 0.4 with the 0.47 ceiling stated",
+    "max_ties": 0.1,
+    "min_identifiability": 0.8,
+    "min_ordering_room": 2
+  },
+  "seed_label": "track-q-v3-gamma-sweep",
+  "started_at": "2026-09-04T03:20:29+00:00",
+  "touches_holdout": false
+}
