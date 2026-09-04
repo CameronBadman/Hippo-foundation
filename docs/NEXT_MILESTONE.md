@@ -32,23 +32,32 @@ returned set — six of thirty-three examined edges at 89.3% precision, 88.1% re
 — is the strongest evidence that the read path's product should be a relevance set
 rather than a route.
 
-**The active milestone is the optimisation pass**, then the question band A leaves
-open. The training loop runs at 2.56 s/update; measurement puts the levers at
-vectorised featurisers (a numpy prototype of the hottest one is 5.1x) and a wider
-microbatch (1.44x measured), against a 4–6x target
-([`TRACK_O_PERFORMANCE_BRIEF.md`](TRACK_O_PERFORMANCE_BRIEF.md)). Three known
-defects are fixed in the same pass: the supervision path that zeroes the answer
-head's label inputs (§2.19), the answer competing with the walk summary for the
-same representation (§2.18), and the relevance set becoming a first-class output
-(§2.17/§2.21).
+The optimisation pass ran (2.58x on identical work; the two-pass walk a further
+1.35x) and Track P — the necessity experiment band A left open — has run and is
+reported in
+[`track_p_screening_report.md`](../experiments/track_p_v1/track_p_screening_report.md).
+On generator v3 data with a planted distractor route, no budget and cost counted
+in expansions, the learned walk registers both targets on 95.0–97.3% of hard-cell
+episodes against the best hand-coded policy's 85.4%, and its supervised stop —
+whose features carry no target constant — ties an oracle stop on every episode it
+completes. Training bought ordering (beating similarity-following by ~0.45
+expansions) and the stop bought ~2 more. Two seeds read band A, one C. Selective
+return did not work (proof-validity 0.095–0.128), and the report's limitations
+section carries what changes the reading: a tie-inflated cost rule, the answer
+head's hard-coded 2, a weak discriminative signal in the generator, and a
+screening subset on which a zero-parameter mask-agreement rule scores 0.929 while
+scoring 0.000 off it.
 
-After that: whether the learned component is necessary rather than helpful. An
-untrained TRAVV2 already reaches 85.7% because the frontier restriction and stop
-rule are structural, so training contributes roughly eight points. Establishing
-necessity requires a regime where the computed policy fails badly — planted
-distractor evidence and a harder ambiguity profile — with its own preregistration.
-E1-v2 stays recorded and not in force; both holdout seeds remain sealed; Amendment
-10 remains pending review.
+**The active milestone is Track Q: selective return.** The edge head is at chance
+on distractor-route edges and its loss has been flat since update 1,500, so
+neither more training nor more data can move it; the identifying signal is a
+route-set property the per-edge scorer cannot express. Track Q scores route sets
+with a head that is explicitly not given the mask-agreement count, evaluates on
+all gated episodes with the abstain split shown, and fixes γ for identifiability
+by a rule written before any run. Its reference is the constant-free route-mean
+decode at 0.243. By the standing branch rule, insert waits until the returned set
+is a substrate worth bootstrapping from. E1-v2 stays recorded and not in force;
+both holdout seeds remain sealed; Amendment 10 remains pending review.
 
 ## Parked public-source milestone
 

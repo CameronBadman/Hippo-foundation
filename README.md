@@ -223,15 +223,32 @@ for half the run, and an untrained model already sits at 85.7% because the walk'
 frontier restriction and stop rule are structural. Training adds roughly eight
 points on top of a strong hand-coded prior.
 
-1. Optimise the training loop. It runs at 2.56 s/update; the measured levers are
-   vectorised featurisers and a wider microbatch
-   ([`docs/TRACK_O_PERFORMANCE_BRIEF.md`](docs/TRACK_O_PERFORMANCE_BRIEF.md)),
-   for a realistic 4–6x, which makes the next experiment affordable.
-2. Then the open question: whether the learned component is *necessary* rather
-   than helpful. That needs a regime where the computed policy fails badly rather
-   than marginally — planted distractor evidence and a harder ambiguity profile —
-   and it gets its own preregistration.
-3. Review Amendment 10. Only an approved amendment, a new master seed, a full
+Both of those questions have since been run. The optimisation pass reached
+2.58x on identical work and the two-pass walk a further 1.35x
+([`docs/TRACK_O_PERFORMANCE_BRIEF.md`](docs/TRACK_O_PERFORMANCE_BRIEF.md)).
+**Track P** — generator v3 with a planted distractor route, no budget, cost in
+expansions, and a supervised stop head with no target constant in its features —
+has run six times and is reported in
+[`experiments/track_p_v1/track_p_screening_report.md`](experiments/track_p_v1/track_p_screening_report.md).
+The walk and the stop worked: on the hard cell the model registers both targets on
+95.0–97.3% of episodes against the best hand-coded policy's 85.4%, the learned
+stop ties an oracle stop on every episode it completes, and the decomposition
+shows training bought ordering and the stop bought about two expansions on top.
+Two seeds read band A and one read C. Selective return did not work — the
+returned set is exactly the two target routes on 9.5–12.8% of hard-cell episodes
+— and the report records why, with five limitations that change how its own
+numbers should be read: the preregistered cost rule is tie-inflated, the answer
+head still hard-codes the constant 2, the generator's intended discriminative
+signal is weak, and the selective-return evaluation ran on a subset where a
+zero-parameter rule scores 0.929 there and 0.000 elsewhere. By the standing
+branch rule the substrate is not yet ready for insert; Track Q targets selective
+return specifically.
+
+1. Track Q: score route sets rather than edges, evaluate selective return on the
+   whole distribution, choose γ for identifiability by a rule written first. Its
+   reference is the constant-free route-mean decode (0.243), not the per-edge
+   0.117.
+2. Review Amendment 10. Only an approved amendment, a new master seed, a full
    regeneration, a fresh seven-gate P0 report and a new code freeze can open a
    holdout again, once. E1-v2 stays recorded and not in force, superseded by
    Track O; the v2 holdout seed remains sealed.

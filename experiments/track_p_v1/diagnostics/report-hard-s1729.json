@@ -1,0 +1,101 @@
+{
+  "cell": "deg6_len8_v4_rep-k1",
+  "checkpoint": "private/track-p-v1/probe-TRAVP-deg6_len8_v4_rep-k1-s1729/checkpoint.pt",
+  "cost_compared_on_completed_episodes": 2120,
+  "gated_stratum": "hops_2_4",
+  "model_seed": 1729,
+  "paired_vs_references": {
+    "blind_exhaust": {
+      "beats_reference": true,
+      "mean_model": 5.627358490566038,
+      "mean_reference": 7.600471698113208,
+      "model_no_worse_fraction": 1.0,
+      "n": 2120,
+      "wilson_lower_bound": 0.9987254268674057
+    },
+    "oracle": {
+      "beats_reference": true,
+      "mean_model": 5.627358490566038,
+      "mean_reference": 4.642452830188679,
+      "model_no_worse_fraction": 0.6193396226415094,
+      "n": 2120,
+      "wilson_lower_bound": 0.6018521754014566
+    },
+    "stop_aware": {
+      "beats_reference": true,
+      "mean_model": 5.627358490566038,
+      "mean_reference": 5.847169811320755,
+      "model_no_worse_fraction": 0.8254716981132075,
+      "n": 2120,
+      "wilson_lower_bound": 0.8114996664662412
+    },
+    "untrained_oracle_stop": {
+      "beats_reference": true,
+      "mean_model": 5.627358490566038,
+      "mean_reference": 6.960849056603774,
+      "model_no_worse_fraction": 0.9122641509433962,
+      "n": 2120,
+      "wilson_lower_bound": 0.9016248017913213
+    }
+  },
+  "record_kind": "read_run_track_p_report",
+  "screening_episodes": 2179,
+  "summaries": {
+    "blind_exhaust": {
+      "expansions_mean_all": 7.798531436438734,
+      "expansions_mean_when_registered": 7.798531436438734,
+      "n": 2179,
+      "registered_fraction": 1.0,
+      "registered_wilson_lower_bound": 0.9987598952286605
+    },
+    "oracle": {
+      "expansions_mean_all": 4.739329967875172,
+      "expansions_mean_when_registered": 4.739329967875172,
+      "n": 2179,
+      "registered_fraction": 1.0,
+      "registered_wilson_lower_bound": 0.9987598952286605
+    },
+    "stop_aware": {
+      "expansions_mean_all": 5.951353832033043,
+      "expansions_mean_when_registered": 5.655024180548092,
+      "n": 2179,
+      "registered_fraction": 0.8540614960991281,
+      "registered_wilson_lower_bound": 0.8411821650819178
+    },
+    "trained_logit_margin": {
+      "expansions_mean_all": 6.016062413951354,
+      "expansions_mean_when_registered": 5.90349175557711,
+      "n": 2179,
+      "registered_fraction": 0.9463056447911886,
+      "registered_wilson_lower_bound": 0.9377949417923309
+    },
+    "trained_oracle_stop": {
+      "expansions_mean_all": 5.825149150986691,
+      "expansions_mean_when_registered": 5.825149150986691,
+      "n": 2179,
+      "registered_fraction": 1.0,
+      "registered_wilson_lower_bound": 0.9987598952286605
+    },
+    "trained_probability": {
+      "expansions_mean_all": 5.71546581000459,
+      "expansions_mean_when_registered": 5.627358490566038,
+      "n": 2179,
+      "registered_fraction": 0.9729233593391464,
+      "registered_wilson_lower_bound": 0.9665912214447127
+    },
+    "untrained_oracle_stop": {
+      "expansions_mean_all": 7.146856356126664,
+      "expansions_mean_when_registered": 7.146856356126664,
+      "n": 2179,
+      "registered_fraction": 1.0,
+      "registered_wilson_lower_bound": 0.9987598952286605
+    },
+    "untrained_own_stop": {
+      "expansions_mean_all": 7.798531436438734,
+      "expansions_mean_when_registered": 7.798531436438734,
+      "n": 2179,
+      "registered_fraction": 1.0,
+      "registered_wilson_lower_bound": 0.9987598952286605
+    }
+  }
+}

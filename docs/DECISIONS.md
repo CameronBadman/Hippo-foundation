@@ -109,6 +109,40 @@ rule; DIRECT is retained as the γ-invariant reference. The γ=0 gap is a report
 allocation offset, not a void condition. Amendment 10 is pending review; the
 holdout stays sealed and nothing frozen changes.
 
+### 2026-09-04: Track P read A/A/C — the walk and the stop work, selective return does not; insert waits
+
+Six runs at 8,000 updates, read per seed against the amended preregistration
+(`experiments/track_p_v1/track_p_screening_report.md`). Hard cell: the model
+registers both targets on 0.973 / 0.959 / 0.951 against `stop_aware`'s 0.854 at
+the same cost; the learned stop halts at exactly the oracle moment on 100 % of the
+episodes it completes and is flat across the abstain split, so it learned the
+structural signal and not a mask shortcut. With an oracle stop held fixed for
+everyone, trained ordering beats similarity-following (5.74–5.82 against 6.25
+expansions) and the stop then saves ~2.0 more against exhaustion's 7.80. Seeds
+1729 and 2718 read band A, seed 3141 reads C at completeness LB 0.943; the band
+table did not anticipate that split and the gap is recorded rather than resolved.
+
+Selective return failed: proof-validity 0.095–0.128, the planted distractor
+returned on 25–31 % of episodes, edge loss flat from update 1,500 with distractor
+edges scoring at chance. Five limitations are stated with the result and each one
+changes how a number should be read. The preregistered cost rule counts ties as
+wins and reports the model "beating" an oracle it never once beats; the answer
+head still hard-codes the constant 2; the generator's intended discriminative
+signal separates routes on only 24.8 % of episodes with a simulated ceiling of
+0.47; and the selective-return evaluation ran on non-abstain episodes, where a
+zero-parameter mask-agreement rule scores 0.929 and 0.000 off it — a subset the
+model did not exploit but should not have been measured on alone.
+
+**Decision, by the standing branch rule:** traversal is not yet a substrate worth
+bootstrapping insert from, because the returned set is what insert would consume.
+Track Q targets selective return with a route-set scoring head, evaluation on the
+whole distribution, and γ chosen for identifiability by a rule written first. Its
+reference is the constant-free route-mean decode at 0.243. Neither more training
+nor more data is indicated: there is no generalisation gap to close and the loss
+that matters has not moved in 6,500 updates. A generator change with a 0.80
+separability gate was proposed, checked, and withdrawn before being built — the
+gate is unreachable at γ = 0.4 whatever the distractor rate.
+
 ### 2026-09-04: Track P data fixed — generator v3 at K = 1, cost in expansions, no budget
 
 Track P is the one further traversal experiment before the pivot to insert
